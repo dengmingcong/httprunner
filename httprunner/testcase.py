@@ -214,6 +214,9 @@ class StepRequestValidation(object):
         )
         return self
 
+    def assert_poll(self, timeout, interval) -> "StepRequestValidation":
+        return self
+
     def perform(self) -> TStep:
         return self.__step_context
 
@@ -315,6 +318,9 @@ class RunRequest(object):
         else:
             self.__step_context.setup_hooks.append(hook)
 
+        return self
+
+    def with_retry(self, timeout, interval) -> "RunRequest":
         return self
 
     def get(self, url: Text) -> RequestWithOptionalArgs:

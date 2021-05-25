@@ -203,6 +203,9 @@ class HttpRunner(object):
 
         # validate
         validators = step.validators
+        validator_assert_funcs = []
+        if "assert_poll" in validator_assert_funcs:
+            pass
         session_success = False
         try:
             resp_obj.validate(
