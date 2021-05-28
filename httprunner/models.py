@@ -63,6 +63,8 @@ class TRequest(BaseModel):
 
 class TStep(BaseModel):
     name: Name
+    times: Union[int, None] = 0
+    interval: Union[int, None] = 0
     request: Union[TRequest, None] = None
     testcase: Union[Text, Callable, None] = None
     variables: VariablesMapping = {}

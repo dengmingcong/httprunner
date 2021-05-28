@@ -308,6 +308,11 @@ class RunRequest(object):
     def __init__(self, name: Text):
         self.__step_context = TStep(name=name)
 
+    def retry(self, times, interval) -> "RunRequest":
+        self.__step_context.times = times
+        self.__step_context.interval = interval
+        return self
+
     def with_variables(self, **variables) -> "RunRequest":
         self.__step_context.variables.update(variables)
         return self
@@ -318,9 +323,6 @@ class RunRequest(object):
         else:
             self.__step_context.setup_hooks.append(hook)
 
-        return self
-
-    def with_retry(self, timeout, interval) -> "RunRequest":
         return self
 
     def get(self, url: Text) -> RequestWithOptionalArgs:

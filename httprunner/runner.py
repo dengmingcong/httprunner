@@ -203,9 +203,6 @@ class HttpRunner(object):
 
         # validate
         validators = step.validators
-        validator_assert_funcs = []
-        if "assert_poll" in validator_assert_funcs:
-            pass
         session_success = False
         try:
             resp_obj.validate(
@@ -213,6 +210,11 @@ class HttpRunner(object):
             )
             session_success = True
         except ValidationFailure:
+            if step.times > 0:
+                step.times -= 1
+                time.sleep(step.interval)
+                step_data = self.__run_step_request(step)
+                return step_data
             session_success = False
             log_req_resp_details()
             # log testcase duration before raise ValidationFailure
