@@ -39,7 +39,6 @@ class TestCaseRequestWithFunctions(HttpRunner):
             .assert_equal("body.args.foo1", "bar11")
             .assert_equal("body.args.sum_v", "3")
             .assert_equal("body.args.foo2", "bar21")
-            .retry()
         ),
         Step(
             RunRequest("post raw text")
