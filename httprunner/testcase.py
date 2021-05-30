@@ -308,7 +308,7 @@ class RunRequest(object):
     def __init__(self, name: Text):
         self.__step_context = TStep(name=name)
 
-    def retry_on_failure(self, times: int, interval) -> "RunRequest":
+    def retry_on_failure(self, times: int, interval: Union[int, float]) -> "RunRequest":
         """
         Retry request step until success or max retried times.
 
