@@ -311,6 +311,7 @@ class HttpRunner(object):
             parsed_skip_condition = parse_data(
                 step.skip_on_condition, step.variables, self.__project_meta.functions
             )
+            logger.debug(f"parsed skip condition: {parsed_skip_condition}")
             if eval(parsed_skip_condition):
                 parsed_skip_reason = parse_data(
                     step.skip_reason, step.variables, self.__project_meta.functions
