@@ -6,7 +6,7 @@ def get_httprunner_version():
 
 
 def sum_two(m, n):
-    return m + n
+    return int(m) + int(n)
 
 
 def get_testcase_config_variables():
