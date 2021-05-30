@@ -211,7 +211,9 @@ class HttpRunner(object):
             session_success = True
         except ValidationFailure:
             if step.times > 0:
+                logger.info(f"the value of property 'times' is greater than 0, retry this step now")
                 step.times -= 1
+                logger.info(f"sleep {step.interval} seconds and begin to retry")
                 time.sleep(step.interval)
                 step_data = self.__run_step_request(step)
                 return step_data
