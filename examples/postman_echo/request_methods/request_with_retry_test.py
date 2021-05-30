@@ -5,7 +5,7 @@
 from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
 
 
-class TestCaseRequestWithFunctions(HttpRunner):
+class TestCaseRequestWithRetry(HttpRunner):
 
     config = (
         Config("request methods testcase with retry")
