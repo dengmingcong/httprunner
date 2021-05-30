@@ -210,11 +210,11 @@ class HttpRunner(object):
             )
             session_success = True
         except ValidationFailure:
-            if step.times > 0:
+            if step.retry_times > 0:
                 logger.info(f"the value of property 'times' is greater than 0, retry this step now")
-                step.times -= 1
-                logger.info(f"sleep {step.interval} seconds and begin to retry")
-                time.sleep(step.interval)
+                step.retry_times -= 1
+                logger.info(f"sleep {step.retry_interval} seconds and begin to retry")
+                time.sleep(step.retry_interval)
                 step_data = self.__run_step_request(step)
                 return step_data
             session_success = False
@@ -297,6 +297,17 @@ class HttpRunner(object):
     def __run_step(self, step: TStep) -> Dict:
         """run teststep, teststep maybe a request or referenced testcase"""
         logger.info(f"run step begin: {step.name} >>>>>>")
+
+        if step.skip_on_condition:
+            parsed_skip_condition = parse_data(
+                step.skip_on_condition, step.variables, self.__project_meta.functions
+            )
+            if eval(parsed_skip_condition):
+                parsed_skip_reason = parse_data(
+                    step.skip_reason, step.variables, self.__project_meta.functions
+                )
+                logger.info(f"skip this step for the reason: {parsed_skip_reason}")
+                return {}
 
         if step.request:
             step_data = self.__run_step_request(step)

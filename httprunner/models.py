@@ -63,8 +63,10 @@ class TRequest(BaseModel):
 
 class TStep(BaseModel):
     name: Name
-    times: Union[int, None] = 0
-    interval: Union[int, None] = 0
+    retry_times: Union[int, None] = 0
+    retry_interval: Union[float, None] = 0
+    skip_on_condition: Union[str, None] = None
+    skip_reason: Union[str, None] = None
     request: Union[TRequest, None] = None
     testcase: Union[Text, Callable, None] = None
     variables: VariablesMapping = {}

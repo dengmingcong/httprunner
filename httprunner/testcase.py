@@ -315,8 +315,13 @@ class RunRequest(object):
         :param times: indicate max retried times
         :param interval: sleep between each retry, unit: seconds
         """
-        self.__step_context.times = times
-        self.__step_context.interval = interval
+        self.__step_context.retry_times = times
+        self.__step_context.retry_interval = interval
+        return self
+
+    def skipif(self, condition: str, reason: str) -> "RunRequest":
+        self.__step_context.skip_on_condition = condition
+        self.__step_context.skip_reason = reason
         return self
 
     def with_variables(self, **variables) -> "RunRequest":
