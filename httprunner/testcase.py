@@ -319,7 +319,7 @@ class RunRequest(object):
         self.__step_context.retry_interval = interval
         return self
 
-    def skipif(self, condition: str, reason: str) -> "RunRequest":
+    def skipif(self, condition: str, reason: str = None) -> "RunRequest":
         self.__step_context.skip_on_condition = condition
         self.__step_context.skip_reason = reason
         return self

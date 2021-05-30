@@ -298,7 +298,16 @@ class HttpRunner(object):
         """run teststep, teststep maybe a request or referenced testcase"""
         logger.info(f"run step begin: {step.name} >>>>>>")
 
-        if step.skip_on_condition:
+        if not step.skip_on_condition:
+            if step.request:
+                step_data = self.__run_step_request(step)
+            elif step.testcase:
+                step_data = self.__run_step_testcase(step)
+            else:
+                raise ParamsError(
+                    f"teststep is neither a request nor a referenced testcase: {step.dict()}"
+                )
+        else:
             parsed_skip_condition = parse_data(
                 step.skip_on_condition, step.variables, self.__project_meta.functions
             )
@@ -307,16 +316,7 @@ class HttpRunner(object):
                     step.skip_reason, step.variables, self.__project_meta.functions
                 )
                 logger.info(f"skip this step for the reason: {parsed_skip_reason}")
-                return {}
-
-        if step.request:
-            step_data = self.__run_step_request(step)
-        elif step.testcase:
-            step_data = self.__run_step_testcase(step)
-        else:
-            raise ParamsError(
-                f"teststep is neither a request nor a referenced testcase: {step.dict()}"
-            )
+            step_data = StepData(name=step.name)
 
         self.__step_datas.append(step_data)
         logger.info(f"run step end: {step.name} <<<<<<\n")
