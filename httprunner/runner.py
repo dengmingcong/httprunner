@@ -296,9 +296,25 @@ class HttpRunner(object):
 
     def __run_step(self, step: TStep) -> Dict:
         """run teststep, teststep maybe a request or referenced testcase"""
+        is_skip_step = False
         logger.info(f"run step begin: {step.name} >>>>>>")
+        step_data = StepData(name=step.name)
 
-        if not step.skip_on_condition:
+        if step.skip_on_condition:
+            parsed_skip_condition = parse_data(
+                step.skip_on_condition, step.variables, self.__project_meta.functions
+            )
+            logger.debug(f"parsed skip condition: {parsed_skip_condition}")
+            if eval(parsed_skip_condition):
+                is_skip_step = True
+                parsed_skip_reason = parse_data(
+                    step.skip_reason, step.variables, self.__project_meta.functions
+                )
+                logger.info(f"skip condition was met, reason: {parsed_skip_reason}")
+            else:
+                logger.info(f"skip condition was not met, run the step")
+
+        if not is_skip_step:
             if step.request:
                 step_data = self.__run_step_request(step)
             elif step.testcase:
@@ -307,17 +323,6 @@ class HttpRunner(object):
                 raise ParamsError(
                     f"teststep is neither a request nor a referenced testcase: {step.dict()}"
                 )
-        else:
-            parsed_skip_condition = parse_data(
-                step.skip_on_condition, step.variables, self.__project_meta.functions
-            )
-            logger.debug(f"parsed skip condition: {parsed_skip_condition}")
-            if eval(parsed_skip_condition):
-                parsed_skip_reason = parse_data(
-                    step.skip_reason, step.variables, self.__project_meta.functions
-                )
-                logger.info(f"skip this step for the reason: {parsed_skip_reason}")
-            step_data = StepData(name=step.name)
 
         self.__step_datas.append(step_data)
         logger.info(f"run step end: {step.name} <<<<<<\n")

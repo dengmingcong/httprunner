@@ -389,6 +389,11 @@ class RunTestCase(object):
     def __init__(self, name: Text):
         self.__step_context = TStep(name=name)
 
+    def skipif(self, condition: str, reason: str = None) -> "RunTestCase":
+        self.__step_context.skip_on_condition = condition
+        self.__step_context.skip_reason = reason
+        return self
+
     def with_variables(self, **variables) -> "RunTestCase":
         self.__step_context.variables.update(variables)
         return self
