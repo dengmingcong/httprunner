@@ -47,4 +47,4 @@ class TestCaseRequestWithRetry(HttpRunner):
 
 
 if __name__ == "__main__":
-    TestCaseRequestWithFunctions().test_start()
+    TestCaseRequestWithRetry().test_start()

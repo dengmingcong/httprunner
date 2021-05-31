@@ -62,4 +62,4 @@ class TestCaseRequestWithSkipTestcaseReference(HttpRunner):
 
 
 if __name__ == "__main__":
-    TestCaseRequestWithTestcaseReference().test_start()
+    TestCaseRequestWithSkipTestcaseReference().test_start()

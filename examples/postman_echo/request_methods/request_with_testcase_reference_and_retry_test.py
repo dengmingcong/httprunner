@@ -15,7 +15,7 @@ from request_methods.request_with_retry_test import (
 )
 
 
-class TestCaseRequestWithTestcaseReference(HttpRunner):
+class TestCaseRequestWithTestcaseReferenceAndRetry(HttpRunner):
 
     config = (
         Config("request methods testcase: reference testcase")
@@ -61,4 +61,4 @@ class TestCaseRequestWithTestcaseReference(HttpRunner):
 
 
 if __name__ == "__main__":
-    TestCaseRequestWithTestcaseReference().test_start()
+    TestCaseRequestWithTestcaseReferenceAndRetry().test_start()

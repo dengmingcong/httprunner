@@ -60,4 +60,4 @@ class TestCaseRequestWithSkipStep(HttpRunner):
 
 
 if __name__ == "__main__":
-    TestCaseRequestWithFunctions().test_start()
+    TestCaseRequestWithSkipStep().test_start()
