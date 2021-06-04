@@ -32,6 +32,8 @@ def session_fixture(request):
 @pytest.fixture(scope="function", autouse=True)
 def testcase_fixture(request):
     """setup and teardown each testcase"""
+    # 此时 Config 和 Step 已经实例化了，只是里面的 "$" 没有被 evaluate 罢了
+    # evaluate 是在运行 test_start() 后才开始执行的
     config: Config = request.cls.config
     teststeps: List[Step] = request.cls.teststeps
 
@@ -40,6 +42,7 @@ def testcase_fixture(request):
     def update_request_headers(steps, index):
         for teststep in steps:
             if teststep.request:
+                logger.info(f"step headers: {teststep.request.headers}")
                 index += 1
                 teststep.request.headers["X-Request-ID"] = f"{prefix}-{index}"
             elif teststep.testcase and hasattr(teststep.testcase, "teststeps"):
