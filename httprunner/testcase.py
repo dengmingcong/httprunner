@@ -214,7 +214,22 @@ class StepRequestValidation(object):
         )
         return self
 
-    def assert_poll(self, timeout, interval) -> "StepRequestValidation":
+    def assert_json_contains(
+            self, jmes_path: Text, expected_value: Any, message: Text = ""
+    ) -> "StepRequestValidation":
+        """Equivalent to the JSONassert non-strict mode."""
+        self.__step_context.validators.append(
+            {"json_contains": [jmes_path, expected_value, message]}
+        )
+        return self
+
+    def assert_json_equal(
+            self, jmes_path: Text, expected_value: Any, message: Text = ""
+    ) -> "StepRequestValidation":
+        """Equivalent to the JSONassert strict mode."""
+        self.__step_context.validators.append(
+            {"json_equal": [jmes_path, expected_value, message]}
+        )
         return self
 
     def perform(self) -> TStep:
