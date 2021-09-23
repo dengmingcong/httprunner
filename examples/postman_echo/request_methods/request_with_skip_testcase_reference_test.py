@@ -49,7 +49,7 @@ class TestCaseRequestWithSkipTestcaseReference(HttpRunner):
         ),
         Step(
             RunTestCase("skip request with functions")
-            .skipif("$status_code==200")
+            .skip_if("$status_code==200")
             .with_variables(
                 **{"expect_foo1": "testcase_ref_bar1"}
             )

@@ -334,7 +334,7 @@ class RunRequest(object):
         self.__step_context.retry_interval = interval
         return self
 
-    def skipif(self, condition: str, reason: str = None) -> "RunRequest":
+    def skip_if(self, condition: str, reason: str = None) -> "RunRequest":
         self.__step_context.skip_on_condition = condition
         self.__step_context.skip_reason = reason
         return self
@@ -404,7 +404,7 @@ class RunTestCase(object):
     def __init__(self, name: Text):
         self.__step_context = TStep(name=name)
 
-    def skipif(self, condition: str, reason: str = None) -> "RunTestCase":
+    def skip_if(self, condition: str, reason: str = None) -> "RunTestCase":
         self.__step_context.skip_on_condition = condition
         self.__step_context.skip_reason = reason
         return self

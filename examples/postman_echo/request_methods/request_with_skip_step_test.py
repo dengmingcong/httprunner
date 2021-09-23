@@ -42,7 +42,7 @@ class TestCaseRequestWithSkipStep(HttpRunner):
         ),
         Step(
             RunRequest("skip this step")
-            .skipif("'$foo3'=='bar21'", "reason 2021")
+            .skip_if("'$foo3'=='bar21'", "reason 2021")
             .post("/post")
             .with_headers(
                 **{
