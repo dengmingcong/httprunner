@@ -232,6 +232,17 @@ class StepRequestValidation(object):
         )
         return self
 
+    def assert_reports_match(
+            self, jmes_path: Text, expected_value: Any, message: Text = ""
+    ) -> "StepRequestValidation":
+        """
+        This assertion method MUST be used in api 'getAccessLog', and param expected_value MUST be an event dict.
+        """
+        self.__step_context.validators.append(
+            {"reports_match": [jmes_path, expected_value, message]}
+        )
+        return self
+
     def perform(self) -> TStep:
         return self.__step_context
 
