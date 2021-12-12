@@ -379,6 +379,9 @@ class HttpRunner(object):
             if USE_ALLURE:
                 with allure.step(f"step: {step.name}"):
                     extract_mapping = self.__run_step(step)
+                    allure.attach(
+                        self.__session.data.req_resps[0].json(indent=4), "session data", allure.attachment_type.JSON
+                    )
             else:
                 extract_mapping = self.__run_step(step)
 
