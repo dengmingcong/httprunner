@@ -223,7 +223,9 @@ class HttpRunner(object):
             self.__duration = time.time() - self.__start_at
             if hasattr(self.__session, "data"):
                 self.__session.data.validators = resp_obj.validation_results
-                allure.attach(self.__session.data.json(indent=4), "session data", allure.attachment_type.JSON)
+                allure.attach(
+                    self.__session.data.json(indent=4, ensure_ascii=False), "session data", allure.attachment_type.JSON
+                )
             raise
         finally:
             self.success = session_success
@@ -320,7 +322,7 @@ class HttpRunner(object):
         if not is_skip_step:
             if step.request:
                 step_data = self.__run_step_request(step)
-                allure.attach(step_data.json(indent=4), "step data", allure.attachment_type.JSON)
+                allure.attach(step_data.json(indent=4, ensure_ascii=False), "step data", allure.attachment_type.JSON)
             elif step.testcase:
                 step_data = self.__run_step_testcase(step)
             else:
