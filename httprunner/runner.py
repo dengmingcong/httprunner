@@ -221,6 +221,9 @@ class HttpRunner(object):
             log_req_resp_details()
             # log testcase duration before raise ValidationFailure
             self.__duration = time.time() - self.__start_at
+            if hasattr(self.__session, "data"):
+                self.__session.data.validators = resp_obj.validation_results
+                allure.attach(self.__session.data.json(indent=4), "session data", allure.attachment_type.JSON)
             raise
         finally:
             self.success = session_success
@@ -317,6 +320,7 @@ class HttpRunner(object):
         if not is_skip_step:
             if step.request:
                 step_data = self.__run_step_request(step)
+                allure.attach(step_data.json(indent=4), "step data", allure.attachment_type.JSON)
             elif step.testcase:
                 step_data = self.__run_step_testcase(step)
             else:
@@ -379,9 +383,6 @@ class HttpRunner(object):
             if USE_ALLURE:
                 with allure.step(f"step: {step.name}"):
                     extract_mapping = self.__run_step(step)
-                    allure.attach(
-                        self.__session.data.req_resps[0].json(indent=4), "session data", allure.attachment_type.JSON
-                    )
             else:
                 extract_mapping = self.__run_step(step)
 
