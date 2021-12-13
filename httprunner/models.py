@@ -1,4 +1,5 @@
 import os
+import types
 from enum import Enum
 from typing import Any
 from typing import Dict, Text, Union, Callable
@@ -156,6 +157,11 @@ class SessionData(BaseModel):
     address: AddressData = AddressData()
     validators: Dict = {}
 
+    class Config:
+        json_encoders = {
+            types.FunctionType: repr
+        }
+
 
 class StepData(BaseModel):
     """teststep data, each step maybe corresponding to one request or one testcase"""
@@ -164,6 +170,11 @@ class StepData(BaseModel):
     name: Text = ""  # teststep name
     data: Union[SessionData, List[SessionData]] = None
     export_vars: VariablesMapping = {}
+
+    class Config:
+        json_encoders = {
+            types.FunctionType: repr
+        }
 
 
 class TestCaseSummary(BaseModel):
