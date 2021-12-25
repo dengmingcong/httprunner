@@ -375,6 +375,11 @@ class HttpRunner(object):
                 step.variables, self.__project_meta.functions
             )
 
+            # parse step name for allure report
+            step.name = parse_data(
+                step.name, step.variables, self.__project_meta.functions
+            )
+
             # run step
             if USE_ALLURE:
                 with allure.step(f"step: {step.name}"):
