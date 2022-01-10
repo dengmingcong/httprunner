@@ -421,7 +421,7 @@ def parse_string(
 
                     allure.attach(
                         json.dumps(report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder),
-                        f"function: {func_name}",
+                        f"function: {func_name}({', '.join([str(arg) for arg in all_args_names])})",
                         allure.attachment_type.JSON
                     )
 
@@ -438,7 +438,7 @@ def parse_string(
                 if is_attach_function:
                     allure.attach(
                         json.dumps(report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder),
-                        f"function: {func_name}",
+                        f"function: {func_name}({', '.join([str(arg) for arg in all_args_names])})",
                         allure.attachment_type.JSON
                     )
                 raise
