@@ -10,6 +10,7 @@ from copy import deepcopy
 from collections import defaultdict
 from loguru import logger
 from pydantic import BaseModel
+from pydantic.json import pydantic_encoder
 from sentry_sdk import capture_exception
 
 from httprunner import loader, utils, exceptions
@@ -30,6 +31,15 @@ try:
     USE_ALLURE = True
 except ModuleNotFoundError:
     USE_ALLURE = False
+
+
+class CustomEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, BaseModel):
+            return pydantic_encoder(obj)
+        if isinstance(obj, set):
+            return list(obj)
+        return json.JSONEncoder.default(self, obj)
 
 
 def parse_string_value(str_value: Text) -> Any:
@@ -298,24 +308,19 @@ def report_function_args(report_dict: dict, flag: Literal["IN", "OUT"], names: l
     Add information of function arguments to Allure reports.
     """
     for name, value in zip(names, values):
-        # convert pydantic objects to dict
-        if isinstance(value, BaseModel):
-            value_repr = value.dict()
-        else:
-            value_repr = value
-
         # convert ResponseObject to dict
         # call isinstance(value, ResponseObject) will cause circular import error
-        try:
-            value_repr = value_repr.body
-        except AttributeError:
-            pass
+        if not isinstance(value, BaseModel):
+            try:
+                value = value.body
+            except AttributeError:
+                pass
 
         # try to dump to avoid error when dumps
         try:
-            json.dumps(value_repr)
+            json.dumps(value, cls=CustomEncoder)
         except TypeError:
-            value_repr = repr(value_repr)
+            value = repr(value)
 
         if flag == "IN":
             report_dict[name]["metadata"] = {
@@ -324,9 +329,9 @@ def report_function_args(report_dict: dict, flag: Literal["IN", "OUT"], names: l
             }
 
             # deepcopy object before dumps as snapshot
-            value_repr = deepcopy(value_repr)
+            value = deepcopy(value)
 
-        report_dict[name][flag] = value_repr
+        report_dict[name][flag] = value
 
 
 def parse_string(
@@ -384,6 +389,7 @@ def parse_string(
             parsed_args = parse_data(args, variables_mapping, functions_mapping)
             parsed_kwargs = parse_data(kwargs, variables_mapping, functions_mapping)
 
+            # get all names and values of all arguments
             all_args_values = [*parsed_args, *list(parsed_kwargs.values())]
             try:
                 all_args_names = list(inspect.signature(func).parameters.keys())
@@ -414,7 +420,7 @@ def parse_string(
                     report_function_args(report_dict, "OUT", all_args_names, all_args_values)
 
                     allure.attach(
-                        json.dumps(report_dict, ensure_ascii=False, indent=4),
+                        json.dumps(report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder),
                         f"function: {func_name}",
                         allure.attachment_type.JSON
                     )
@@ -431,7 +437,7 @@ def parse_string(
                 # attach to report if exception raised
                 if is_attach_function:
                     allure.attach(
-                        json.dumps(report_dict, ensure_ascii=False, indent=4),
+                        json.dumps(report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder),
                         f"function: {func_name}",
                         allure.attachment_type.JSON
                     )
