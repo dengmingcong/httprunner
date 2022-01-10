@@ -391,14 +391,25 @@ def parse_string(
                 all_args_names = list(range(len(all_args_values)))
             report_dict = defaultdict(dict)
 
+            # attach function arguments detail to Allure if True
+            is_attach_function = False
+
             if USE_ALLURE:
+                env_attach_all_functions = os.environ.get("ATTACH_ALL_FUNCTIONS")
+                attach_functions = variables_mapping.get("ATTACH_FUNCTIONS", [])
+
+                # note: compare with string 'true'
+                if env_attach_all_functions == "true" or func_name in attach_functions:
+                    is_attach_function = True
+
+            if is_attach_function:
                 # log before function execution
                 report_function_args(report_dict, "IN", all_args_names, all_args_values)
 
             try:
                 func_eval_value = func(*parsed_args, **parsed_kwargs)
 
-                if USE_ALLURE:
+                if is_attach_function:
                     # log after function execution
                     report_function_args(report_dict, "OUT", all_args_names, all_args_values)
 
@@ -418,7 +429,7 @@ def parse_string(
                 )
 
                 # attach to report if exception raised
-                if USE_ALLURE:
+                if is_attach_function:
                     allure.attach(
                         json.dumps(report_dict, ensure_ascii=False, indent=4),
                         f"function: {func_name}",
