@@ -1,10 +1,15 @@
 import ast
 import builtins
+import inspect
+import json
 import re
 import os
-from typing import Any, Set, Text, Callable, List, Dict, Union
+from typing import Any, Set, Text, Callable, List, Dict, Union, Literal
+from copy import deepcopy
 
+from collections import defaultdict
 from loguru import logger
+from pydantic import BaseModel
 from sentry_sdk import capture_exception
 
 from httprunner import loader, utils, exceptions
@@ -18,6 +23,13 @@ dolloar_regex_compile = re.compile(r"\$\$")
 variable_regex_compile = re.compile(r"\$\{(\w+)\}|\$(\w+)")
 # function notation, e.g. ${func1($var_1, $var_3)}
 function_regex_compile = re.compile(r"\$\{(\w+)\(([\$\w\.\-/\s=,]*)\)\}")
+
+try:
+    import allure
+
+    USE_ALLURE = True
+except ModuleNotFoundError:
+    USE_ALLURE = False
 
 
 def parse_string_value(str_value: Text) -> Any:
@@ -281,10 +293,46 @@ def get_mapping_function(
     raise exceptions.FunctionNotFound(f"{function_name} is not found.")
 
 
+def report_function_args(report_dict: dict, flag: Literal["IN", "OUT"], names: list, values: list) -> None:
+    """
+    Add information of function arguments to Allure reports.
+    """
+    for name, value in zip(names, values):
+        # convert pydantic objects to dict
+        if isinstance(value, BaseModel):
+            value_repr = value.dict()
+        else:
+            value_repr = value
+
+        # convert ResponseObject to dict
+        # call isinstance(value, ResponseObject) will cause circular import error
+        try:
+            value_repr = value_repr.body
+        except AttributeError:
+            pass
+
+        # try to dump to avoid error when dumps
+        try:
+            json.dumps(value_repr)
+        except TypeError:
+            value_repr = repr(value_repr)
+
+        if flag == "IN":
+            report_dict[name]["metadata"] = {
+                "type": repr(type(value)),
+                "id": id(value)
+            }
+
+            # deepcopy object before dumps as snapshot
+            value_repr = deepcopy(value_repr)
+
+        report_dict[name][flag] = value_repr
+
+
 def parse_string(
-    raw_string: Text,
-    variables_mapping: VariablesMapping,
-    functions_mapping: FunctionsMapping,
+        raw_string: Text,
+        variables_mapping: VariablesMapping,
+        functions_mapping: FunctionsMapping,
 ) -> Any:
     """ parse string content with variables and functions mapping.
 
@@ -336,8 +384,30 @@ def parse_string(
             parsed_args = parse_data(args, variables_mapping, functions_mapping)
             parsed_kwargs = parse_data(kwargs, variables_mapping, functions_mapping)
 
+            all_args_values = [*parsed_args, *list(parsed_kwargs.values())]
+            try:
+                all_args_names = list(inspect.signature(func).parameters.keys())
+            except ValueError:
+                all_args_names = list(range(len(all_args_values)))
+            report_dict = defaultdict(dict)
+
+            if USE_ALLURE:
+                # log before function execution
+                report_function_args(report_dict, "IN", all_args_names, all_args_values)
+
             try:
                 func_eval_value = func(*parsed_args, **parsed_kwargs)
+
+                if USE_ALLURE:
+                    # log after function execution
+                    report_function_args(report_dict, "OUT", all_args_names, all_args_values)
+
+                    allure.attach(
+                        json.dumps(report_dict, ensure_ascii=False, indent=4),
+                        f"function: {func_name}",
+                        allure.attachment_type.JSON
+                    )
+
             except Exception as ex:
                 logger.error(
                     f"call function error:\n"
@@ -346,6 +416,14 @@ def parse_string(
                     f"kwargs: {parsed_kwargs}\n"
                     f"{type(ex).__name__}: {ex}"
                 )
+
+                # attach to report if exception raised
+                if USE_ALLURE:
+                    allure.attach(
+                        json.dumps(report_dict, ensure_ascii=False, indent=4),
+                        f"function: {func_name}",
+                        allure.attachment_type.JSON
+                    )
                 raise
 
             func_raw_str = "${" + func_name + f"({func_params_str})" + "}"
