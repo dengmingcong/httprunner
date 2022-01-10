@@ -303,23 +303,30 @@ def get_mapping_function(
     raise exceptions.FunctionNotFound(f"{function_name} is not found.")
 
 
-def get_pydantic_id(obj: BaseModel, recursion=True) -> dict:
+def get_pydantic_object_id_recursively(obj: BaseModel) -> dict:
     """
-    Get id of pydantic object, recursively get ids of fields if 'recursion' was True.
+    Get id of pydantic object, and get ids of fields if fields are pydantic object too.
     """
-    ids = {"self": id(obj)}
+    id_dict = {"self": id(obj)}
 
-    if recursion:
-        fields_ids = {}
-        for field_name in obj.__fields__:
-            value = getattr(obj, field_name)
-            if isinstance(value, BaseModel):
-                fields_ids[field_name] = get_pydantic_id(value)
+    fields_ids = {}
+    for field_name in obj.__fields__:
+        value = getattr(obj, field_name)
+        if isinstance(value, BaseModel):
+            fields_ids[field_name] = get_pydantic_object_id_recursively(value)
+        elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
+            fields_ids[field_name] = get_pydantic_objects_ids_recursively(value)
 
-        if fields_ids:
-            ids["fields"] = fields_ids
+    if fields_ids:
+        id_dict["fields"] = fields_ids
+    return id_dict
 
-    return ids
+
+def get_pydantic_objects_ids_recursively(objs: list[BaseModel]) -> list[dict]:
+    """
+    Get ids of multiple pydantic objects.
+    """
+    return [get_pydantic_object_id_recursively(obj) for obj in objs]
 
 
 def report_function_args(report_dict: dict, flag: Literal["IN", "OUT"], names: list, values: list) -> None:
@@ -342,7 +349,13 @@ def report_function_args(report_dict: dict, flag: Literal["IN", "OUT"], names: l
             value = repr(value)
 
         if flag == "IN":
-            value_id = get_pydantic_id(value) if isinstance(value, BaseModel) else id(value)
+            if isinstance(value, BaseModel):
+                value_id = get_pydantic_object_id_recursively(value)
+            elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
+                value_id = get_pydantic_objects_ids_recursively(value)
+            else:
+                value_id = id(value)
+
             report_dict[name]["metadata"] = {
                 "type": repr(type(value)),
                 "id": value_id
