@@ -18,7 +18,7 @@ from httprunner.models import VariablesMapping, FunctionsMapping
 absolute_http_url_regexp = re.compile(r"^https?://", re.I)
 
 # use $$ to escape $ notation
-dolloar_regex_compile = re.compile(r"\$\$")
+dollar_regex_compile = re.compile(r"\$\$")
 # variable notation, e.g. ${var} or $var
 variable_regex_compile = re.compile(r"\$\{(\w+)\}|\$(\w+)")
 # function notation, e.g. ${func1($var_1, $var_3)}
@@ -93,7 +93,7 @@ def regex_findall_variables(raw_string: Text) -> List[Text]:
         # $$ > $var
 
         # search $$
-        dollar_match = dolloar_regex_compile.match(raw_string, match_start_position)
+        dollar_match = dollar_regex_compile.match(raw_string, match_start_position)
         if dollar_match:
             match_start_position = dollar_match.end()
             continue
@@ -365,7 +365,7 @@ def parse_string(
         # $$ > ${func($a, $b)} > $var
 
         # search $$
-        dollar_match = dolloar_regex_compile.match(raw_string, match_start_position)
+        dollar_match = dollar_regex_compile.match(raw_string, match_start_position)
         if dollar_match:
             match_start_position = dollar_match.end()
             parsed_string += "$"
