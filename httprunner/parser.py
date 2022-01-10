@@ -303,6 +303,25 @@ def get_mapping_function(
     raise exceptions.FunctionNotFound(f"{function_name} is not found.")
 
 
+def get_pydantic_id(obj: BaseModel, recursion=True) -> dict:
+    """
+    Get id of pydantic object, recursively get ids of fields if 'recursion' was True.
+    """
+    ids = {"self": id(obj)}
+
+    if recursion:
+        fields_ids = {}
+        for field_name in obj.__fields__:
+            value = getattr(obj, field_name)
+            if isinstance(value, BaseModel):
+                fields_ids[field_name] = get_pydantic_id(value)
+
+        if fields_ids:
+            ids["fields"] = fields_ids
+
+    return ids
+
+
 def report_function_args(report_dict: dict, flag: Literal["IN", "OUT"], names: list, values: list) -> None:
     """
     Add information of function arguments to Allure reports.
@@ -323,9 +342,10 @@ def report_function_args(report_dict: dict, flag: Literal["IN", "OUT"], names: l
             value = repr(value)
 
         if flag == "IN":
+            value_id = get_pydantic_id(value) if isinstance(value, BaseModel) else id(value)
             report_dict[name]["metadata"] = {
                 "type": repr(type(value)),
-                "id": id(value)
+                "id": value_id
             }
 
             # deepcopy object before dumps as snapshot
