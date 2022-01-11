@@ -303,33 +303,45 @@ def get_mapping_function(
     raise exceptions.FunctionNotFound(f"{function_name} is not found.")
 
 
-def get_pydantic_object_id_recursively(obj: BaseModel) -> dict:
+def get_pydantic_object_id_recursively(obj: BaseModel, depth: int = 2) -> dict:
     """
     Get id of pydantic object, and get ids of fields if fields are pydantic object too.
     """
     id_dict = {"self": id(obj)}
 
-    fields_ids = {}
-    for field_name in obj.__fields__:
-        value = getattr(obj, field_name)
-        if isinstance(value, BaseModel):
-            fields_ids[field_name] = get_pydantic_object_id_recursively(value)
-        elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
-            fields_ids[field_name] = get_pydantic_objects_ids_recursively(value)
+    if depth > 0:
+        depth -= 1
+        fields_ids = {}
+        for field_name in obj.__fields__:
+            value = getattr(obj, field_name)
+            if isinstance(value, BaseModel):
+                fields_ids[field_name] = get_pydantic_object_id_recursively(value, depth)
+            elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
+                fields_ids[field_name] = get_pydantic_objects_ids_recursively(value, depth)
 
-    if fields_ids:
-        id_dict["fields"] = fields_ids
+        if fields_ids:
+            id_dict["fields"] = fields_ids
     return id_dict
 
 
-def get_pydantic_objects_ids_recursively(objs: list[BaseModel]) -> list[dict]:
+def get_pydantic_objects_ids_recursively(objs: list[BaseModel], depth: int = 2) -> dict:
     """
     Get ids of multiple pydantic objects.
     """
-    return [get_pydantic_object_id_recursively(obj) for obj in objs]
+    id_dict = {"self": id(objs)}
+    if depth > 0:
+        depth -= 1
+        id_dict["elements"] = [get_pydantic_object_id_recursively(obj, depth) for obj in objs]
+    return id_dict
 
 
-def report_function_args(report_dict: dict, flag: Literal["IN", "OUT"], names: list, values: list) -> None:
+def report_function_args(
+        report_dict: dict,
+        flag: Literal["IN", "OUT"],
+        names: list,
+        values: list,
+        depth: int
+) -> None:
     """
     Add information of function arguments to Allure reports.
     """
@@ -350,9 +362,9 @@ def report_function_args(report_dict: dict, flag: Literal["IN", "OUT"], names: l
 
         if flag == "IN":
             if isinstance(value, BaseModel):
-                value_id = get_pydantic_object_id_recursively(value)
+                value_id = get_pydantic_object_id_recursively(value, depth)
             elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
-                value_id = get_pydantic_objects_ids_recursively(value)
+                value_id = get_pydantic_objects_ids_recursively(value, depth)
             else:
                 value_id = id(value)
 
@@ -433,6 +445,9 @@ def parse_string(
             # attach function arguments detail to Allure if True
             is_attach_function = False
 
+            # set default depth to 2
+            object_id_depth = 2
+
             if USE_ALLURE:
                 env_attach_all_functions = os.environ.get("ATTACH_ALL_FUNCTIONS")
                 attach_functions = variables_mapping.get("ATTACH_FUNCTIONS", [])
@@ -441,16 +456,26 @@ def parse_string(
                 if env_attach_all_functions == "true" or func_name in attach_functions:
                     is_attach_function = True
 
+                    # try to get depth from .env
+                    env_object_id_depth = os.environ.get("OBJECT_ID_DEPTH")
+                    if env_object_id_depth:
+                        try:
+                            object_id_depth = int(env_object_id_depth)
+                        except ValueError:
+                            pass
+                        except TypeError:
+                            pass
+
             if is_attach_function:
                 # log before function execution
-                report_function_args(report_dict, "IN", all_args_names, all_args_values)
+                report_function_args(report_dict, "IN", all_args_names, all_args_values, depth=object_id_depth)
 
             try:
                 func_eval_value = func(*parsed_args, **parsed_kwargs)
 
                 if is_attach_function:
                     # log after function execution
-                    report_function_args(report_dict, "OUT", all_args_names, all_args_values)
+                    report_function_args(report_dict, "OUT", all_args_names, all_args_values, depth=object_id_depth)
 
                     allure.attach(
                         json.dumps(report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder),
