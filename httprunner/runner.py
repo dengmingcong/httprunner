@@ -1,3 +1,4 @@
+import json
 import os
 import time
 import uuid
@@ -12,13 +13,15 @@ except ModuleNotFoundError:
     USE_ALLURE = False
 
 from loguru import logger
+from pydantic import BaseModel
 
 from httprunner import utils, exceptions
 from httprunner.client import HttpSession
 from httprunner.exceptions import ValidationFailure, ParamsError
 from httprunner.ext.uploader import prepare_upload_step
 from httprunner.loader import load_project_meta, load_testcase_file
-from httprunner.parser import build_url, parse_data, parse_variables_mapping
+from httprunner.parser import build_url, parse_data, parse_variables_mapping, CustomEncoder
+from httprunner.parser import get_pydantic_object_id_recursively, get_pydantic_objects_ids_recursively
 from httprunner.response import ResponseObject
 from httprunner.testcase import Config, Step
 from httprunner.utils import merge_variables
@@ -346,6 +349,45 @@ class HttpRunner(object):
             config.base_url, config.variables, self.__project_meta.functions
         )
 
+    @staticmethod
+    def attach_config_variables_to_allure_report(config_variables: VariablesMapping, depth: int) -> None:
+        """
+        Add information of config variables to Allure reports.
+        """
+        report_dict = {}
+
+        for name, value in config_variables.items():
+            # convert ResponseObject to dict
+            if isinstance(value, ResponseObject):
+                value = value.body
+
+            # try to dump to avoid error when dumps
+            try:
+                json.dumps(value, cls=CustomEncoder)
+            except TypeError:
+                value = repr(value)
+
+            if isinstance(value, BaseModel):
+                value_id = get_pydantic_object_id_recursively(value, depth)
+            elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
+                value_id = get_pydantic_objects_ids_recursively(value, depth)
+            else:
+                value_id = id(value)
+
+            report_dict[name] = {
+                "metadata": {
+                    "type": repr(type(value)),
+                    "id": value_id
+                },
+                "value": value
+            }
+
+        allure.attach(
+            json.dumps(report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder),
+            f"config variables",
+            allure.attachment_type.JSON
+        )
+
     def run_testcase(self, testcase: TestCase) -> "HttpRunner":
         """run specified testcase
 
@@ -362,6 +404,28 @@ class HttpRunner(object):
             self.__config.path
         )
         self.__parse_config(self.__config)
+
+        if USE_ALLURE:
+            # get env 'ATTACH_CONFIG_VARS' if it was set through .env
+            env_attach_config_vars = os.environ.get("ATTACH_CONFIG_VARS")
+
+            # note: compare with string 'true'
+            if env_attach_config_vars == "true":
+                # set default depth to 2
+                object_id_depth = 2
+
+                # try to get depth from .env
+                env_object_id_depth = os.environ.get("OBJECT_ID_DEPTH")
+                if env_object_id_depth:
+                    try:
+                        object_id_depth = int(env_object_id_depth)
+                    except ValueError:
+                        pass
+                    except TypeError:
+                        pass
+
+                self.attach_config_variables_to_allure_report(self.__config.variables, object_id_depth)
+
         self.__start_at = time.time()
         self.__step_datas: List[StepData] = []
         self.__session = self.__session or HttpSession()
