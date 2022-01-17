@@ -350,43 +350,67 @@ class HttpRunner(object):
         )
 
     @staticmethod
-    def attach_config_variables_to_allure_report(config_variables: VariablesMapping, depth: int) -> None:
+    def attach_config_variables_to_allure_report(config_variables: VariablesMapping) -> None:
         """
         Add information of config variables to Allure reports.
+
+        One variable will be attached to Allure report if:
+            env ATTACH_ALL_CONFIG_VARS is 'true'
+            or
+            name is in list set by variable 'ATTACH_CONFIG_VARS'
         """
+        # get env 'ATTACH_ALL_CONFIG_VARS' if it was set through .env
+        env_attach_all_config_vars = os.environ.get("ATTACH_ALL_CONFIG_VARS")
+
+        # set default depth to 2
+        object_id_depth = 2
+
+        # try to get depth from .env
+        env_object_id_depth = os.environ.get("OBJECT_ID_DEPTH")
+        if env_object_id_depth:
+            try:
+                object_id_depth = int(env_object_id_depth)
+            except ValueError:
+                pass
+            except TypeError:
+                pass
+
         report_dict = {}
 
         for name, value in config_variables.items():
-            # convert ResponseObject to dict
-            if isinstance(value, ResponseObject):
-                value = value.body
+            # note: compare with string 'true'
+            if env_attach_all_config_vars == "true" or name in config_variables.get("ATTACH_CONFIG_VARS", []):
+                # convert ResponseObject to dict
+                if isinstance(value, ResponseObject):
+                    value = value.body
 
-            # try to dump to avoid error when dumps
-            try:
-                json.dumps(value, cls=CustomEncoder)
-            except TypeError:
-                value = repr(value)
+                # try to dump to avoid error when dumps
+                try:
+                    json.dumps(value, cls=CustomEncoder)
+                except TypeError:
+                    value = repr(value)
 
-            if isinstance(value, BaseModel):
-                value_id = get_pydantic_object_id_recursively(value, depth)
-            elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
-                value_id = get_pydantic_objects_ids_recursively(value, depth)
-            else:
-                value_id = id(value)
+                if isinstance(value, BaseModel):
+                    value_id = get_pydantic_object_id_recursively(value, object_id_depth)
+                elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
+                    value_id = get_pydantic_objects_ids_recursively(value, object_id_depth)
+                else:
+                    value_id = id(value)
 
-            report_dict[name] = {
-                "metadata": {
-                    "type": repr(type(value)),
-                    "id": value_id
-                },
-                "value": value
-            }
+                report_dict[name] = {
+                    "metadata": {
+                        "type": repr(type(value)),
+                        "id": value_id
+                    },
+                    "value": value
+                }
 
-        allure.attach(
-            json.dumps(report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder),
-            f"config variables",
-            allure.attachment_type.JSON
-        )
+        if report_dict:
+            allure.attach(
+                json.dumps(report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder),
+                f"config variables",
+                allure.attachment_type.JSON
+            )
 
     def run_testcase(self, testcase: TestCase) -> "HttpRunner":
         """run specified testcase
@@ -406,25 +430,7 @@ class HttpRunner(object):
         self.__parse_config(self.__config)
 
         if USE_ALLURE:
-            # get env 'ATTACH_CONFIG_VARS' if it was set through .env
-            env_attach_config_vars = os.environ.get("ATTACH_CONFIG_VARS")
-
-            # note: compare with string 'true'
-            if env_attach_config_vars == "true":
-                # set default depth to 2
-                object_id_depth = 2
-
-                # try to get depth from .env
-                env_object_id_depth = os.environ.get("OBJECT_ID_DEPTH")
-                if env_object_id_depth:
-                    try:
-                        object_id_depth = int(env_object_id_depth)
-                    except ValueError:
-                        pass
-                    except TypeError:
-                        pass
-
-                self.attach_config_variables_to_allure_report(self.__config.variables, object_id_depth)
+            self.attach_config_variables_to_allure_report(self.__config.variables)
 
         self.__start_at = time.time()
         self.__step_datas: List[StepData] = []
