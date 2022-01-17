@@ -350,7 +350,7 @@ class HttpRunner(object):
         )
 
     @staticmethod
-    def attach_config_variables_to_allure_report(config_variables: VariablesMapping) -> None:
+    def attach_config_variables_to_allure_report(config_variables: VariablesMapping, config_name: str) -> None:
         """
         Add information of config variables to Allure reports.
 
@@ -408,7 +408,7 @@ class HttpRunner(object):
         if report_dict:
             allure.attach(
                 json.dumps(report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder),
-                f"config variables",
+                f"config variables (name: {config_name})",
                 allure.attachment_type.JSON
             )
 
@@ -430,7 +430,7 @@ class HttpRunner(object):
         self.__parse_config(self.__config)
 
         if USE_ALLURE:
-            self.attach_config_variables_to_allure_report(self.__config.variables)
+            self.attach_config_variables_to_allure_report(self.__config.variables, self.__config.name)
 
         self.__start_at = time.time()
         self.__step_datas: List[StepData] = []
