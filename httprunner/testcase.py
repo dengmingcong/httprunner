@@ -247,6 +247,25 @@ class StepRequestValidation(object):
         return self.__step_context
 
 
+class StepRequestExport(object):
+    def __init__(self, step_context: TStep):
+        self.__step_context = step_context
+
+    def variable(self, step_var_name: str, export_as: str = None) -> "StepRequestExport":
+        """Make local step variables global for steps next."""
+        if export_as:
+            self.__step_context.globalize.append({step_var_name: export_as})
+        else:
+            self.__step_context.globalize.append(step_var_name)
+        return self
+
+    def validate(self) -> StepRequestValidation:
+        return StepRequestValidation(self.__step_context)
+
+    def perform(self) -> TStep:
+        return self.__step_context
+
+
 class StepRequestExtraction(object):
     def __init__(self, step_context: TStep):
         self.__step_context = step_context
@@ -262,6 +281,9 @@ class StepRequestExtraction(object):
     # def with_jsonpath(self):
     #     # TODO: extract response json with jsonpath
     #     pass
+
+    def export(self) -> StepRequestExport:
+        return StepRequestExport(self.__step_context)
 
     def validate(self) -> StepRequestValidation:
         return StepRequestValidation(self.__step_context)

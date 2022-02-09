@@ -204,6 +204,37 @@ class HttpRunner(object):
         variables_mapping = step.variables
         variables_mapping.update(extract_mapping)
 
+        # added by @deng at 2022.2.9
+        export_mapping = {}
+        # export local variables to make them usable for steps next
+        for var in step.globalize:
+            if isinstance(var, dict):
+                if len(var) != 1:
+                    raise ValueError(f"length of dict can only be 1 but got {len(var)} for: {var}")
+                local_var_name = list(var.keys())[0]
+                export_as = list(var.values())[0]
+            else:
+                if not isinstance(var, str) or not var:
+                    raise ValueError(
+                        f"type of var can only be dict or str, and must not be empty"
+                    )
+                local_var_name = var
+                export_as = var
+
+            # cannot export variables extracted
+            if local_var_name in extract_mapping:
+                raise ValueError(f"cannot export variable {local_var_name} which is extracted from response")
+
+            if local_var_name not in variables_mapping:
+                raise ValueError(
+                    f"failed to export local step variable {local_var_name}, "
+                    f"all step variables now: {variables_mapping}"
+                )
+
+            export_mapping[export_as] = variables_mapping[local_var_name]
+
+        step_data.export_vars.update(export_mapping)
+
         # validate
         validators = step.validators
         session_success = False

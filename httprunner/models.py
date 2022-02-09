@@ -17,6 +17,7 @@ Headers = Dict[Text, Text]
 Cookies = Dict[Text, Text]
 Verify = bool
 Hooks = List[Union[Text, Dict[Text, Text]]]
+GlobalVars = List[Union[Text, Dict[Text, Text]]]
 Export = List[Text]
 Validators = List[Dict]
 Env = Dict[Text, Any]
@@ -73,10 +74,16 @@ class TStep(BaseModel):
     variables: VariablesMapping = {}
     setup_hooks: Hooks = []
     teardown_hooks: Hooks = []
+
     # used to extract request's response field
     extract: VariablesMapping = {}
+
+    # used to export local step variables, steps next can use these variables then
+    globalize: GlobalVars = []
+
     # used to export session variables from referenced testcase
     export: Export = []
+
     validators: Validators = Field([], alias="validate")
     validate_script: List[Text] = []
 
