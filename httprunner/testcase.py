@@ -345,6 +345,9 @@ class RequestWithOptionalArgs(object):
     def extract(self) -> StepRequestExtraction:
         return StepRequestExtraction(self.__step_context)
 
+    def export(self) -> StepRequestExport:
+        return StepRequestExport(self.__step_context)
+
     def validate(self) -> StepRequestValidation:
         return StepRequestValidation(self.__step_context)
 
