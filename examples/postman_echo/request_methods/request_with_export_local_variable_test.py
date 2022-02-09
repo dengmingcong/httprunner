@@ -19,7 +19,7 @@ class TestCaseRequestWithFunctions(HttpRunner):
         )
         .base_url("https://postman-echo.com")
         .verify(False)
-        .export(*["foo3", "app_version_1", "app_version_3"])
+        .export(*["foo3"])
         .locust_weight(2)
     )
 
@@ -36,7 +36,8 @@ class TestCaseRequestWithFunctions(HttpRunner):
             .extract()
             .with_jmespath("body.args.foo2", "foo3")
             .export()
-            .variable("app_version", "app_version_1")
+            .variable("app_version")
+            .variable("app_version", "app_version_rename")
             .validate()
             .assert_equal("status_code", 200)
             .assert_equal("body.args.foo1", "bar11")
@@ -44,27 +45,23 @@ class TestCaseRequestWithFunctions(HttpRunner):
             .assert_equal("body.args.foo2", "bar21")
         ),
         Step(
-            RunRequest("post raw text")
+            RunRequest("reference vars exported from previous step")
             .with_variables(**{"foo1": "bar12", "foo3": "bar32"})
             .post("/post")
             .with_headers(
                 **{
                     "User-Agent": "HttpRunner/${get_httprunner_version()}",
-                    "Content-Type": "text/plain",
                 }
             )
-            .with_data(
-                "This is expected to be sent back as part of response body: $foo1-$foo2-$foo3."
+            .with_json(
+                {
+                    "app_version": "$app_version",
+                    "app_version_rename": "$app_version_rename"
+                }
             )
             .validate()
             .assert_equal("status_code", 200)
-            .assert_equal(
-                "body.data",
-                "This is expected to be sent back as part of response body: bar12-$expect_foo2-bar32.",
-            )
-            .assert_type_match("body.json", "None")
-            .assert_type_match("body.json", "NoneType")
-            .assert_type_match("body.json", None)
+            .assert_equal("body.json.app_version", [3.1, 3.0])
         ),
         Step(
             RunRequest("post form data")
@@ -77,10 +74,6 @@ class TestCaseRequestWithFunctions(HttpRunner):
                 }
             )
             .with_data("foo1=$foo1&foo2=$foo2&foo3=$foo3")
-            .teardown_hook("${get_app_version()}", "app_version")
-            .extract()
-            .export()
-            .variable("app_version", "app_version_3")
             .validate()
             .assert_equal("status_code", 200, "response status code should be 200")
             .assert_equal("body.form.foo1", "$expect_foo1")
