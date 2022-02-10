@@ -197,7 +197,13 @@ class HttpRunner(object):
             logger.error(err_msg)
 
         # extract
-        extractors = step.extract
+        extractors: dict = step.extract
+
+        # parse JMESPath
+        for var_name, jmespath in extractors.items():
+            if "$" in jmespath:
+                extractors[var_name] = parse_data(jmespath, step.variables, self.__project_meta.functions)
+
         extract_mapping = resp_obj.extract(extractors)
         step_data.export_vars = extract_mapping
 
