@@ -200,11 +200,15 @@ class HttpRunner(object):
         extractors: dict = step.extract
 
         # parse JMESPath
+        # note: do not change variable 'extractors' directly to reduce surprise
+        parsed_extractors = {}
         for var_name, jmespath in extractors.items():
             if "$" in jmespath:
-                extractors[var_name] = parse_data(jmespath, step.variables, self.__project_meta.functions)
+                parsed_extractors[var_name] = parse_data(jmespath, step.variables, self.__project_meta.functions)
+            else:
+                parsed_extractors[var_name] = jmespath
 
-        extract_mapping = resp_obj.extract(extractors)
+        extract_mapping = resp_obj.extract(parsed_extractors)
         step_data.export_vars = extract_mapping
 
         variables_mapping = step.variables
