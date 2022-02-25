@@ -166,7 +166,8 @@ class SessionData(BaseModel):
 
     class Config:
         json_encoders = {
-            types.FunctionType: repr
+            types.FunctionType: repr,
+            type: repr
         }
 
 
@@ -180,7 +181,8 @@ class StepData(BaseModel):
 
     class Config:
         json_encoders = {
-            types.FunctionType: repr
+            types.FunctionType: repr,
+            type: repr
         }
 
 
