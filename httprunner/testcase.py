@@ -315,6 +315,13 @@ class RequestWithOptionalArgs(object):
     def with_json(self, req_json) -> "RequestWithOptionalArgs":
         self.__step_context.request.req_json = req_json
         return self
+    
+    def with_json_v2(self, req_json) -> "RequestWithOptionalArgs":
+        for key in list(req_json.keys()):
+            if not req_json.get(key):
+                del req_json[key]
+        self.__step_context.request.req_json = req_json
+        return self
 
     def set_timeout(self, timeout: float) -> "RequestWithOptionalArgs":
         self.__step_context.request.timeout = timeout
