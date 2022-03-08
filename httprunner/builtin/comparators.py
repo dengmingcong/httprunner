@@ -3,7 +3,7 @@ Built-in validate comparators.
 """
 
 import re
-from typing import Text, Any, Union
+from typing import Text, Any, Union, Callable, Literal
 
 
 def equal(check_value: Any, expect_value: Any, message: Text = ""):
@@ -127,3 +127,21 @@ def startswith(check_value: Any, expect_value: Any, message: Text = ""):
 
 def endswith(check_value: Text, expect_value: Any, message: Text = ""):
     assert str(check_value).endswith(str(expect_value)), message
+
+
+def list_sort(check_value: Union[list, dict], expect_value: Union[Callable, Literal["ASC", "DSC"]], message: Text = ""):
+    assert isinstance(
+        check_value, (list, dict)
+    ), "check_value should be list/dict"
+    assert isinstance(
+        expect_value, (Callable, Literal["ASC", "DSC"])
+    ), "expect_value should be Callable/ASC/DSC"
+    sorted_value = check_value.copy()
+    if expect_value == "ASC":
+        sorted_value.sort()
+    elif expect_value == "DSC":
+        sorted_value.sort(reverse=True)
+    else:
+        sorted_value.sort(key=expect_value)
+    debug_message = "actual order: " + str(check_value) + "\n" + "expect order: " + str(sorted_value)
+    assert check_value == sorted_value, f"{message}\n{debug_message}"

@@ -1,5 +1,5 @@
 import inspect
-from typing import Text, Any, Union, Callable
+from typing import Text, Any, Union, Callable, Literal
 
 from httprunner.models import (
     TConfig,
@@ -245,6 +245,31 @@ class StepRequestValidation(object):
 
     def perform(self) -> TStep:
         return self.__step_context
+
+    def assert_list_sort(
+            self, jmes_path: Text, expected_value: Union[Callable, Literal["ASC", "DSC"]], message: Text = ""
+    ) -> "StepRequestValidation":
+        """
+        @ added by LinkHao at 2022/3/8
+        This assertion method be used to assertion list or dict sort, and support Multi-level sorting.
+        (need a function to set sorted keys)
+
+        E.g:
+        if you want to sort a list[dict] first sort by likeNum and if sort by viewNum in reverse order when likeNum is
+        the same:
+        sort_list:[
+        {"likeNum": 0,"viewNum": 14,}
+        {"likeNum": 1,"viewNum": 17,}
+        ]
+        set the function and call assert_list_sort($jmes_path, get_sort_key)
+        def get_sort_key(x):
+            return x["likeNum"], -x["viewNum"]
+        """
+
+        self.__step_context.validators.append(
+            {"list_sort": [jmes_path, expected_value, message]}
+        )
+        return self
 
 
 class StepRequestExport(object):
