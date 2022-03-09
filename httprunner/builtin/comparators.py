@@ -135,7 +135,7 @@ def list_sort(check_value: Union[list, dict], expect_value: Union[Callable, Lite
     ), "check_value should be list/dict"
     assert isinstance(
         expect_value, (Callable, Literal["ASC", "DSC"])
-    ), "expect_value should be Callable/ASC/DSC"
+    ), "expect_value should be Callable/\"ASC\"/\"DSC\"]"
     sorted_value = check_value.copy()
     if expect_value == "ASC":
         sorted_value.sort()
