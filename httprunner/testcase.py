@@ -243,29 +243,20 @@ class StepRequestValidation(object):
         )
         return self
 
-    def assert_list_sort(
+    def assert_list_sorted_in(
             self, jmes_path: Text, expected_value: Union[Callable, Literal["ASC", "DSC"]], message: Text = ""
     ) -> "StepRequestValidation":
         """
-        @ added by LinkHao at 2022/3/8
-        This assertion method be used to assert list or dict order, and support Multi-level sorting.
-        (need a function to set sorted keys)
+        Assert the list is sorted in some specific order.
 
-        E.g:
-        You need to define a function when sorting firstly by likeNum and sorting secondly in reverse order by viewNum
-        when the likeNum is the same:
-
-        def get_sort_key(x):
-            return x["likeNum"], -x["viewNum"]
-        sort_list:[
-        {"likeNum": 0,"viewNum": 14,}
-        {"likeNum": 1,"viewNum": 17,}
-        ]
-        call .assert_list_sort($jmes_path, get_sort_key)
+        Note:
+        1. if expected_value is string 'ASC', the list is expected to be sorted in ascending order
+        2. if expected_value is string 'DSC', the list is expected to be sorted in descending order
+        3. if expected_value is a function object, you must define and import the function, or use a lambda function,
+        reference list.sort() for more information.
         """
-
         self.__step_context.validators.append(
-            {"list_sort": [jmes_path, expected_value, message]}
+            {"sort_list": [jmes_path, expected_value, message]}
         )
         return self
 
@@ -339,13 +330,6 @@ class RequestWithOptionalArgs(object):
         return self
 
     def with_json(self, req_json) -> "RequestWithOptionalArgs":
-        self.__step_context.request.req_json = req_json
-        return self
-    
-    def with_json_v2(self, req_json) -> "RequestWithOptionalArgs":
-        for key in list(req_json.keys()):
-            if not req_json.get(key):
-                del req_json[key]
         self.__step_context.request.req_json = req_json
         return self
 
