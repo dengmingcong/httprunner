@@ -1,5 +1,5 @@
 import inspect
-from typing import Text, Any, Union, Callable
+from typing import Text, Any, Union, Callable, Literal
 
 from httprunner.models import (
     TConfig,
@@ -240,6 +240,23 @@ class StepRequestValidation(object):
         """
         self.__step_context.validators.append(
             {"reports_match": [jmes_path, expected_value, message]}
+        )
+        return self
+
+    def assert_list_sorted_in(
+            self, jmes_path: Text, expected_value: Union[Callable, Literal["ASC", "DSC"]], message: Text = ""
+    ) -> "StepRequestValidation":
+        """
+        Assert the list is sorted in some specific order.
+
+        Note:
+        1. if expected_value is string 'ASC', the list is expected to be sorted in ascending order
+        2. if expected_value is string 'DSC', the list is expected to be sorted in descending order
+        3. if expected_value is a function object, you must define and import the function, or use a lambda function,
+        reference list.sort() for more information.
+        """
+        self.__step_context.validators.append(
+            {"sort_list": [jmes_path, expected_value, message]}
         )
         return self
 
