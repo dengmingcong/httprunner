@@ -333,6 +333,52 @@ class RequestWithOptionalArgs(object):
         self.__step_context.request.req_json = req_json
         return self
 
+    def update_json_object(self, req_json_object: dict) -> "RequestWithOptionalArgs":
+        """
+        Update request.req_json if request.req_json is a JSON object.
+
+        Note:
+            1. if 'with_json()' has not been called, calling this method will set 'request.req_json' directly
+                to the value of argument 'req_json'
+            2. if 'with_json()' was called before calling this method,
+                this method can only be used when json set by 'with_json()' is a json object,
+                and json set by 'with_json()' will be updated
+            3. if 'with_json()' was called after this method, 'request.req_json' will be replaced by
+                the value of argument 'req_json'. In particular, this method takes no effect.
+        """
+        if (origin_json := self.__step_context.request.req_json) is None:
+            self.__step_context.request.req_json = req_json_object
+        else:
+            if not isinstance(origin_json, dict):
+                raise ValueError(
+                    f"this method can only be used when request json is set to a json object, "
+                    f"but got: {type(origin_json)}"
+                )
+            origin_json.update(req_json_object)
+
+        return self
+
+    def pop_json_object_keys(self, *keys) -> "RequestWithOptionalArgs":
+        """
+        Pop keys of json.
+
+        Note:
+            Exception will be raised if any keys specified do not exist.
+        """
+        if (origin_json := self.__step_context.request.req_json) is None:
+            raise ValueError(f"please call 'with_json()' first before calling this method")
+        if not isinstance(origin_json, dict):
+            raise ValueError(
+                f"argument passed into method 'with_json()' must be a dict if you want to call this method, "
+                f"but got type: {type(origin_json)}"
+            )
+        for key in keys:
+            if key not in origin_json:
+                raise ValueError(f"key '{key}' does not exist in request json '{origin_json}'")
+            del origin_json[key]
+
+        return self
+
     def set_timeout(self, timeout: float) -> "RequestWithOptionalArgs":
         self.__step_context.request.timeout = timeout
         return self
