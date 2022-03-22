@@ -1,6 +1,7 @@
 import inspect
 from typing import Text, Any, Union, Callable, Literal
 
+from httprunner.builtin.functions import update_dict_recursively
 from httprunner.models import (
     TConfig,
     TStep,
@@ -333,9 +334,11 @@ class RequestWithOptionalArgs(object):
         self.__step_context.request.req_json = req_json
         return self
 
-    def update_json_object(self, req_json_object: dict) -> "RequestWithOptionalArgs":
+    def update_json_object(self, req_json_object: dict, deep=True) -> "RequestWithOptionalArgs":
         """
         Update request.req_json if request.req_json is a JSON object.
+
+        If 'deep' is True, update recursively.
 
         Note:
             1. if 'with_json()' has not been called, calling this method will set 'request.req_json' directly
@@ -354,7 +357,10 @@ class RequestWithOptionalArgs(object):
                     f"this method can only be used when request json is set to a json object, "
                     f"but got: {type(origin_json)}"
                 )
-            origin_json.update(req_json_object)
+            if deep:
+                origin_json = update_dict_recursively(origin_json, req_json_object)
+            else:
+                origin_json.update(req_json_object)
 
         return self
 
