@@ -169,6 +169,7 @@ class HttpRunner(object):
         resp = self.__session.request(method, url, **parsed_request_dict)
         resp_obj = ResponseObject(resp)
         step.variables["response"] = resp_obj
+        step.variables["session"] = self.__session
 
         # teardown hooks
         if step.teardown_hooks:
