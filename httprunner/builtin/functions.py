@@ -53,3 +53,13 @@ def update_dict_recursively(d: dict, u: Mapping) -> dict:
         else:
             d[k] = v
     return d
+
+
+def evaluate(var: str):
+    """
+    Return value as is.
+
+    parser.parse_string() use this function to implement the functionality
+    that evaluating a string containing other variables or functions.
+    """
+    return var

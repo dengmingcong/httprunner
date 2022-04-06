@@ -501,6 +501,9 @@ def parse_string(
                     )
                 raise
 
+            if func_name == "evaluate":
+                func_eval_value = parse_string(func_eval_value, variables_mapping, functions_mapping)
+
             func_raw_str = "${" + func_name + f"({func_params_str})" + "}"
             if func_raw_str == raw_string:
                 # raw_string is a function, e.g. "${add_one(3)}", return its eval value directly
