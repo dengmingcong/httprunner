@@ -198,6 +198,14 @@ class StepRequestValidation(object):
         )
         return self
 
+    def assert_not_contain(
+        self, jmes_path: Text, expected_value: Any, message: Text = ""
+    ) -> "StepRequestValidation":
+        self.__step_context.validators.append(
+            {"not_contain": [jmes_path, expected_value, message]}
+        )
+        return self
+
     def assert_contained_by(
         self, jmes_path: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
