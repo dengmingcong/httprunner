@@ -2,10 +2,12 @@
 Built-in functions used in YAML/JSON testcases.
 """
 
+import collections.abc
 import datetime
 import random
 import string
 import time
+from typing import Mapping
 
 from httprunner.exceptions import ParamsError
 
@@ -37,3 +39,27 @@ def sleep(n_secs):
     """ sleep n seconds
     """
     time.sleep(n_secs)
+
+
+def update_dict_recursively(d: dict, u: Mapping) -> dict:
+    """
+    Update a nested dict recursively.
+
+    Reference: https://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth
+    """
+    for k, v in u.items():
+        if isinstance(v, collections.abc.Mapping):
+            d[k] = update_dict_recursively(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d
+
+
+def evaluate(var: str):
+    """
+    Return value as is.
+
+    parser.parse_string() use this function to implement the functionality
+    that evaluating a string containing other variables or functions.
+    """
+    return var

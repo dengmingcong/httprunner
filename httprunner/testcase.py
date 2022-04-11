@@ -1,6 +1,7 @@
 import inspect
 from typing import Text, Any, Union, Callable, Literal
 
+from httprunner.builtin.functions import update_dict_recursively
 from httprunner.models import (
     TConfig,
     TStep,
@@ -243,6 +244,23 @@ class StepRequestValidation(object):
         )
         return self
 
+    def assert_list_sorted_in(
+            self, jmes_path: Text, expected_value: Union[Callable, Literal["ASC", "DSC"]], message: Text = ""
+    ) -> "StepRequestValidation":
+        """
+        Assert the list is sorted in some specific order.
+
+        Note:
+        1. if expected_value is string 'ASC', the list is expected to be sorted in ascending order
+        2. if expected_value is string 'DSC', the list is expected to be sorted in descending order
+        3. if expected_value is a function object, you must define and import the function, or use a lambda function,
+        reference list.sort() for more information.
+        """
+        self.__step_context.validators.append(
+            {"sort_list": [jmes_path, expected_value, message]}
+        )
+        return self
+
     def perform(self) -> TStep:
         return self.__step_context
 
@@ -339,6 +357,57 @@ class RequestWithOptionalArgs(object):
 
     def with_json(self, req_json) -> "RequestWithOptionalArgs":
         self.__step_context.request.req_json = req_json
+        return self
+
+    def update_json_object(self, req_json_object: dict, deep=True) -> "RequestWithOptionalArgs":
+        """
+        Update request.req_json if request.req_json is a JSON object.
+
+        If 'deep' is True, update recursively.
+
+        Note:
+            1. if 'with_json()' has not been called, calling this method will set 'request.req_json' directly
+                to the value of argument 'req_json'
+            2. if 'with_json()' was called before calling this method,
+                this method can only be used when json set by 'with_json()' is a json object,
+                and json set by 'with_json()' will be updated
+            3. if 'with_json()' was called after this method, 'request.req_json' will be replaced by
+                the value of argument 'req_json'. In particular, this method takes no effect.
+        """
+        if (origin_json := self.__step_context.request.req_json) is None:
+            self.__step_context.request.req_json = req_json_object
+        else:
+            if not isinstance(origin_json, dict):
+                raise ValueError(
+                    f"this method can only be used when request json is set to a json object, "
+                    f"but got: {type(origin_json)}"
+                )
+            if deep:
+                origin_json = update_dict_recursively(origin_json, req_json_object)
+            else:
+                origin_json.update(req_json_object)
+
+        return self
+
+    def pop_json_object_keys(self, *keys) -> "RequestWithOptionalArgs":
+        """
+        Pop keys of json.
+
+        Note:
+            Exception will be raised if any keys specified do not exist.
+        """
+        if (origin_json := self.__step_context.request.req_json) is None:
+            raise ValueError(f"please call 'with_json()' first before calling this method")
+        if not isinstance(origin_json, dict):
+            raise ValueError(
+                f"argument passed into method 'with_json()' must be a dict if you want to call this method, "
+                f"but got type: {type(origin_json)}"
+            )
+        for key in keys:
+            if key not in origin_json:
+                raise ValueError(f"key '{key}' does not exist in request json '{origin_json}'")
+            del origin_json[key]
+
         return self
 
     def set_timeout(self, timeout: float) -> "RequestWithOptionalArgs":

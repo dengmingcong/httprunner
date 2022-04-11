@@ -1,4 +1,5 @@
 import os
+import requests
 import types
 from enum import Enum
 from typing import Any
@@ -167,7 +168,8 @@ class SessionData(BaseModel):
     class Config:
         json_encoders = {
             types.FunctionType: repr,
-            type: repr
+            type: repr,
+            requests.Session: repr
         }
 
 
@@ -182,7 +184,8 @@ class StepData(BaseModel):
     class Config:
         json_encoders = {
             types.FunctionType: repr,
-            type: repr
+            type: repr,
+            requests.Session: repr
         }
 
 

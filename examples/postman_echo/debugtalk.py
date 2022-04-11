@@ -23,3 +23,7 @@ def get_app_version():
 
 def calculate_two_nums(a, b=1):
     return [a + b, b - a]
+
+
+def get_raw_func():
+    return "${calculate_two_nums(1, 1)}"

@@ -153,6 +153,7 @@ class HttpRunner(object):
             f"HRUN-{self.__case_id}-{str(int(time.time() * 1000))[-6:]}",
         )
         step.variables["request"] = parsed_request_dict
+        step.variables["session"] = self.__session
 
         # setup hooks
         if step.setup_hooks:
