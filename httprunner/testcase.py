@@ -198,6 +198,14 @@ class StepRequestValidation(object):
         )
         return self
 
+    def assert_no_keys_duplicate(
+        self, jmes_path: Text, expected_value: Any, message: Text = ""
+    ) -> "StepRequestValidation":
+        self.__step_context.validators.append(
+            {"no_keys_duplicate": [jmes_path, expected_value, message]}
+        )
+        return self
+
     def assert_not_contain(
         self, jmes_path: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
