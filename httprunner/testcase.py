@@ -216,7 +216,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_no_keys_duplicate(
-        self, jmes_path: Text, expected_value: Any = None, message: Text = ""
+        self, jmes_path: Text, message: Text = ""
     ) -> "StepRequestValidation":
         """
         Assert there are no duplicate elements in the list.
@@ -226,7 +226,7 @@ class StepRequestValidation(object):
         2. if expected_value is not None, will assert the expected_value in list is not duplicate
         """
         self.__step_context.validators.append(
-            {"no_keys_duplicate": [jmes_path, expected_value, message]}
+            {"no_keys_duplicate": [jmes_path, None, message]}
         )
         return self
 
