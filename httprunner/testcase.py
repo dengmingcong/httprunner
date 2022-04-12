@@ -199,6 +199,33 @@ class StepRequestValidation(object):
         )
         return self
 
+    def assert_not_contain(
+        self, jmes_path: Text, expected_value: Any, message: Text = ""
+    ) -> "StepRequestValidation":
+        self.__step_context.validators.append(
+            {"not_contain": [jmes_path, expected_value, message]}
+        )
+        return self
+
+    def assert_not_contained_by(
+        self, jmes_path: Text, expected_value: Any, message: Text = ""
+    ) -> "StepRequestValidation":
+        self.__step_context.validators.append(
+            {"not_contained_by": [jmes_path, expected_value, message]}
+        )
+        return self
+
+    def assert_no_keys_duplicate(
+        self, jmes_path: Text, message: Text = ""
+    ) -> "StepRequestValidation":
+        """
+        断言 list 中是否含有重复的元素
+        """
+        self.__step_context.validators.append(
+            {"no_keys_duplicate": [jmes_path, None, message]}
+        )
+        return self
+
     def assert_contained_by(
         self, jmes_path: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
