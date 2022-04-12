@@ -203,7 +203,7 @@ class StepRequestValidation(object):
         self, jmes_path: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self.__step_context.validators.append(
-            {"contains": [jmes_path, expected_value, message]}
+            {"not_contain": [jmes_path, expected_value, message]}
         )
         return self
 
