@@ -219,11 +219,7 @@ class StepRequestValidation(object):
         self, jmes_path: Text, message: Text = ""
     ) -> "StepRequestValidation":
         """
-        Assert there are no duplicate elements in the list.
-
-        Note:
-        1. if expected_value is None, will assert each element in list is not duplicate
-        2. if expected_value is not None, will assert the expected_value in list is not duplicate
+        断言 list 中是否含有重复的元素
         """
         self.__step_context.validators.append(
             {"no_keys_duplicate": [jmes_path, None, message]}
