@@ -199,6 +199,29 @@ class StepRequestValidation(object):
         )
         return self
 
+    def assert_not_contain(
+        self, jmes_path: Text, expected_value: Any, message: Text = ""
+    ) -> "StepRequestValidation":
+        self.__step_context.validators.append(
+            {"contains": [jmes_path, expected_value, message]}
+        )
+        return self
+
+    def assert_no_keys_duplicate(
+        self, jmes_path: Text, expected_value: Any = None, message: Text = ""
+    ) -> "StepRequestValidation":
+        """
+        Assert there are no duplicate elements in the list.
+
+        Note:
+        1. if expected_value is None, will assert each element in list is not duplicate
+        2. if expected_value is not None, will assert the expected_value in list is not duplicate
+        """
+        self.__step_context.validators.append(
+            {"no_keys_duplicate": [jmes_path, expected_value, message]}
+        )
+        return self
+
     def assert_contained_by(
         self, jmes_path: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
@@ -263,31 +286,6 @@ class StepRequestValidation(object):
 
     def perform(self) -> TStep:
         return self.__step_context
-
-    def assert_list_sort(
-            self, jmes_path: Text, expected_value: Union[Callable, Literal["ASC", "DSC"]], message: Text = ""
-    ) -> "StepRequestValidation":
-        """
-        @ added by LinkHao at 2022/3/8
-        This assertion method be used to assertion list or dict sort, and support Multi-level sorting.
-        (need a function to set sorted keys)
-
-        E.g:
-        if you want to sort a list[dict] first sort by likeNum and if sort by viewNum in reverse order when likeNum is
-        the same:
-        sort_list:[
-        {"likeNum": 0,"viewNum": 14,}
-        {"likeNum": 1,"viewNum": 17,}
-        ]
-        set the function and call assert_list_sort($jmes_path, get_sort_key)
-        def get_sort_key(x):
-            return x["likeNum"], -x["viewNum"]
-        """
-
-        self.__step_context.validators.append(
-            {"list_sort": [jmes_path, expected_value, message]}
-        )
-        return self
 
 
 class StepRequestExport(object):
