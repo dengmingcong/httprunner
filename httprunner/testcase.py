@@ -361,7 +361,7 @@ class RequestWithOptionalArgs(object):
         self.__step_context.request.req_json = req_json
         return self
 
-    def update_json_object(self, req_json_object: dict, deep=True) -> "RequestWithOptionalArgs":
+    def update_json_object(self, update_data: dict, deep=True) -> "RequestWithOptionalArgs":
         """
         Update request.req_json if request.req_json is a JSON object.
 
@@ -369,25 +369,50 @@ class RequestWithOptionalArgs(object):
 
         Note:
             1. if 'with_json()' has not been called, calling this method will set 'request.req_json' directly
-                to the value of argument 'req_json'
+                to the value of argument 'update_data'
             2. if 'with_json()' was called before calling this method,
                 this method can only be used when json set by 'with_json()' is a json object,
                 and json set by 'with_json()' will be updated
-            3. if 'with_json()' was called after this method, 'request.req_json' will be replaced by
-                the value of argument 'req_json'. In particular, this method takes no effect.
+            3. if 'with_json()' was called after this method, 'request.req_json' will be overwritten by
+                the argument of 'with_json()'. In particular, this method takes no effect.
         """
-        if (origin_json := self.__step_context.request.req_json) is None:
-            self.__step_context.request.req_json = req_json_object
+        if (init_json := self.__step_context.request.req_json) is None:
+            self.__step_context.request.req_json = update_data
         else:
-            if not isinstance(origin_json, dict):
+            if not isinstance(init_json, dict):
                 raise ValueError(
                     f"this method can only be used when request json is set to a json object, "
-                    f"but got: {type(origin_json)}"
+                    f"but got: {type(init_json)}"
                 )
             if deep:
-                origin_json = update_dict_recursively(origin_json, req_json_object)
+                init_json = update_dict_recursively(init_json, update_data)
             else:
-                origin_json.update(req_json_object)
+                init_json.update(update_data)
+
+        return self
+
+    def update_form_data(self, update_data: dict) -> "RequestWithOptionalArgs":
+        """
+        Update 'request.data' if 'request.data' is a JSON object.
+
+        Note:
+            1. if 'with_data()' has not been called, calling this method will set 'request.data' directly
+                to the value of argument 'update_data'
+            2. if 'with_data()' was called before calling this method,
+                this method can only be used when data set by 'with_data()' is a json object,
+                and json set by 'with_data()' will be updated
+            3. if 'with_data()' was called after this method, 'request.data' will be overwritten by
+                the argument of 'with_data()'. In particular, this method takes no effect.
+        """
+        if (init_data := self.__step_context.request.data) is None:
+            self.__step_context.request.data = update_data
+        else:
+            if not isinstance(init_data, dict):
+                raise ValueError(
+                    f"this method can only be used when request data is set to a json object, "
+                    f"but got: {type(init_data)}"
+                )
+            init_data.update(update_data)
 
         return self
 
