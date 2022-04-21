@@ -5,6 +5,8 @@ import uuid
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn
 
+from httprunner.builtin import expand_nested_json
+
 try:
     import allure
 
@@ -169,6 +171,11 @@ class HttpRunner(object):
         # request
         resp = self.__session.request(method, url, **parsed_request_dict)
         resp_obj = ResponseObject(resp)
+
+        # expand nested json if headers contain 'X-Json-Control' and its value is 'expand'
+        if parsed_request_dict["headers"].get("X-Json-Control") == "expand":
+            expand_nested_json(resp_obj.body)
+
         step.variables["response"] = resp_obj
 
         # teardown hooks

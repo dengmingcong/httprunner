@@ -12,6 +12,7 @@ from requests.exceptions import (
     RequestException,
 )
 
+from httprunner.builtin import expand_nested_json
 from httprunner.models import RequestData, ResponseData
 from httprunner.models import SessionData, ReqRespData
 from httprunner.utils import lower_dict_keys, omit_long_data
@@ -26,7 +27,7 @@ class ApiResponse(Response):
         Response.raise_for_status(self)
 
 
-def get_req_resp_record(resp_obj: Response) -> ReqRespData:
+def get_req_resp_record(resp_obj: Response, **kwargs) -> ReqRespData:
     """ get request and response info from Response() object.
     """
 
@@ -85,6 +86,8 @@ def get_req_resp_record(resp_obj: Response) -> ReqRespData:
         try:
             # try to record json data
             response_body = resp_obj.json()
+            if kwargs.get("is_expand_nested_json"):
+                expand_nested_json(response_body)
         except ValueError:
             # only record at most 512 text charactors
             resp_text = resp_obj.text
@@ -205,8 +208,14 @@ class HttpSession(requests.Session):
 
         # record request and response histories, include 30X redirection
         response_list = response.history + [response]
+
+        # expand nested json if headers contain 'X-Json-Control' and its value is 'expand'
+        is_expand_nested_json = False
+        if kwargs["headers"].get("X-Json-Control") == "expand":
+            is_expand_nested_json = True
+
         self.data.req_resps = [
-            get_req_resp_record(resp_obj) for resp_obj in response_list
+            get_req_resp_record(resp_obj, is_expand_nested_json=is_expand_nested_json) for resp_obj in response_list
         ]
 
         try:
