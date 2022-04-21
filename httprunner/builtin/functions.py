@@ -4,10 +4,11 @@ Built-in functions used in YAML/JSON testcases.
 
 import collections.abc
 import datetime
+import json
 import random
 import string
 import time
-from typing import Mapping
+from typing import Mapping, Any
 
 from httprunner.exceptions import ParamsError
 
@@ -63,3 +64,43 @@ def evaluate(var: str):
     that evaluating a string containing other variables or functions.
     """
     return var
+
+
+def expand_nested_json(target: Any) -> Any:
+    """
+    Try to convert string part to Python object using json.loads().
+
+    Note:
+        The original object (argument target) will be changed and the return object is the same as the original one.
+
+    >>> origin_obj = {"foo": "{\\"bar\\":\\"baz\\"}"}
+    >>> return_obj = expand_nested_json(origin_obj)
+    >>> return_obj
+    {'foo': {'bar': 'baz'}}
+    >>> origin_obj
+    {'foo': {'bar': 'baz'}}
+    >>> return_obj is origin_obj
+    True
+
+    >>> expand_nested_json("{\\"bar\\":\\"baz\\"}")
+    {'bar': 'baz'}
+
+    Reference: https://stackoverflow.com/questions/5997029/escape-double-quotes-for-json-in-python
+    """
+    if isinstance(target, dict):
+        for k, v in target.items():
+            target[k] = expand_nested_json(v)
+        return target
+    elif isinstance(target, str) and "\"" in target:
+        try:
+            target = json.loads(target)
+        except json.decoder.JSONDecodeError:
+            return target
+        return expand_nested_json(target)
+    elif isinstance(target, list):
+        decoded_target = []
+        for i in target:
+            decoded_target.append(expand_nested_json(i))
+        return decoded_target
+    else:
+        return target
