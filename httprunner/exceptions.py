@@ -11,7 +11,7 @@ class ParseTestsFailure(MyBaseFailure):
     pass
 
 
-class ValidationFailure(MyBaseFailure):
+class ValidationFailure(AssertionError):
     pass
 
 
