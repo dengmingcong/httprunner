@@ -561,17 +561,6 @@ class RunTestCase(object):
     def __init__(self, name: Text):
         self.__step_context = TStep(name=name)
 
-    def retry_on_failure(self, retry_times: int, retry_interval: Union[int, float]) -> "RunTestCase":
-        """
-        Retry step until success or max retried times.
-
-        :param retry_times: max retried times
-        :param retry_interval: sleep between each retry, unit: seconds
-        """
-        self.__step_context.retry_times = retry_times
-        self.__step_context.retry_interval = retry_interval
-        return self
-
     def skip_if(self, condition: str, reason: str = None) -> "RunTestCase":
         self.__step_context.skip_on_condition = condition
         self.__step_context.skip_reason = reason
