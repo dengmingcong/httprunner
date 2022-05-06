@@ -488,6 +488,7 @@ class RunRequest(object):
         :param retry_interval: sleep between each retry, unit: seconds
         """
         self.__step_context.retry_times = retry_times
+        self.__step_context.max_retry_times = retry_times
         self.__step_context.retry_interval = retry_interval
         return self
 

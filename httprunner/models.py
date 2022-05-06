@@ -1,11 +1,11 @@
 import os
-import requests
 import types
 from enum import Enum
 from typing import Any
 from typing import Dict, Text, Union, Callable
 from typing import List
 
+import requests
 from pydantic import BaseModel, Field
 from pydantic import HttpUrl
 
@@ -67,6 +67,7 @@ class TRequest(BaseModel):
 class TStep(BaseModel):
     name: Name
     retry_times: Union[int, None] = 0
+    max_retry_times: Union[int, None] = 0
     retry_interval: Union[float, None] = 0
     skip_on_condition: Union[str, None] = None
     skip_reason: Union[str, None] = None
