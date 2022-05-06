@@ -343,7 +343,8 @@ class HttpRunner(object):
 
             export_mapping[export_as] = variables_mapping[local_var_name]
 
-        step_data.export_vars.update(export_mapping)
+        # extracted variables > local variables
+        step_data.export_vars = merge_variables(step_data.export_vars, export_mapping)
 
         # validate
         validators = step.validators
