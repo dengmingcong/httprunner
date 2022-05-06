@@ -38,6 +38,7 @@ from httprunner.models import (
     ProjectMeta,
     TestCase,
     Hooks,
+    SessionData,
 )
 
 
@@ -138,6 +139,97 @@ class HttpRunner(object):
                 step_variables[var_name] = hook_content_eval
             else:
                 logger.error(f"Invalid hook format: {hook}")
+
+    def __add_allure_attachments(
+            self,
+            session_data: SessionData,
+            validation_results: dict,
+            exported_vars: dict,
+            is_success: bool
+    ) -> NoReturn:
+        """
+        Add attachments to allure.
+        """
+        # split session data into request, response, validation results, and export vars if only one request exists
+        if len(session_data.req_resps) == 1:
+            if is_success:
+                result = "PASS"
+            else:
+                result = "FAIL"
+
+            request_data = session_data.req_resps[0].request
+            response_data = session_data.req_resps[0].response
+            # save request data
+            allure.attach(
+                request_data.json(indent=4, ensure_ascii=False), "request",
+                allure.attachment_type.JSON
+            )
+            # save response data
+            allure.attach(
+                response_data.json(indent=4, ensure_ascii=False), "response",
+                allure.attachment_type.JSON
+            )
+            # save validation results
+            allure.attach(
+                json.dumps(
+                    validation_results.get("validate_extractor", []),
+                    indent=4,
+                    ensure_ascii=False
+                ),
+                f"validation results ({result})",
+                allure.attachment_type.JSON
+            )
+            # save export vars
+            allure.attach(
+                json.dumps(exported_vars, indent=4, ensure_ascii=False), "exported variables",
+                allure.attachment_type.JSON
+            )
+        else:
+            # put request, response, and validation results in one attachment
+            allure.attach(
+                self.__session.data.json(indent=4, ensure_ascii=False), "session data",
+                allure.attachment_type.JSON
+            )
+            # save export vars
+            allure.attach(
+                json.dumps(exported_vars, indent=4, ensure_ascii=False), "exported variables",
+                allure.attachment_type.JSON
+            )
+
+    def __save_allure_data(
+            self,
+            validation_results: dict,
+            exported_vars: dict,
+            max_retries: int,
+            remaining_retry_times: int,
+            is_success: bool
+    ) -> NoReturn:
+        """
+        Save session data as allure raw data after validation completed.
+
+        Note:
+            1. this function is exclusively used for method self.__run_step_request().
+            2. if retry is needed (max_retries > 0), add new step as context
+        """
+        if not hasattr(self.__session, "data"):
+            return
+
+        if max_retries > 0:
+            if is_success:
+                result = "PASS"
+            else:
+                result = "FAIL"
+
+            if max_retries == remaining_retry_times:
+                title = f"first request ({result})"
+            elif remaining_retry_times == 0:
+                title = f"retry: {max_retries} - last retry ({result})"
+            else:
+                title = f"retry: {max_retries - remaining_retry_times} ({result})"
+            with allure.step(title):
+                self.__add_allure_attachments(self.__session.data, validation_results, exported_vars, is_success)
+        else:
+            self.__add_allure_attachments(self.__session.data, validation_results, exported_vars, is_success)
 
     def __run_step_request(self, step: TStep) -> StepData:
         """run teststep: request"""
@@ -257,15 +349,29 @@ class HttpRunner(object):
         validators = step.validators
         session_success = False
         try:
-            resp_obj.validate(
-                validators, variables_mapping, self.__project_meta.functions
-            )
+            resp_obj.validate(validators, variables_mapping, self.__project_meta.functions)
             session_success = True
+            self.__save_allure_data(
+                resp_obj.validation_results,
+                step_data.export_vars,
+                step.max_retry_times,
+                step.retry_times,
+                session_success
+            )
         except ValidationFailure:
+            self.__save_allure_data(
+                resp_obj.validation_results,
+                step_data.export_vars,
+                step.max_retry_times,
+                step.retry_times,
+                session_success
+            )
+            # check if retry is needed
             if step.retry_times > 0:
-                logger.info(f"the value of property 'times' is greater than 0, retry this step now")
+                logger.warning(
+                    f"step '{step.name}' validation failed, wait {step.retry_interval} seconds and try again"
+                )
                 step.retry_times -= 1
-                logger.info(f"sleep {step.retry_interval} seconds and begin to retry")
                 time.sleep(step.retry_interval)
                 step_data = self.__run_step_request(step)
                 return step_data
@@ -273,11 +379,6 @@ class HttpRunner(object):
             log_req_resp_details()
             # log testcase duration before raise ValidationFailure
             self.__duration = time.time() - self.__start_at
-            if hasattr(self.__session, "data"):
-                self.__session.data.validators = resp_obj.validation_results
-                allure.attach(
-                    self.__session.data.json(indent=4, ensure_ascii=False), "session data", allure.attachment_type.JSON
-                )
             raise
         finally:
             self.success = session_success
@@ -374,7 +475,6 @@ class HttpRunner(object):
         if not is_skip_step:
             if step.request:
                 step_data = self.__run_step_request(step)
-                allure.attach(step_data.json(indent=4, ensure_ascii=False), "step data", allure.attachment_type.JSON)
             elif step.testcase:
                 step_data = self.__run_step_testcase(step)
             else:
