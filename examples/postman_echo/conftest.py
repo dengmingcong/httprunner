@@ -62,3 +62,8 @@ def session_fixture(request):
 
     logger.info(f"generated task summary: {summary_path}")
 
+
+@pytest.fixture(scope="function", autouse=True)
+def clean_session_variables(request):
+    """setup and teardown each testcase"""
+    request.instance.with_variables({})
