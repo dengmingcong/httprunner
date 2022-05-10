@@ -1,4 +1,4 @@
-import types
+import json
 from typing import Dict, Text, Any, NoReturn
 
 import jmespath
@@ -242,7 +242,9 @@ class ResponseObject(object):
             }
 
             # fix: TypeError: Object of type function is not JSON serializable
-            if isinstance(expect_item, types.FunctionType):
+            try:
+                json.dumps(validator_dict)
+            except TypeError:
                 validator_dict["expect"] = repr(expect_item)
                 validator_dict["expect_value"] = repr(expect_value)
 
