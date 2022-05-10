@@ -232,10 +232,6 @@ class ResponseObject(object):
 
             validate_msg = f"assert {check_item} {assert_method} {expect_value}({type(expect_value).__name__})"
 
-            # fix: TypeError: Object of type function is not JSON serializable
-            if isinstance(expect_item, types.FunctionType):
-                expect_item = repr(expect_item)
-
             validator_dict = {
                 "comparator": assert_method,
                 "check": check_item,
@@ -244,6 +240,11 @@ class ResponseObject(object):
                 "expect_value": expect_value,
                 "message": message,
             }
+
+            # fix: TypeError: Object of type function is not JSON serializable
+            if isinstance(expect_item, types.FunctionType):
+                validator_dict["expect"] = repr(expect_item)
+                validator_dict["expect_value"] = repr(expect_value)
 
             try:
                 assert_func(check_value, expect_value, message)
