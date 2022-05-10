@@ -1,3 +1,4 @@
+import types
 from typing import Dict, Text, Any, NoReturn
 
 import jmespath
@@ -230,6 +231,10 @@ class ResponseObject(object):
             message = parse_data(message, variables_mapping, functions_mapping)
 
             validate_msg = f"assert {check_item} {assert_method} {expect_value}({type(expect_value).__name__})"
+
+            # fix: TypeError: Object of type function is not JSON serializable
+            if isinstance(expect_item, types.FunctionType):
+                expect_item = repr(expect_item)
 
             validator_dict = {
                 "comparator": assert_method,
