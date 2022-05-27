@@ -3,7 +3,7 @@ Built-in validate comparators.
 """
 
 import re
-from typing import Text, Any, Union, Callable, Literal
+from typing import Text, Any, Union
 
 
 def equal(check_value: Any, expect_value: Any, message: Text = ""):

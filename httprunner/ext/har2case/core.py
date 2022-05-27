@@ -5,10 +5,10 @@ import sys
 import urllib.parse as urlparse
 from typing import Text
 
-from httprunner.compat import ensure_path_sep
 from loguru import logger
 from sentry_sdk import capture_exception
 
+from httprunner.compat import ensure_path_sep
 from httprunner.ext.har2case import utils
 from httprunner.make import make_testcase, format_pytest_with_black
 
@@ -214,7 +214,7 @@ class HarParser(object):
                         "content": {
                             "size": 71,
                             "mimeType": "application/json; charset=utf-8",
-                            "text": "eyJJc1N1Y2Nlc3MiOnRydWUsIkNvZGUiOjIwMCwiTWVzc2FnZSI6bnVsbCwiVmFsdWUiOnsiQmxuUmVzdWx0Ijp0cnVlfX0=",
+                            "text": "eyJJc1N1Y2Nlc3MiOnRydWUsIkNvZGUiOjIwMCwiTWVzc2FnZSI6bnVsb",
                             "encoding": "base64"
                         }
                     }
@@ -255,7 +255,7 @@ class HarParser(object):
                 try:
                     content = content.decode("utf-8")
                 except UnicodeDecodeError:
-                    logger.warning(f"failed to decode base64 content with utf-8 !")
+                    logger.warning("failed to decode base64 content with utf-8 !")
                     return
             else:
                 content = text

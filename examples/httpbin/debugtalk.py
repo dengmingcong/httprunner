@@ -17,7 +17,7 @@ def setup_testcase(variables):
 
 
 def teardown_testcase():
-    logger.info(f"teardown_testcase.")
+    logger.info("teardown_testcase.")
 
 
 def setup_teststep(request, variables):
@@ -141,7 +141,7 @@ def alter_response_302(response):
 
 def alter_response_error(response):
     # NameError
-    not_defined_variable
+    pass
 
 
 def gen_variables():

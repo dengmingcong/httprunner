@@ -1,12 +1,12 @@
 import collections
 import copy
+import itertools
 import json
 import os.path
 import platform
 import uuid
 from multiprocessing import Queue
-import itertools
-from typing import Dict, List, Any, Union, Text
+from typing import Dict, List, Any
 
 import sentry_sdk
 from loguru import logger

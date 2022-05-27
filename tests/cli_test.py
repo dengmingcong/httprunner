@@ -45,7 +45,7 @@ class TestCli(unittest.TestCase):
         try:
             os.chdir(os.path.join(cwd, "examples", "postman_echo"))
             exit_code = pytest.main(
-                ["-s", "request_methods/request_with_testcase_reference_test.py",]
+                ["-s", "request_methods/request_with_testcase_reference_test.py", ]
             )
             self.assertEqual(exit_code, 0)
         finally:

@@ -424,7 +424,7 @@ class RequestWithOptionalArgs(object):
             Exception will be raised if any keys specified do not exist.
         """
         if (origin_json := self.__step_context.request.req_json) is None:
-            raise ValueError(f"please call 'with_json()' first before calling this method")
+            raise ValueError("please call 'with_json()' first before calling this method")
         if not isinstance(origin_json, dict):
             raise ValueError(
                 f"argument passed into method 'with_json()' must be a dict if you want to call this method, "

@@ -31,4 +31,3 @@ def test_nested_with_allure():
         do_nothing()
         nested_allure()
         nested_nested_allure()
-

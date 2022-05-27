@@ -326,7 +326,7 @@ class HttpRunner(object):
             else:
                 if not isinstance(var, str) or not var:
                     raise ValueError(
-                        f"type of var can only be dict or str, and must not be empty"
+                        "type of var can only be dict or str, and must not be empty"
                     )
                 local_var_name = var
                 export_as = var
@@ -471,7 +471,7 @@ class HttpRunner(object):
                 )
                 logger.info(f"skip condition was met, reason: {parsed_skip_reason}")
             else:
-                logger.info(f"skip condition was not met, run the step")
+                logger.info("skip condition was not met, run the step")
 
         if not is_skip_step:
             if step.request:

@@ -2,7 +2,7 @@
 # FROM: hooks.yml
 
 
-from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
+from httprunner import HttpRunner, Config, Step, RunRequest
 
 
 class TestCaseHooks(HttpRunner):

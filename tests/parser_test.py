@@ -230,7 +230,8 @@ class TestParserBasic(unittest.TestCase):
         )
 
     def test_parse_data_string_with_functions(self):
-        import random, string
+        import random
+        import string
 
         functions_mapping = {
             "gen_random_string": lambda str_len: "".join(
@@ -243,7 +244,7 @@ class TestParserBasic(unittest.TestCase):
         )
         self.assertEqual(len(result), 5)
 
-        add_two_nums = lambda a, b=1: a + b
+        add_two_nums = lambda a, b=1: a + b  # noqa: E731
         functions_mapping["add_two_nums"] = add_two_nums
         self.assertEqual(
             parser.parse_data(

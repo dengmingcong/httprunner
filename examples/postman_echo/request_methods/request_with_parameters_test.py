@@ -3,10 +3,9 @@
 
 
 import pytest
+
+from httprunner import HttpRunner, Config, Step, RunRequest
 from httprunner import Parameters
-
-
-from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
 
 
 class TestCaseRequestWithParameters(HttpRunner):

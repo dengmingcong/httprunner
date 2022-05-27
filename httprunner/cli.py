@@ -66,7 +66,7 @@ def main():
     )
 
     subparsers = parser.add_subparsers(help="sub-command help")
-    sub_parser_run = init_parser_run(subparsers)
+    sub_parser_run = init_parser_run(subparsers)  # noqa: F841
     sub_parser_scaffold = init_parser_scaffold(subparsers)
     sub_parser_har2case = init_har2case_parser(subparsers)
     sub_parser_make = init_make_parser(subparsers)

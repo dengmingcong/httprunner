@@ -2,7 +2,7 @@
 # FROM: request_methods/request_with_variables.yml
 
 
-from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
+from httprunner import HttpRunner, Config, Step, RunRequest
 
 
 class TestCaseRequestWithVariables(HttpRunner):

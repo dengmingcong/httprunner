@@ -51,7 +51,7 @@ class TestUtils(unittest.TestCase):
         functions_mapping["contained_by"]("3ab", "123abc456")
         functions_mapping["contained_by"](0, [0, 200])
 
-        functions_mapping["regex_match"]("123abc456", "^123\w+456$")
+        functions_mapping["regex_match"]("123abc456", "^123\w+456$")  # noqa: W605
         with self.assertRaises(AssertionError):
             functions_mapping["regex_match"]("123abc456", "^12b.*456$")
 

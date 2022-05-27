@@ -12,13 +12,13 @@ from httprunner.utils import get_platform, ExtendJSONEncoder
 @pytest.fixture(scope="session", autouse=True)
 def session_fixture(request):
     """setup and teardown each task"""
-    logger.info(f"start running testcases ...")
+    logger.info("start running testcases ...")
 
     start_at = time.time()
 
     yield
 
-    logger.info(f"task finished, generate task summary for --save-tests")
+    logger.info("task finished, generate task summary for --save-tests")
 
     summary = {
         "success": True,
@@ -53,7 +53,10 @@ def session_fixture(request):
         testcase_summary_json["records"] = testcase_summary_json.pop("step_datas")
         summary["details"].append(testcase_summary_json)
 
-    summary_path = "/Users/debugtalk/MyProjects/HttpRunner-dev/HttpRunner/examples/postman_echo/logs/request_methods/hardcode.summary.json"
+    summary_path = (
+        "/Users/debugtalk/MyProjects/HttpRunner-dev/HttpRunner/"
+        "examples/postman_echo/logs/request_methods/hardcode.summary.json"
+    )
     summary_dir = os.path.dirname(summary_path)
     os.makedirs(summary_dir, exist_ok=True)
 

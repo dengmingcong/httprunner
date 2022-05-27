@@ -2,8 +2,9 @@ import uuid
 from typing import List
 
 import pytest
-from httprunner import Config, Step
 from loguru import logger
+
+from httprunner import Config, Step
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -23,7 +24,7 @@ def session_fixture(request):
 
     yield
 
-    logger.debug(f"teardown task fixture")
+    logger.debug("teardown task fixture")
 
     # teardown task
     # TODO: upload task summary
