@@ -44,6 +44,7 @@ requests-toolbelt = {version = "^0.9.1", optional = true}
 filetype = {version = "^1.0.7", optional = true}
 locust = {version = "^1.0.3", optional = true}
 flake8 = "^4.0.1"
+python-semantic-release = "^7.28.1"
 
 [tool.poetry.extras]
 allure = ["allure-pytest"]                  # pip install "httprunner[allure]", poetry install -E allure
@@ -65,3 +66,10 @@ locusts = "httprunner.ext.locust:main_locusts"
 [build-system]
 requires = ["poetry>=1.0.0"]
 build-backend = "poetry.masonry.api"
+
+[tool.semantic_release]
+version_toml = "pyproject.toml:tool.poetry.version"
+commit_version_number = true
+upload_to_repository = false
+build_command = false
+hvcs = "gitlab"
