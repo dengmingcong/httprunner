@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v3.3.5 (2022-05-27)
+### Fix
+* **ci:** File or directory not found: examples/postman_echo/request_methods ([`1970b05`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1970b054b8d456a92542e722d70c3972503b798b))
+
+### Documentation
+* **ci:** Add placeholder for semantic-release ([`0155095`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/0155095241e270e6944d664fa89e02caba493fd0))
+
 ## 3.1.4 (2020-07-30)
 
 **Changed**
