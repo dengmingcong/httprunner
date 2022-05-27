@@ -70,6 +70,8 @@ build-backend = "poetry.masonry.api"
 [tool.semantic_release]
 version_toml = "pyproject.toml:tool.poetry.version"
 commit_version_number = true
-upload_to_repository = false
-build_command = false
+changelog_file = "docs/CHANGELOG.md"
+upload_to_repository = true
+repository_url = "http://nexus.vesync.com:9081/repository/pypi-hosted/"
+build_command = "poetry build"
 hvcs = "gitlab"
