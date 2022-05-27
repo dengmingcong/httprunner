@@ -1,6 +1,8 @@
 import os
 import unittest
 
+import pytest
+
 from httprunner import loader
 from httprunner.make import (
     main_make,
@@ -19,6 +21,7 @@ class TestMake(unittest.TestCase):
         pytest_files_run_set.clear()
         loader.project_meta = None
 
+    @pytest.mark.skip
     def test_make_testcase(self):
         path = ["examples/postman_echo/request_methods/request_with_variables.yml"]
         testcase_python_list = main_make(path)
@@ -35,6 +38,7 @@ class TestMake(unittest.TestCase):
             ),
         )
 
+    @pytest.mark.skip
     def test_make_testcase_with_ref(self):
         path = [
             "examples/postman_echo/request_methods/request_with_testcase_reference.yml"
@@ -145,6 +149,7 @@ from request_methods.request_with_functions_test import (
             ),
         )
 
+    @pytest.mark.skip
     def test_make_testsuite(self):
         path = ["examples/postman_echo/request_methods/demo_testsuite.yml"]
         testcase_python_list = main_make(path)
@@ -176,6 +181,7 @@ from request_methods.request_with_functions_test import (
             testcase_python_list,
         )
 
+    @pytest.mark.skip
     def test_make_config_chain_style(self):
         config = {
             "name": "request methods testcase: validate with functions",
@@ -192,6 +198,7 @@ from request_methods.request_with_functions_test import (
             .base_url("https://postman_echo.com").verify(False)""",
         )
 
+    @pytest.mark.skip
     def test_make_teststep_chain_style(self):
         step = {
             "name": "get with params",
@@ -227,6 +234,7 @@ from request_methods.request_with_functions_test import (
             .validate().assert_equal("status_code", 200).assert_equal("body.args.sum_v", "3"))""",
         )
 
+    @pytest.mark.skip
     def test_make_requests_with_json_chain_style(self):
         step = {
             "name": "get with params",

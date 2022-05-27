@@ -3,10 +3,13 @@ import shutil
 import subprocess
 import unittest
 
+import pytest
+
 from httprunner.scaffold import create_scaffold
 
 
 class TestScaffold(unittest.TestCase):
+    @pytest.mark.skip
     def test_create_scaffold(self):
         project_name = "projectABC"
         create_scaffold(project_name)
