@@ -1,5 +1,7 @@
 # Release History
 
+<!--next-version-placeholder-->
+
 ## 3.1.4 (2020-07-30)
 
 **Changed**
