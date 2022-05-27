@@ -1,0 +1,81 @@
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_TITLE =~ /^\d+.\d+.\d+$/
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+variables:
+  GITLAB_RUNNER_HOME: /home/gitlab-runner
+  POETRY: ${GITLAB_RUNNER_HOME}/.local/bin/poetry
+  ALLURE: ${GITLAB_RUNNER_HOME}/allure-2.18.0/bin/allure
+
+cache:
+  key:
+    files:
+      - poetry.lock
+  paths:
+    - .venv
+
+stages:
+  - pre-install
+  - install
+  - build
+  - lint
+  - test
+  - publish
+
+install tools:
+  stage: pre-install
+  script:
+    - |
+      if ! [[ -f ${POETRY} ]] 
+      then
+        curl -k -sSL "https://install.python-poetry.org" | python3.9 -
+        echo export PATH="${GITLAB_RUNNER_HOME}/.local/bin:$PATH" >> ${GITLAB_RUNNER_HOME}/.bash_profile
+      fi
+    - |
+      if ! [[ -f ${ALLURE} ]]
+      then
+        wget https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.18.0/allure-commandline-2.18.0.zip
+        unzip allure-commandline-2.18.0.zip -d ${GITLAB_RUNNER_HOME} && rm -f allure-commandline-2.18.0.zip
+        echo export PATH="${GITLAB_RUNNER_HOME}/allure-2.18.0/bin:$PATH" >> ${GITLAB_RUNNER_HOME}/.bash_profile
+      fi
+  cache: {}
+
+install dependencies:
+  stage: install
+  script:
+    - poetry config virtualenvs.in-project true
+    - poetry install
+
+flake8:
+  stage: lint
+  script:
+    - poetry run flake8 examples/ httprunner/ tests/
+
+unit test:
+  stage: test
+  script:
+    - poetry run coverage run --source=httprunner -m pytest tests
+
+smoke test:
+  stage: test
+  script:
+    - |
+      cd examples/postman_echo/request_methods
+      poetry run pytest examples/postman_echo/request_methods
+
+semantic release:
+  stage: publish
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  variables:
+    GIT_REPO_DOMAIN: fangcun.vesync.com:8081
+  script:
+    - git config --global user.email "semantic-release"
+    - git config --global user.name "semantic-release"
+    - git remote set-url --push origin "http://gitlab-ci-token:$MY_ACCESS_TOKEN@$GIT_REPO_DOMAIN/$CI_PROJECT_PATH"
+    - git checkout master
+    - git merge
+    - poetry run semantic-release publish -v DEBUG
