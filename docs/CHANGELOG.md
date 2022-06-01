@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.4.1 (2022-06-01)
+### Fix
+* File not exist when variables exist in upload dict ([`12ccdb3`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/12ccdb3a47f2a699c6d27b4cdf438a3d98961b78))
+
 ## v3.4.0 (2022-06-01)
 ### Feature
 * Add support to upload file with discrete mime types ([`b209d61`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b209d61cac86b8154e79e9e69182aab08f2e36d3))
