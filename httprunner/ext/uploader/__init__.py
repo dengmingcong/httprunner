@@ -49,7 +49,7 @@ from typing import Text, NoReturn
 from loguru import logger
 
 from httprunner.models import TStep, FunctionsMapping
-from httprunner.parser import parse_variables_mapping
+from httprunner.parser import parse_variables_mapping, parse_data
 
 try:
     import filetype  # noqa
@@ -157,6 +157,8 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
             )
 
         for key, value in step.request.upload.items():
+            value = parse_data(value, step.variables, functions)
+
             if os.path.isabs(value):
                 # value is absolute file path
                 _file_path = value
