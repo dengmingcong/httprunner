@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v3.4.0 (2022-06-01)
+### Feature
+* Add support to upload file with discrete mime types ([`b209d61`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b209d61cac86b8154e79e9e69182aab08f2e36d3))
+
+### Fix
+* Too many arguments to unpack ([`2d64dcb`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/2d64dcbfeb133dccc3f056cc2bb0e6794f951420))
+
+### Documentation
+* Denote condition 'discrete' ([`4f1ad47`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4f1ad47121169b0a7ec8d319e18e147045e2bdcb))
+
 ## v3.3.5 (2022-05-27)
 ### Fix
 * **ci:** File or directory not found: examples/postman_echo/request_methods ([`1970b05`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1970b054b8d456a92542e722d70c3972503b798b))
