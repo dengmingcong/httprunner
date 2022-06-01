@@ -26,12 +26,20 @@ class TestCaseUpload(HttpRunner):
             .assert_startswith("body.files.file", "UserName=test")
         ),
         Step(
-            RunRequest("upload file with keyword")
+            RunRequest("upload file with multipart/form")
             .post("/post")
             .upload(**{"file": "test.env"})
             .validate()
             .assert_equal("status_code", 200)
             .assert_startswith("body.files.file", "UserName=test")
+        ),
+        Step(
+            RunRequest("upload file with discrete mime type")
+            .post("/post")
+            .upload(**{"img": "foo.png"})
+            .with_headers(**{"X-Upload-File-As": "discrete"})
+            .validate()
+            .assert_equal("status_code", 200)
         ),
     ]
 

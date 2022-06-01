@@ -46,12 +46,13 @@ import os
 import sys
 from typing import Text, NoReturn
 
-from httprunner.models import TStep, FunctionsMapping
-from httprunner.parser import parse_variables_mapping
 from loguru import logger
 
+from httprunner.models import TStep, FunctionsMapping
+from httprunner.parser import parse_variables_mapping
+
 try:
-    import filetype
+    import filetype  # noqa
     from requests_toolbelt import MultipartEncoder
 
     UPLOAD_READY = True
@@ -75,8 +76,16 @@ def ensure_upload_ready():
     sys.exit(1)
 
 
+def get_filetype(file_path):
+    file_type = filetype.guess(file_path)
+    if file_type:
+        return file_type.mime
+    else:
+        return "text/html"
+
+
 def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
-    """ preprocess for upload test
+    """preprocess for upload test
         replace `upload` info with MultipartEncoder
 
     Args:
@@ -102,37 +111,84 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
         return
 
     ensure_upload_ready()
-    params_list = []
-    for key, value in step.request.upload.items():
-        step.variables[key] = value
-        params_list.append(f"{key}=${key}")
 
-    params_str = ", ".join(params_list)
-    step.variables["m_encoder"] = "${multipart_encoder(" + params_str + ")}"
+    # convert keys to lowercase for keys of http headers are case-sensitive
+    headers = {k.lower(): v for k, v in step.request.headers.items()}
 
-    # parse variables
-    step.variables = parse_variables_mapping(step.variables, functions)
+    # print warning if header content-type detected
+    if "content-type" in step.request.headers:
+        logger.warning(
+            f"The header 'Content-Type: {headers.get('content-type')}' you provided will be overwritten "
+            f"with that guessed by lib filetype. You don't need to specify Content-Type header when uploading files."
+        )
 
-    step.request.headers["Content-Type"] = "${multipart_content_type($m_encoder)}"
+    # upload file as multipart/form by default
+    upload_file_type = "multipart"
 
-    step.request.data = "$m_encoder"
+    # set upload_file_type with value extracted from header
+    if "x-upload-file-as" in headers:
+        upload_file_type = headers.get("x-upload-file-as")
+        if upload_file_type not in ["multipart", "discrete"]:
+            raise ValueError(
+                f"Value for header 'X-Upload-File-As' can only be 'multipart' or 'discrete', "
+                f"but got: {upload_file_type}"
+            )
+
+    # multipart
+    if upload_file_type == "multipart":
+        params_list = []
+        for key, value in step.request.upload.items():
+            step.variables[key] = value
+            params_list.append(f"{key}=${key}")
+
+        params_str = ", ".join(params_list)
+        step.variables["m_encoder"] = "${multipart_encoder(" + params_str + ")}"
+
+        # parse variables
+        step.variables = parse_variables_mapping(step.variables, functions)
+
+        step.request.headers["Content-Type"] = "${multipart_content_type($m_encoder)}"
+        step.request.data = "$m_encoder"
+    else:
+        # discrete
+        if (count := len(step.request.upload)) != 1:
+            raise ValueError(
+                f"one and only one file expected when uploading file as 'discrete', but got: {count}"
+            )
+
+        for key, value in step.request.upload.items():
+            if os.path.isabs(value):
+                # value is absolute file path
+                _file_path = value
+                if not os.path.isfile(value):
+                    raise ValueError(
+                        f"file specified by absolute path {value} not exist"
+                    )
+            else:
+                # value is not absolute file path, check if it is relative file path
+                from httprunner.loader import load_project_meta
+
+                project_meta = load_project_meta("")
+                _file_path = os.path.join(project_meta.RootDir, value)
+                if not os.path.isfile(_file_path):
+                    raise ValueError(
+                        f"no file '{value}' under '{project_meta.RootDir}' found"
+                    )
+
+            # value is file path to upload
+            mime_type = get_filetype(_file_path)
+            file_handler = open(_file_path, "rb")
+
+            step.request.headers["Content-Type"] = mime_type
+            step.request.data = file_handler
 
 
 def multipart_encoder(**kwargs):
-    """ initialize MultipartEncoder with uploading fields.
+    """initialize MultipartEncoder with uploading fields.
 
     Returns:
         MultipartEncoder: initialized MultipartEncoder object
-
     """
-
-    def get_filetype(file_path):
-        file_type = filetype.guess(file_path)
-        if file_type:
-            return file_type.mime
-        else:
-            return "text/html"
-
     ensure_upload_ready()
     fields_dict = {}
     for key, value in kwargs.items():
@@ -164,7 +220,7 @@ def multipart_encoder(**kwargs):
 
 
 def multipart_content_type(m_encoder) -> Text:
-    """ prepare Content-Type for request headers
+    """prepare Content-Type for request headers
 
     Args:
         m_encoder: MultipartEncoder object
