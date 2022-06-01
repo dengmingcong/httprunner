@@ -152,7 +152,9 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
     else:
         # discrete
         if (count := len(step.request.upload)) != 1:
-            raise ValueError(f"One and only one file expected, but got: {count}")
+            raise ValueError(
+                f"one and only one file expected when uploading file as 'discrete', but got: {count}"
+            )
 
         for key, value in step.request.upload.items():
             if os.path.isabs(value):
