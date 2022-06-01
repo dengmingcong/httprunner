@@ -113,7 +113,7 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
     ensure_upload_ready()
 
     # convert keys to lowercase for keys of http headers are case-sensitive
-    headers = {k.lower(): v for k, v in step.request.headers}
+    headers = {k.lower(): v for k, v in step.request.headers.items()}
 
     # print warning if header content-type detected
     if "content-type" in step.request.headers:
