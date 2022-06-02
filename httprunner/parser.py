@@ -1,16 +1,10 @@
 import ast
 import builtins
-import inspect
-import json
 import os
 import re
-from collections import defaultdict
-from copy import deepcopy
-from typing import Any, Set, Text, Callable, List, Dict, Literal
+from typing import Any, Set, Text, Callable, List, Dict
 
 from loguru import logger
-from pydantic import BaseModel
-from pydantic.json import pydantic_encoder
 from sentry_sdk import capture_exception
 
 from httprunner import loader, utils, exceptions
@@ -24,22 +18,6 @@ dollar_regex_compile = re.compile(r"\$\$")
 variable_regex_compile = re.compile(r"\$\{(\w+)}|\$(\w+)")
 # function notation, e.g. ${func1($var_1, $var_3)}
 function_regex_compile = re.compile(r"\$\{(\w+)\(([$\w.\-/\s=,]*)\)}")
-
-try:
-    import allure
-
-    USE_ALLURE = True
-except ModuleNotFoundError:
-    USE_ALLURE = False
-
-
-class CustomEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, BaseModel):
-            return pydantic_encoder(obj)
-        if isinstance(obj, set):
-            return list(obj)
-        return json.JSONEncoder.default(self, obj)
 
 
 def parse_string_value(str_value: Text) -> Any:
@@ -302,81 +280,6 @@ def get_mapping_function(
     raise exceptions.FunctionNotFound(f"{function_name} is not found.")
 
 
-def get_pydantic_object_id_recursively(obj: BaseModel, depth: int = 2) -> dict:
-    """
-    Get id of pydantic object, and get ids of fields if fields are pydantic object too.
-    """
-    id_dict = {"self": id(obj)}
-
-    if depth > 0:
-        depth -= 1
-        fields_ids = {}
-        for field_name in obj.__fields__:
-            value = getattr(obj, field_name)
-            if isinstance(value, BaseModel):
-                fields_ids[field_name] = get_pydantic_object_id_recursively(
-                    value, depth
-                )
-            elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
-                fields_ids[field_name] = get_pydantic_objects_ids_recursively(
-                    value, depth
-                )
-
-        if fields_ids:
-            id_dict["fields"] = fields_ids
-    return id_dict
-
-
-def get_pydantic_objects_ids_recursively(objs: list[BaseModel], depth: int = 2) -> dict:
-    """
-    Get ids of multiple pydantic objects.
-    """
-    id_dict = {"self": id(objs)}
-    if depth > 0:
-        depth -= 1
-        id_dict["elements"] = [
-            get_pydantic_object_id_recursively(obj, depth) for obj in objs
-        ]
-    return id_dict
-
-
-def report_function_args(
-    report_dict: dict, flag: Literal["IN", "OUT"], names: list, values: list, depth: int
-) -> None:
-    """
-    Add information of function arguments to Allure reports.
-    """
-    for name, value in zip(names, values):
-        # convert ResponseObject to dict
-        # call isinstance(value, ResponseObject) will cause circular import error
-        if not isinstance(value, BaseModel):
-            try:
-                value = value.body
-            except AttributeError:
-                pass
-
-        # try to dump to avoid error when dumps
-        try:
-            json.dumps(value, cls=CustomEncoder)
-        except TypeError:
-            value = repr(value)
-
-        if flag == "IN":
-            if isinstance(value, BaseModel):
-                value_id = get_pydantic_object_id_recursively(value, depth)
-            elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
-                value_id = get_pydantic_objects_ids_recursively(value, depth)
-            else:
-                value_id = id(value)
-
-            report_dict[name]["metadata"] = {"type": repr(type(value)), "id": value_id}
-
-            # deepcopy object before dumps as snapshot
-            value = deepcopy(value)
-
-        report_dict[name][flag] = value
-
-
 def parse_string(
     raw_string: Text,
     variables_mapping: VariablesMapping,
@@ -398,7 +301,6 @@ def parse_string(
         >>> _functions_mapping = {"add_one": lambda x: x + 1}
         >>> parse_string(_raw_string, _variables_mapping, _functions_mapping)
             "abc4def"
-
     """
     try:
         match_start_position = raw_string.index("$", 0)
@@ -432,69 +334,8 @@ def parse_string(
             parsed_args = parse_data(args, variables_mapping, functions_mapping)
             parsed_kwargs = parse_data(kwargs, variables_mapping, functions_mapping)
 
-            # get all names and values of all arguments
-            all_args_values = [*parsed_args, *list(parsed_kwargs.values())]
-            try:
-                all_args_names = list(inspect.signature(func).parameters.keys())
-            except ValueError:
-                all_args_names = list(range(len(all_args_values)))
-            report_dict = defaultdict(dict)
-
-            # attach function arguments detail to Allure if True
-            is_attach_function = False
-
-            # set default depth to 2
-            object_id_depth = 2
-
-            if USE_ALLURE:
-                env_attach_all_functions = os.environ.get("ATTACH_ALL_FUNCTIONS")
-                attach_functions = variables_mapping.get("ATTACH_FUNCTIONS", [])
-
-                # note: compare with string 'true'
-                if env_attach_all_functions == "true" or func_name in attach_functions:
-                    is_attach_function = True
-
-                    # try to get depth from .env
-                    env_object_id_depth = os.environ.get("OBJECT_ID_DEPTH")
-                    if env_object_id_depth:
-                        try:
-                            object_id_depth = int(env_object_id_depth)
-                        except ValueError:
-                            pass
-                        except TypeError:
-                            pass
-
-            if is_attach_function:
-                # log before function execution
-                report_function_args(
-                    report_dict,
-                    "IN",
-                    all_args_names,
-                    all_args_values,
-                    depth=object_id_depth,
-                )
-
             try:
                 func_eval_value = func(*parsed_args, **parsed_kwargs)
-
-                if is_attach_function:
-                    # log after function execution
-                    report_function_args(
-                        report_dict,
-                        "OUT",
-                        all_args_names,
-                        all_args_values,
-                        depth=object_id_depth,
-                    )
-
-                    allure.attach(
-                        json.dumps(
-                            report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder
-                        ),
-                        f"function: {func_name}({', '.join([str(arg) for arg in all_args_names])})",
-                        allure.attachment_type.JSON,
-                    )
-
             except Exception as ex:
                 logger.error(
                     f"call function error:\n"
@@ -503,16 +344,6 @@ def parse_string(
                     f"kwargs: {parsed_kwargs}\n"
                     f"{type(ex).__name__}: {ex}"
                 )
-
-                # attach to report if exception raised
-                if is_attach_function:
-                    allure.attach(
-                        json.dumps(
-                            report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder
-                        ),
-                        f"function: {func_name}({', '.join([str(arg) for arg in all_args_names])})",
-                        allure.attachment_type.JSON,
-                    )
                 raise
 
             if func_name == "evaluate":
@@ -598,6 +429,9 @@ def parse_data(
 def parse_variables_mapping(
     variables_mapping: VariablesMapping, functions_mapping: FunctionsMapping = None
 ) -> VariablesMapping:
+    """
+    All variables specified in argument 'variables_mapping' must be parsed on variables_mapping and functions_mapping.
+    """
 
     parsed_variables: VariablesMapping = {}
 
