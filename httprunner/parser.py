@@ -325,8 +325,6 @@ def parse_string(
         func_match = function_regex_compile.match(raw_string, match_start_position)
         if func_match:
             func_name = func_match.group(1)
-            func = get_mapping_function(func_name, functions_mapping)
-
             func_params_str = func_match.group(2)
             function_meta = parse_function_params(func_params_str)
             args = function_meta["args"]
@@ -334,22 +332,40 @@ def parse_string(
             parsed_args = parse_data(args, variables_mapping, functions_mapping)
             parsed_kwargs = parse_data(kwargs, variables_mapping, functions_mapping)
 
-            try:
-                func_eval_value = func(*parsed_args, **parsed_kwargs)
-            except Exception as ex:
-                logger.error(
-                    f"call function error:\n"
-                    f"func_name: {func_name}\n"
-                    f"args: {parsed_args}\n"
-                    f"kwargs: {parsed_kwargs}\n"
-                    f"{type(ex).__name__}: {ex}"
-                )
-                raise
+            if func_name == "eval_var":
+                # check arguments assigned to func 'eval_var'
+                if len(args) != 1:
+                    raise ValueError(
+                        f"expect 1 positional argument when func name is 'eval_var', but got: {len(args)}"
+                    )
+                if len(kwargs) > 0:
+                    raise ValueError(
+                        f"no keyword arguments are expected when func name is 'eval_var', but got: {len(kwargs)}"
+                    )
+                if not isinstance((parsed_arg := parsed_args[0]), (str, float, int)):
+                    raise ValueError(
+                        f"when func name is 'eval_var', the value of variable ({args[0]}) is expected "
+                        f"to be either str, int, or float, but got: {type(parsed_arg)}, "
+                        f"and value is {parsed_arg}"
+                    )
 
-            if func_name == "evaluate":
+                # parse again
                 func_eval_value = parse_string(
-                    func_eval_value, variables_mapping, functions_mapping
+                    parsed_arg, variables_mapping, functions_mapping
                 )
+            else:
+                func = get_mapping_function(func_name, functions_mapping)
+                try:
+                    func_eval_value = func(*parsed_args, **parsed_kwargs)
+                except Exception as ex:
+                    logger.error(
+                        f"call function error:\n"
+                        f"func_name: {func_name}\n"
+                        f"args: {parsed_args}\n"
+                        f"kwargs: {parsed_kwargs}\n"
+                        f"{type(ex).__name__}: {ex}"
+                    )
+                    raise
 
             func_raw_str = "${" + func_name + f"({func_params_str})" + "}"
             if func_raw_str == raw_string:

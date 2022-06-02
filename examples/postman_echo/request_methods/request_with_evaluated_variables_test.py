@@ -23,9 +23,7 @@ class TestCaseRequestWithVariables(HttpRunner):
                 }
             )
             .post("/post")
-            .with_json({
-                "value": "${evaluate($func)}"
-            })
+            .with_json({"value": "${eval_var($func)}"})
             .validate()
             .assert_equal("status_code", 200)
             .assert_equal("body.data.value", [2, 0])

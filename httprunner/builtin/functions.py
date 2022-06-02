@@ -14,16 +14,14 @@ from httprunner.exceptions import ParamsError
 
 
 def gen_random_string(str_len):
-    """ generate random string with specified length
-    """
+    """generate random string with specified length"""
     return "".join(
         random.choice(string.ascii_letters + string.digits) for _ in range(str_len)
     )
 
 
 def get_timestamp(str_len=13):
-    """ get timestamp string, length can only between 0 and 16
-    """
+    """get timestamp string, length can only between 0 and 16"""
     if isinstance(str_len, int) and 0 < str_len < 17:
         return str(time.time()).replace(".", "")[:str_len]
 
@@ -31,14 +29,12 @@ def get_timestamp(str_len=13):
 
 
 def get_current_date(fmt="%Y-%m-%d"):
-    """ get current date, default format is %Y-%m-%d
-    """
+    """get current date, default format is %Y-%m-%d"""
     return datetime.datetime.now().strftime(fmt)
 
 
 def sleep(n_secs):
-    """ sleep n seconds
-    """
+    """sleep n seconds"""
     time.sleep(n_secs)
 
 
@@ -54,16 +50,6 @@ def update_dict_recursively(d: dict, u: Mapping) -> dict:
         else:
             d[k] = v
     return d
-
-
-def evaluate(var: str):
-    """
-    Return value as is.
-
-    parser.parse_string() use this function to implement the functionality
-    that evaluating a string containing other variables or functions.
-    """
-    return var
 
 
 def expand_nested_json(target: Any) -> Any:
@@ -91,7 +77,7 @@ def expand_nested_json(target: Any) -> Any:
         for k, v in target.items():
             target[k] = expand_nested_json(v)
         return target
-    elif isinstance(target, str) and "\"" in target:
+    elif isinstance(target, str) and '"' in target:
         try:
             target = json.loads(target)
         except json.decoder.JSONDecodeError:
