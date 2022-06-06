@@ -18,6 +18,8 @@ dollar_regex_compile = re.compile(r"\$\$")
 variable_regex_compile = re.compile(r"\$\{(\w+)}|\$(\w+)")
 # function notation, e.g. ${func1($var_1, $var_3)}
 function_regex_compile = re.compile(r"\$\{(\w+)\(([$\w.\-/\s=,]*)\)}")
+# python expression
+expression_regex_compile = re.compile(r"""(?=.*[[.])\$\{([$\w.[\]:'"]*)}""")
 
 
 def parse_string_value(str_value: Text) -> Any:
@@ -319,6 +321,39 @@ def parse_string(
         if dollar_match:
             match_start_position = dollar_match.end()
             parsed_string += "$"
+            continue
+
+        # search expression like ${obj.attr[0]['key']}
+        expression_match = expression_regex_compile.match(
+            raw_string, match_start_position
+        )
+        if expression_match:
+            # raw expression without leading "${" and ending "}"
+            raw_expression = expression_match.group(1)
+
+            # eval variables before eval expression
+            raw_expression = parse_string(
+                raw_expression, variables_mapping, functions_mapping
+            )
+
+            try:
+                expression_eval_value = eval(raw_expression, variables_mapping)
+            except NameError as ex:
+                raise exceptions.VariableNotFound(
+                    f"{ex}, all variables: {variables_mapping}"
+                )
+            except Exception as ex:
+                raise ValueError(
+                    f"error occurs while evaluating expression '{raw_expression}'. {type(ex).__name__}: {ex}"
+                )
+
+            # raw_string is an expression, e.g. "${obj.attr[0]['key']}", return its eval value directly
+            if expression_match.group(0) == raw_string:
+                return expression_eval_value
+
+            # raw_string contains not only expression, e.g. "${obj.attr[0]['key']}${func()}"
+            parsed_string += str(expression_eval_value)
+            match_start_position = expression_match.end()
             continue
 
         # search function like ${func($a, $b)}
