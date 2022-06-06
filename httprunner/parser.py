@@ -1,16 +1,10 @@
 import ast
 import builtins
-import inspect
-import json
 import os
 import re
-from collections import defaultdict
-from copy import deepcopy
-from typing import Any, Set, Text, Callable, List, Dict, Literal
+from typing import Any, Set, Text, Callable, List, Dict
 
 from loguru import logger
-from pydantic import BaseModel
-from pydantic.json import pydantic_encoder
 from sentry_sdk import capture_exception
 
 from httprunner import loader, utils, exceptions
@@ -21,29 +15,15 @@ absolute_http_url_regexp = re.compile(r"^https?://", re.I)
 # use $$ to escape $ notation
 dollar_regex_compile = re.compile(r"\$\$")
 # variable notation, e.g. ${var} or $var
-variable_regex_compile = re.compile(r"\$\{(\w+)\}|\$(\w+)")
+variable_regex_compile = re.compile(r"\$\{(\w+)}|\$(\w+)")
 # function notation, e.g. ${func1($var_1, $var_3)}
-function_regex_compile = re.compile(r"\$\{(\w+)\(([\$\w\.\-/\s=,]*)\)\}")
-
-try:
-    import allure
-
-    USE_ALLURE = True
-except ModuleNotFoundError:
-    USE_ALLURE = False
-
-
-class CustomEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, BaseModel):
-            return pydantic_encoder(obj)
-        if isinstance(obj, set):
-            return list(obj)
-        return json.JSONEncoder.default(self, obj)
+function_regex_compile = re.compile(r"\$\{(\w+)\(([$\w.\-/\s=,]*)\)}")
+# python expression
+expression_regex_compile = re.compile(r"""(?=.*[[.])\$\{([$\w.[\]:'"]*)}""")
 
 
 def parse_string_value(str_value: Text) -> Any:
-    """ parse string to number if possible
+    """parse string to number if possible
     e.g. "123" => 123
          "12.2" => 12.3
          "abc" => "abc"
@@ -59,7 +39,7 @@ def parse_string_value(str_value: Text) -> Any:
 
 
 def build_url(base_url, path):
-    """ prepend url with base_url unless it's already an absolute URL """
+    """prepend url with base_url unless it's already an absolute URL"""
     if absolute_http_url_regexp.match(path):
         return path
     elif base_url:
@@ -69,7 +49,7 @@ def build_url(base_url, path):
 
 
 def regex_findall_variables(raw_string: Text) -> List[Text]:
-    """ extract all variable names from content, which is in format $variable
+    """extract all variable names from content, which is in format $variable
 
     Args:
         raw_string (str): string content
@@ -128,7 +108,7 @@ def regex_findall_variables(raw_string: Text) -> List[Text]:
 
 
 def regex_findall_functions(content: Text) -> List[Text]:
-    """ extract all functions from string content, which are in format ${fun()}
+    """extract all functions from string content, which are in format ${fun()}
 
     Args:
         content (str): string content
@@ -161,8 +141,7 @@ def regex_findall_functions(content: Text) -> List[Text]:
 
 
 def extract_variables(content: Any) -> Set:
-    """ extract all variables in content recursively.
-    """
+    """extract all variables in content recursively."""
     if isinstance(content, (list, set, tuple)):
         variables = set()
         for item in content:
@@ -182,7 +161,7 @@ def extract_variables(content: Any) -> Set:
 
 
 def parse_function_params(params: Text) -> Dict:
-    """ parse function params to args and kwargs.
+    """parse function params to args and kwargs.
 
     Args:
         params (str): function param in string
@@ -233,7 +212,7 @@ def parse_function_params(params: Text) -> Dict:
 def get_mapping_variable(
     variable_name: Text, variables_mapping: VariablesMapping
 ) -> Any:
-    """ get variable from variables_mapping.
+    """get variable from variables_mapping.
 
     Args:
         variable_name (str): variable name
@@ -258,7 +237,7 @@ def get_mapping_variable(
 def get_mapping_function(
     function_name: Text, functions_mapping: FunctionsMapping
 ) -> Callable:
-    """ get function from functions_mapping,
+    """get function from functions_mapping,
         if not found, then try to check if builtin function.
 
     Args:
@@ -303,88 +282,12 @@ def get_mapping_function(
     raise exceptions.FunctionNotFound(f"{function_name} is not found.")
 
 
-def get_pydantic_object_id_recursively(obj: BaseModel, depth: int = 2) -> dict:
-    """
-    Get id of pydantic object, and get ids of fields if fields are pydantic object too.
-    """
-    id_dict = {"self": id(obj)}
-
-    if depth > 0:
-        depth -= 1
-        fields_ids = {}
-        for field_name in obj.__fields__:
-            value = getattr(obj, field_name)
-            if isinstance(value, BaseModel):
-                fields_ids[field_name] = get_pydantic_object_id_recursively(value, depth)
-            elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
-                fields_ids[field_name] = get_pydantic_objects_ids_recursively(value, depth)
-
-        if fields_ids:
-            id_dict["fields"] = fields_ids
-    return id_dict
-
-
-def get_pydantic_objects_ids_recursively(objs: list[BaseModel], depth: int = 2) -> dict:
-    """
-    Get ids of multiple pydantic objects.
-    """
-    id_dict = {"self": id(objs)}
-    if depth > 0:
-        depth -= 1
-        id_dict["elements"] = [get_pydantic_object_id_recursively(obj, depth) for obj in objs]
-    return id_dict
-
-
-def report_function_args(
-        report_dict: dict,
-        flag: Literal["IN", "OUT"],
-        names: list,
-        values: list,
-        depth: int
-) -> None:
-    """
-    Add information of function arguments to Allure reports.
-    """
-    for name, value in zip(names, values):
-        # convert ResponseObject to dict
-        # call isinstance(value, ResponseObject) will cause circular import error
-        if not isinstance(value, BaseModel):
-            try:
-                value = value.body
-            except AttributeError:
-                pass
-
-        # try to dump to avoid error when dumps
-        try:
-            json.dumps(value, cls=CustomEncoder)
-        except TypeError:
-            value = repr(value)
-
-        if flag == "IN":
-            if isinstance(value, BaseModel):
-                value_id = get_pydantic_object_id_recursively(value, depth)
-            elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
-                value_id = get_pydantic_objects_ids_recursively(value, depth)
-            else:
-                value_id = id(value)
-
-            report_dict[name]["metadata"] = {
-                "type": repr(type(value)),
-                "id": value_id
-            }
-
-            # deepcopy object before dumps as snapshot
-            value = deepcopy(value)
-
-        report_dict[name][flag] = value
-
-
 def parse_string(
-        raw_string: Text,
-        variables_mapping: VariablesMapping,
-        functions_mapping: FunctionsMapping,
+    raw_string: Text,
+    variables_mapping: VariablesMapping,
+    functions_mapping: FunctionsMapping,
 ) -> Any:
-    """ parse string content with variables and functions mapping.
+    """parse string content with variables and functions mapping.
 
     Args:
         raw_string: raw string content to be parsed.
@@ -395,12 +298,11 @@ def parse_string(
         str: parsed string content.
 
     Examples:
-        >>> raw_string = "abc${add_one($num)}def"
-        >>> variables_mapping = {"num": 3}
-        >>> functions_mapping = {"add_one": lambda x: x + 1}
-        >>> parse_string(raw_string, variables_mapping, functions_mapping)
+        >>> _raw_string = "abc${add_one($num)}def"
+        >>> _variables_mapping = {"num": 3}
+        >>> _functions_mapping = {"add_one": lambda x: x + 1}
+        >>> parse_string(_raw_string, _variables_mapping, _functions_mapping)
             "abc4def"
-
     """
     try:
         match_start_position = raw_string.index("$", 0)
@@ -421,12 +323,43 @@ def parse_string(
             parsed_string += "$"
             continue
 
+        # search expression like ${obj.attr[0]['key']}
+        expression_match = expression_regex_compile.match(
+            raw_string, match_start_position
+        )
+        if expression_match:
+            # raw expression without leading "${" and ending "}"
+            raw_expression = expression_match.group(1)
+
+            # eval variables before eval expression
+            raw_expression = parse_string(
+                raw_expression, variables_mapping, functions_mapping
+            )
+
+            try:
+                expression_eval_value = eval(raw_expression, variables_mapping)
+            except NameError as ex:
+                raise exceptions.VariableNotFound(
+                    f"{ex}, all variables: {variables_mapping}"
+                )
+            except Exception as ex:
+                raise ValueError(
+                    f"error occurs while evaluating expression '{raw_expression}'. {type(ex).__name__}: {ex}"
+                )
+
+            # raw_string is an expression, e.g. "${obj.attr[0]['key']}", return its eval value directly
+            if expression_match.group(0) == raw_string:
+                return expression_eval_value
+
+            # raw_string contains not only expression, e.g. "${obj.attr[0]['key']}${func()}"
+            parsed_string += str(expression_eval_value)
+            match_start_position = expression_match.end()
+            continue
+
         # search function like ${func($a, $b)}
         func_match = function_regex_compile.match(raw_string, match_start_position)
         if func_match:
             func_name = func_match.group(1)
-            func = get_mapping_function(func_name, functions_mapping)
-
             func_params_str = func_match.group(2)
             function_meta = parse_function_params(func_params_str)
             args = function_meta["args"]
@@ -434,75 +367,40 @@ def parse_string(
             parsed_args = parse_data(args, variables_mapping, functions_mapping)
             parsed_kwargs = parse_data(kwargs, variables_mapping, functions_mapping)
 
-            # get all names and values of all arguments
-            all_args_values = [*parsed_args, *list(parsed_kwargs.values())]
-            try:
-                all_args_names = list(inspect.signature(func).parameters.keys())
-            except ValueError:
-                all_args_names = list(range(len(all_args_values)))
-            report_dict = defaultdict(dict)
-
-            # attach function arguments detail to Allure if True
-            is_attach_function = False
-
-            # set default depth to 2
-            object_id_depth = 2
-
-            if USE_ALLURE:
-                env_attach_all_functions = os.environ.get("ATTACH_ALL_FUNCTIONS")
-                attach_functions = variables_mapping.get("ATTACH_FUNCTIONS", [])
-
-                # note: compare with string 'true'
-                if env_attach_all_functions == "true" or func_name in attach_functions:
-                    is_attach_function = True
-
-                    # try to get depth from .env
-                    env_object_id_depth = os.environ.get("OBJECT_ID_DEPTH")
-                    if env_object_id_depth:
-                        try:
-                            object_id_depth = int(env_object_id_depth)
-                        except ValueError:
-                            pass
-                        except TypeError:
-                            pass
-
-            if is_attach_function:
-                # log before function execution
-                report_function_args(report_dict, "IN", all_args_names, all_args_values, depth=object_id_depth)
-
-            try:
-                func_eval_value = func(*parsed_args, **parsed_kwargs)
-
-                if is_attach_function:
-                    # log after function execution
-                    report_function_args(report_dict, "OUT", all_args_names, all_args_values, depth=object_id_depth)
-
-                    allure.attach(
-                        json.dumps(report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder),
-                        f"function: {func_name}({', '.join([str(arg) for arg in all_args_names])})",
-                        allure.attachment_type.JSON
+            if func_name == "eval_var":
+                # check arguments assigned to func 'eval_var'
+                if len(args) != 1:
+                    raise ValueError(
+                        f"expect 1 positional argument when func name is 'eval_var', but got: {len(args)}"
+                    )
+                if len(kwargs) > 0:
+                    raise ValueError(
+                        f"no keyword arguments are expected when func name is 'eval_var', but got: {len(kwargs)}"
+                    )
+                if not isinstance((parsed_arg := parsed_args[0]), (str, float, int)):
+                    raise ValueError(
+                        f"when func name is 'eval_var', the value of variable ({args[0]}) is expected "
+                        f"to be either str, int, or float, but got: {type(parsed_arg)}, "
+                        f"and value is {parsed_arg}"
                     )
 
-            except Exception as ex:
-                logger.error(
-                    f"call function error:\n"
-                    f"func_name: {func_name}\n"
-                    f"args: {parsed_args}\n"
-                    f"kwargs: {parsed_kwargs}\n"
-                    f"{type(ex).__name__}: {ex}"
+                # parse again
+                func_eval_value = parse_string(
+                    parsed_arg, variables_mapping, functions_mapping
                 )
-
-                # attach to report if exception raised
-                if is_attach_function:
-                    allure.attach(
-                        json.dumps(report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder),
-                        f"function: {func_name}({', '.join([str(arg) for arg in all_args_names])})",
-                        allure.attachment_type.JSON
+            else:
+                func = get_mapping_function(func_name, functions_mapping)
+                try:
+                    func_eval_value = func(*parsed_args, **parsed_kwargs)
+                except Exception as ex:
+                    logger.error(
+                        f"call function error:\n"
+                        f"func_name: {func_name}\n"
+                        f"args: {parsed_args}\n"
+                        f"kwargs: {parsed_kwargs}\n"
+                        f"{type(ex).__name__}: {ex}"
                     )
-                raise
-
-            if func_name == "evaluate":
-                func_eval_value = parse_string(func_eval_value, variables_mapping, functions_mapping)
+                    raise
 
             func_raw_str = "${" + func_name + f"({func_params_str})" + "}"
             if func_raw_str == raw_string:
@@ -549,11 +447,11 @@ def parse_data(
     variables_mapping: VariablesMapping = None,
     functions_mapping: FunctionsMapping = None,
 ) -> Any:
-    """ parse raw data with evaluated variables mapping.
-        Notice: variables_mapping should not contain any variable or function.
+    """parse raw data with evaluated variables mapping.
+    Notice: variables_mapping should not contain any variable or function.
     """
     if isinstance(raw_data, str):
-        # content in string format may contains variables and functions
+        # content in string format may contain variables and functions
         variables_mapping = variables_mapping or {}
         functions_mapping = functions_mapping or {}
         # only strip whitespaces and tabs, \n\r is left because they maybe used in changeset
@@ -582,6 +480,9 @@ def parse_data(
 def parse_variables_mapping(
     variables_mapping: VariablesMapping, functions_mapping: FunctionsMapping = None
 ) -> VariablesMapping:
+    """
+    All variables specified in argument 'variables_mapping' must be parsed on variables_mapping and functions_mapping.
+    """
 
     parsed_variables: VariablesMapping = {}
 
@@ -622,8 +523,10 @@ def parse_variables_mapping(
     return parsed_variables
 
 
-def parse_parameters(parameters: Dict,) -> List[Dict]:
-    """ parse parameters and generate cartesian product.
+def parse_parameters(
+    parameters: Dict,
+) -> List[Dict]:
+    """parse parameters and generate cartesian product.
 
     Args:
         parameters (Dict) parameters: parameter name and value mapping
@@ -636,12 +539,12 @@ def parse_parameters(parameters: Dict,) -> List[Dict]:
         list: cartesian product list
 
     Examples:
-        >>> parameters = {
+        >>> _parameters = {
             "user_agent": ["iOS/10.1", "iOS/10.2", "iOS/10.3"],
             "username-password": "${parameterize(account.csv)}",
             "app_version": "${gen_app_version()}",
         }
-        >>> parse_parameters(parameters)
+        >>> parse_parameters(_parameters)
 
     """
     parsed_parameters_list: List[List[Dict]] = []

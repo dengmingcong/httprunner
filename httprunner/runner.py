@@ -15,15 +15,13 @@ except ModuleNotFoundError:
     USE_ALLURE = False
 
 from loguru import logger
-from pydantic import BaseModel
 
 from httprunner import utils, exceptions
 from httprunner.client import HttpSession
 from httprunner.exceptions import ValidationFailure, ParamsError
 from httprunner.ext.uploader import prepare_upload_step
 from httprunner.loader import load_project_meta, load_testcase_file
-from httprunner.parser import build_url, parse_data, parse_variables_mapping, CustomEncoder
-from httprunner.parser import get_pydantic_object_id_recursively, get_pydantic_objects_ids_recursively
+from httprunner.parser import build_url, parse_data, parse_variables_mapping
 from httprunner.response import ResponseObject
 from httprunner.testcase import Config, Step
 from httprunner.utils import merge_variables
@@ -95,9 +93,12 @@ class HttpRunner(object):
         return self
 
     def __call_hooks(
-        self, hooks: Hooks, step_variables: VariablesMapping, hook_msg: Text,
+        self,
+        hooks: Hooks,
+        step_variables: VariablesMapping,
+        hook_msg: Text,
     ) -> NoReturn:
-        """ call hook actions.
+        """call hook actions.
 
         Args:
             hooks (list): each hook in hooks list maybe in two format.
@@ -141,11 +142,11 @@ class HttpRunner(object):
                 logger.error(f"Invalid hook format: {hook}")
 
     def __add_allure_attachments(
-            self,
-            session_data: SessionData,
-            validation_results: dict,
-            exported_vars: dict,
-            is_success: bool
+        self,
+        session_data: SessionData,
+        validation_results: dict,
+        exported_vars: dict,
+        is_success: bool,
     ) -> NoReturn:
         """
         Add attachments to allure.
@@ -161,48 +162,53 @@ class HttpRunner(object):
             response_data = session_data.req_resps[0].response
             # save request data
             allure.attach(
-                request_data.json(indent=4, ensure_ascii=False), "request",
-                allure.attachment_type.JSON
+                request_data.json(indent=4, ensure_ascii=False),
+                "request",
+                allure.attachment_type.JSON,
             )
             # save response data
             allure.attach(
-                response_data.json(indent=4, ensure_ascii=False), "response",
-                allure.attachment_type.JSON
+                response_data.json(indent=4, ensure_ascii=False),
+                "response",
+                allure.attachment_type.JSON,
             )
             # save validation results
             allure.attach(
                 json.dumps(
                     validation_results.get("validate_extractor", []),
                     indent=4,
-                    ensure_ascii=False
+                    ensure_ascii=False,
                 ),
                 f"validation results ({result})",
-                allure.attachment_type.JSON
+                allure.attachment_type.JSON,
             )
             # save export vars
             allure.attach(
-                json.dumps(exported_vars, indent=4, ensure_ascii=False), "exported variables",
-                allure.attachment_type.JSON
+                json.dumps(exported_vars, indent=4, ensure_ascii=False),
+                "exported variables",
+                allure.attachment_type.JSON,
             )
         else:
             # put request, response, and validation results in one attachment
             allure.attach(
-                self.__session.data.json(indent=4, ensure_ascii=False), "session data",
-                allure.attachment_type.JSON
+                self.__session.data.json(indent=4, ensure_ascii=False),
+                "session data",
+                allure.attachment_type.JSON,
             )
             # save export vars
             allure.attach(
-                json.dumps(exported_vars, indent=4, ensure_ascii=False), "exported variables",
-                allure.attachment_type.JSON
+                json.dumps(exported_vars, indent=4, ensure_ascii=False),
+                "exported variables",
+                allure.attachment_type.JSON,
             )
 
     def __save_allure_data(
-            self,
-            validation_results: dict,
-            exported_vars: dict,
-            max_retries: int,
-            remaining_retry_times: int,
-            is_success: bool
+        self,
+        validation_results: dict,
+        exported_vars: dict,
+        max_retries: int,
+        remaining_retry_times: int,
+        is_success: bool,
     ) -> NoReturn:
         """
         Save session data as allure raw data after validation completed.
@@ -227,9 +233,13 @@ class HttpRunner(object):
             else:
                 title = f"retry: {max_retries - remaining_retry_times} ({result})"
             with allure.step(title):
-                self.__add_allure_attachments(self.__session.data, validation_results, exported_vars, is_success)
+                self.__add_allure_attachments(
+                    self.__session.data, validation_results, exported_vars, is_success
+                )
         else:
-            self.__add_allure_attachments(self.__session.data, validation_results, exported_vars, is_success)
+            self.__add_allure_attachments(
+                self.__session.data, validation_results, exported_vars, is_success
+            )
 
     def __run_step_request(self, step: TStep) -> StepData:
         """run teststep: request"""
@@ -304,7 +314,9 @@ class HttpRunner(object):
         parsed_extractors = {}
         for var_name, jmespath in extractors.items():
             if "$" in jmespath:
-                parsed_extractors[var_name] = parse_data(jmespath, step.variables, self.__project_meta.functions)
+                parsed_extractors[var_name] = parse_data(
+                    jmespath, step.variables, self.__project_meta.functions
+                )
             else:
                 parsed_extractors[var_name] = jmespath
 
@@ -320,7 +332,9 @@ class HttpRunner(object):
         for var in step.globalize:
             if isinstance(var, dict):
                 if len(var) != 1:
-                    raise ValueError(f"length of dict can only be 1 but got {len(var)} for: {var}")
+                    raise ValueError(
+                        f"length of dict can only be 1 but got {len(var)} for: {var}"
+                    )
                 local_var_name = list(var.keys())[0]
                 export_as = list(var.values())[0]
             else:
@@ -333,7 +347,9 @@ class HttpRunner(object):
 
             # cannot export variables extracted
             if local_var_name in extract_mapping:
-                raise ValueError(f"cannot export variable {local_var_name} which is extracted from response")
+                raise ValueError(
+                    f"cannot export variable {local_var_name} which is extracted from response"
+                )
 
             if local_var_name not in variables_mapping:
                 raise ValueError(
@@ -350,14 +366,16 @@ class HttpRunner(object):
         validators = step.validators
         session_success = False
         try:
-            resp_obj.validate(validators, variables_mapping, self.__project_meta.functions)
+            resp_obj.validate(
+                validators, variables_mapping, self.__project_meta.functions
+            )
             session_success = True
             self.__save_allure_data(
                 resp_obj.validation_results,
                 step_data.export_vars,
                 step.max_retry_times,
                 step.retry_times,
-                session_success
+                session_success,
             )
         except ValidationFailure:
             self.__save_allure_data(
@@ -365,7 +383,7 @@ class HttpRunner(object):
                 step_data.export_vars,
                 step.max_retry_times,
                 step.retry_times,
-                session_success
+                session_success,
             )
             # check if retry is needed
             if step.retry_times > 0:
@@ -499,76 +517,12 @@ class HttpRunner(object):
             config.base_url, config.variables, self.__project_meta.functions
         )
 
-    @staticmethod
-    def attach_config_variables_to_allure_report(config_variables: VariablesMapping, config_name: str) -> None:
-        """
-        Add information of config variables to Allure reports.
-
-        One variable will be attached to Allure report if:
-            env ATTACH_ALL_CONFIG_VARS is 'true'
-            or
-            name is in list set by variable 'ATTACH_CONFIG_VARS'
-        """
-        # get env 'ATTACH_ALL_CONFIG_VARS' if it was set through .env
-        env_attach_all_config_vars = os.environ.get("ATTACH_ALL_CONFIG_VARS")
-
-        # set default depth to 2
-        object_id_depth = 2
-
-        # try to get depth from .env
-        env_object_id_depth = os.environ.get("OBJECT_ID_DEPTH")
-        if env_object_id_depth:
-            try:
-                object_id_depth = int(env_object_id_depth)
-            except ValueError:
-                pass
-            except TypeError:
-                pass
-
-        report_dict = {}
-
-        for name, value in config_variables.items():
-            # note: compare with string 'true'
-            if env_attach_all_config_vars == "true" or name in config_variables.get("ATTACH_CONFIG_VARS", []):
-                # convert ResponseObject to dict
-                if isinstance(value, ResponseObject):
-                    value = value.body
-
-                # try to dump to avoid error when dumps
-                try:
-                    json.dumps(value, cls=CustomEncoder)
-                except TypeError:
-                    value = repr(value)
-
-                if isinstance(value, BaseModel):
-                    value_id = get_pydantic_object_id_recursively(value, object_id_depth)
-                elif isinstance(value, list) and value and isinstance(value[0], BaseModel):
-                    value_id = get_pydantic_objects_ids_recursively(value, object_id_depth)
-                else:
-                    value_id = id(value)
-
-                report_dict[name] = {
-                    "metadata": {
-                        "type": repr(type(value)),
-                        "id": value_id
-                    },
-                    "value": value
-                }
-
-        if report_dict:
-            allure.attach(
-                json.dumps(report_dict, ensure_ascii=False, indent=4, cls=CustomEncoder),
-                f"config variables (name: {config_name})",
-                allure.attachment_type.JSON
-            )
-
     def run_testcase(self, testcase: TestCase) -> "HttpRunner":
         """run specified testcase
 
         Examples:
-            >>> testcase_obj = TestCase(config=TConfig(...), teststeps=[TStep(...)])
-            >>> HttpRunner().with_project_meta(project_meta).run_testcase(testcase_obj)
-
+            testcase_obj = TestCase(config=TConfig(...), teststeps=[TStep(...)])
+            HttpRunner().with_project_meta(...).run_testcase(testcase_obj)
         """
         self.__config = testcase.config
         self.__teststeps = testcase.teststeps
@@ -578,9 +532,6 @@ class HttpRunner(object):
             self.__config.path
         )
         self.__parse_config(self.__config)
-
-        if USE_ALLURE:
-            self.attach_config_variables_to_allure_report(self.__config.variables, self.__config.name)
 
         self.__start_at = time.time()
         self.__step_datas: List[StepData] = []
@@ -628,11 +579,10 @@ class HttpRunner(object):
         return self.run_testcase(testcase_obj)
 
     def run(self) -> "HttpRunner":
-        """ run current testcase
+        """run current testcase
 
         Examples:
-            >>> TestCaseRequestWithFunctions().run()
-
+            TestCaseRequestWithFunctions().run()
         """
         self.__init_tests__()
         testcase_obj = TestCase(config=self.__config, teststeps=self.__teststeps)

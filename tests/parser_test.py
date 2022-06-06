@@ -2,9 +2,15 @@ import os
 import time
 import unittest
 
+from pydantic import BaseModel
+
 from httprunner import parser
 from httprunner.exceptions import VariableNotFound, FunctionNotFound
 from httprunner.loader import load_project_meta
+
+
+class Obj(BaseModel):
+    foo: list = [{}, {"bar": [1, 2, 3]}]
 
 
 class TestParserBasic(unittest.TestCase):
@@ -545,4 +551,19 @@ class TestParserBasic(unittest.TestCase):
                 "sum": 1,
             },
             parsed_params,
+        )
+
+    def test_parse_data_string_with_expression(self):
+        variables_mapping = {"obj": Obj(), "key": "bar"}
+        functions_mapping = {"len": len}
+        assert parser.parse_string(
+            "${obj.foo[1]['$key'][1:2]}", variables_mapping, functions_mapping
+        ) == [2]
+        assert (
+            parser.parse_string(
+                "${len(ab)}${obj.foo[1]['$key'][1:2]}$key",
+                variables_mapping,
+                functions_mapping,
+            )
+            == "2[2]bar"
         )
