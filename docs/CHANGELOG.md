@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v3.5.0 (2022-06-06)
+### Feature
+* Add support to parse expression with format as ${var.attr[0]['key']} ([`e85cddd`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/e85cddd540d1d899af68b1a190164e8f00c4a224))
+
+### Fix
+* Improper function naming for functionality evaluation ([`0e79b75`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/0e79b754ff44a45ee3e584bfec418f0ae63cd2c1))
+
 ## v3.4.1 (2022-06-01)
 ### Fix
 * File not exist when variables exist in upload dict ([`12ccdb3`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/12ccdb3a47f2a699c6d27b4cdf438a3d98961b78))
