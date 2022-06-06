@@ -559,8 +559,11 @@ class TestParserBasic(unittest.TestCase):
         assert parser.parse_string(
             "${obj.foo[1]['$key'][1:2]}", variables_mapping, functions_mapping
         ) == [2]
-        assert parser.parse_string(
-            "${len(ab)}${obj.foo[1]['$key'][1:2]}$key",
-            variables_mapping,
-            functions_mapping,
-        ) == ("2[2]bar")
+        assert (
+            parser.parse_string(
+                "${len(ab)}${obj.foo[1]['$key'][1:2]}$key",
+                variables_mapping,
+                functions_mapping,
+            )
+            == "2[2]bar"
+        )
