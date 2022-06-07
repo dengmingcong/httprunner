@@ -19,7 +19,7 @@ variable_regex_compile = re.compile(r"\$\{(\w+)}|\$(\w+)")
 # function notation, e.g. ${func1($var_1, $var_3)}
 function_regex_compile = re.compile(r"\$\{(\w+)\(([$\w.\-/\s=,]*)\)}")
 # python expression
-expression_regex_compile = re.compile(r"""(?=.*[[.])\$\{([$\w.[\]:'"]*)}""")
+expression_regex_compile = re.compile(r"""\$\{([$\w.[\]:'"]*[.[][$\w.[\]:'"]*)}""")
 
 
 def parse_string_value(str_value: Text) -> Any:

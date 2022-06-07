@@ -554,7 +554,7 @@ class TestParserBasic(unittest.TestCase):
         )
 
     def test_parse_data_string_with_expression(self):
-        variables_mapping = {"obj": Obj(), "key": "bar"}
+        variables_mapping = {"obj": Obj(), "key": "bar", "domain_name": "example"}
         functions_mapping = {"len": len}
         assert parser.parse_string(
             "${obj.foo[1]['$key'][1:2]}", variables_mapping, functions_mapping
@@ -566,4 +566,10 @@ class TestParserBasic(unittest.TestCase):
                 functions_mapping,
             )
             == "2[2]bar"
+        )
+        assert (
+            parser.parse_string(
+                "http://www.${domain_name}.com", variables_mapping, functions_mapping
+            )
+            == "http://www.example.com"
         )
