@@ -337,7 +337,10 @@ def parse_string(
             )
 
             try:
-                expression_eval_value = eval(raw_expression, variables_mapping)
+                # copy variables_mapping for builtin function eval
+                # will insert __builtins__ into it and change variables_mapping
+                variables_mapping_copy = variables_mapping.copy()
+                expression_eval_value = eval(raw_expression, variables_mapping_copy)
             except NameError as ex:
                 raise exceptions.VariableNotFound(
                     f"{ex}, all variables: {variables_mapping}"
