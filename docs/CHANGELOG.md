@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.5.1 (2022-06-07)
+### Fix
+* Unexpected result when parsing format like '${foo}.bar' ([`512133f`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/512133f8d686dd531a1b5fa8fb658bd7bd450b90))
+
 ## v3.5.0 (2022-06-06)
 ### Feature
 * Add support to parse expression with format as ${var.attr[0]['key']} ([`e85cddd`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/e85cddd540d1d899af68b1a190164e8f00c4a224))
