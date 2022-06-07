@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.5.2 (2022-06-07)
+### Fix
+* Loop forever when expression exists in 'with_variables()' ([`510635d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/510635d0b4a67419651c836a40a813a2beec0453))
+
 ## v3.5.1 (2022-06-07)
 ### Fix
 * Unexpected result when parsing format like '${foo}.bar' ([`512133f`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/512133f8d686dd531a1b5fa8fb658bd7bd450b90))
