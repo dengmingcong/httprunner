@@ -101,7 +101,9 @@ class ProjectMeta(BaseModel):
     dot_env_path: Text = ""  # .env file path
     functions: FunctionsMapping = {}  # functions defined in debugtalk.py
     env: Env = {}
-    RootDir: Text = os.getcwd()  # project root directory (ensure absolute), the path debugtalk.py located
+    RootDir: Text = (
+        os.getcwd()
+    )  # project root directory (ensure absolute), the path debugtalk.py located
 
 
 class TestsMapping(BaseModel):
@@ -167,11 +169,7 @@ class SessionData(BaseModel):
     validators: Dict = {}
 
     class Config:
-        json_encoders = {
-            types.FunctionType: repr,
-            type: repr,
-            requests.Session: repr
-        }
+        json_encoders = {types.FunctionType: repr, type: repr, requests.Session: repr}
 
 
 class StepData(BaseModel):
@@ -179,15 +177,11 @@ class StepData(BaseModel):
 
     success: bool = False
     name: Text = ""  # teststep name
-    data: Union[SessionData, List[SessionData]] = None
+    data: Union[SessionData, List["StepData"]] = None
     export_vars: VariablesMapping = {}
 
     class Config:
-        json_encoders = {
-            types.FunctionType: repr,
-            type: repr,
-            requests.Session: repr
-        }
+        json_encoders = {types.FunctionType: repr, type: repr, requests.Session: repr}
 
 
 class TestCaseSummary(BaseModel):

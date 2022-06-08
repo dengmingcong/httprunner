@@ -6,7 +6,35 @@ import time
 import pytest
 from loguru import logger
 
+from httprunner.statistics import get_testcase_stat
 from httprunner.utils import get_platform, ExtendJSONEncoder
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--stat-file", action="store", help="file to store statistics data"
+    )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def save_stat_data(request):
+    """Save stat data."""
+    yield
+
+    if stat_file := request.config.getoption("--stat-file"):
+        if not os.path.isabs(stat_file):
+            stat_file = os.path.join(os.getcwd(), stat_file)
+        stat_dir = os.path.dirname(stat_file)
+        os.makedirs(stat_dir, exist_ok=True)
+
+        logger.info("task finished, collect statistics for option --stat-file")
+
+        stat_info = [get_testcase_stat(item.instance) for item in request.node.items]
+
+        with open(stat_file, "w", encoding="utf-8") as f:
+            json.dump(stat_info, f, indent=4, ensure_ascii=False, cls=ExtendJSONEncoder)
+
+        logger.info(f"generate stat file: {stat_file}")
 
 
 @pytest.fixture(scope="session", autouse=True)
