@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.7.0 (2022-06-08)
+### Feature
+* **deprecated:** Remove the functionality of collection statistics, implement it in client ([`7d3cd4c`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/7d3cd4c31837a8cc5a6230ab35a5d90f60baa664))
+
 ## v3.6.0 (2022-06-08)
 ### Feature
 * Add module statistics to enable retrieving statistics info of testcases ([`a23790b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a23790ba6e1170a4eb895eac7fea1897d3a4d9dd))
