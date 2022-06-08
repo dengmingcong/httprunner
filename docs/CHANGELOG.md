@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v3.6.0 (2022-06-08)
+### Feature
+* Add module statistics to enable retrieving statistics info of testcases ([`a23790b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a23790ba6e1170a4eb895eac7fea1897d3a4d9dd))
+
+### Fix
+* Type hint error ([`3ab81a5`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/3ab81a5a1320d52f98b150ba5beca0b6aadf5ac9))
+
 ## v3.5.2 (2022-06-07)
 ### Fix
 * Loop forever when expression exists in 'with_variables()' ([`510635d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/510635d0b4a67419651c836a40a813a2beec0453))
