@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.7.1 (2022-06-09)
+### Fix
+* Save statistics of session data to allure ([`f3c7c2b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/f3c7c2b154c906173bfbdcea8cdb560a79b7fe7d))
+
 ## v3.7.0 (2022-06-08)
 ### Feature
 * **deprecated:** Remove the functionality of collection statistics, implement it in client ([`7d3cd4c`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/7d3cd4c31837a8cc5a6230ab35a5d90f60baa664))
