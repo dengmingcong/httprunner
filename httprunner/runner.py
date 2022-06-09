@@ -151,7 +151,8 @@ class HttpRunner(object):
         """
         Add attachments to allure.
         """
-        # split session data into request, response, validation results, and export vars if only one request exists
+        # split session data into request, response, validation results, export vars, and stat
+        # if only one request exists
         if len(session_data.req_resps) == 1:
             if is_success:
                 result = "PASS"
@@ -186,6 +187,12 @@ class HttpRunner(object):
             allure.attach(
                 json.dumps(exported_vars, indent=4, ensure_ascii=False),
                 "exported variables",
+                allure.attachment_type.JSON,
+            )
+            # save stat
+            allure.attach(
+                session_data.stat.json(indent=4, ensure_ascii=False),
+                "statistics",
                 allure.attachment_type.JSON,
             )
         else:
