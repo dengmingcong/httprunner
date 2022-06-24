@@ -20,6 +20,7 @@ variable_regex_compile = re.compile(r"\$\{(\w+)}|\$(\w+)")
 function_regex_compile = re.compile(r"\$\{(\w+)\(([$\w.\-/\s=,]*)\)}")
 # python expression
 expression_regex_compile = re.compile(r"""\$\{([$\w.[\]:'"]*[.[][$\w.[\]:'"]*)}""")
+expression_leading_var_regex_compile = re.compile(r"(\w+)[.\[]")
 
 
 def parse_string_value(str_value: Text) -> Any:
@@ -59,17 +60,19 @@ def regex_findall_variables(raw_string: Text) -> List[Text]:
 
     Examples:
         >>> regex_findall_variables("$variable")
-        ["variable"]
+        ['variable']
 
         >>> regex_findall_variables("/blog/$postid")
-        ["postid"]
+        ['postid']
 
         >>> regex_findall_variables("/$var1/$var2")
-        ["var1", "var2"]
+        ['var1', 'var2']
 
         >>> regex_findall_variables("abc")
         []
 
+        >>> regex_findall_variables("${obj.attr['$foo']}")
+        ['obj', 'foo']
     """
     try:
         match_start_position = raw_string.index("$", 0)
@@ -86,6 +89,18 @@ def regex_findall_variables(raw_string: Text) -> List[Text]:
         dollar_match = dollar_regex_compile.match(raw_string, match_start_position)
         if dollar_match:
             match_start_position = dollar_match.end()
+            continue
+
+        # search expression like ${obj.attr[0]}
+        if expression_match := expression_regex_compile.match(
+            raw_string, match_start_position
+        ):
+            raw_expression = expression_match.group(1)
+            vars_list.append(
+                expression_leading_var_regex_compile.match(raw_expression).group(1)
+            )
+            vars_list += regex_findall_variables(raw_expression)
+            match_start_position = expression_match.end()
             continue
 
         # search variable like ${var} or $var

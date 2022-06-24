@@ -19,7 +19,7 @@ class TestCaseRequestWithExpressions(HttpRunner):
     teststeps = [
         Step(
             RunRequest("get with params")
-            .with_variables(**{"baz": "${obj.foo[1]['bar'][1:2]}"})
+            .with_variables(**{"baz": "${obj.foo[1]['$name'][1:2]}", "name": "bar"})
             .post("/post")
             .with_headers(**{"User-Agent": "HttpRunner/${get_httprunner_version()}"})
             .with_json({"foo": "$foo1", "baz": "$baz", "bar": "$foo2"})
