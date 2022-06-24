@@ -2,6 +2,7 @@ import ast
 import builtins
 import os
 import re
+import time
 from typing import Any, Set, Text, Callable, List, Dict
 
 from loguru import logger
@@ -503,8 +504,19 @@ def parse_variables_mapping(
     """
 
     parsed_variables: VariablesMapping = {}
+    start = time.time()
 
     while len(parsed_variables) != len(variables_mapping):
+
+        elapsed = time.time() - start
+        if elapsed > 7:
+            raise TimeoutError(
+                f"it has taken more than 7 seconds at function parse_variables_mapping, "
+                f"most likely forever loop occurs."
+                f"\nparsed_variables: {parsed_variables}"
+                f"\nvariables_mapping: {variables_mapping}"
+            )
+
         for var_name in variables_mapping:
 
             if var_name in parsed_variables:
