@@ -19,14 +19,24 @@ class TestCaseRequestWithExpressions(HttpRunner):
     teststeps = [
         Step(
             RunRequest("get with params")
-            .with_variables(**{"baz": "${obj.foo[1]['$name'][1:2]}", "name": "bar"})
+            .with_variables(
+                **{
+                    "baz": "${obj.foo[1]['$name'][1:2]}",
+                    "name": "bar",
+                    "var_as_key": "key",
+                    "foobar": {"$var_as_key": "value"},
+                }
+            )
             .post("/post")
             .with_headers(**{"User-Agent": "HttpRunner/${get_httprunner_version()}"})
-            .with_json({"foo": "$foo1", "baz": "$baz", "bar": "$foo2"})
+            .with_json(
+                {"foo": "$foo1", "baz": "$baz", "bar": "$foo2", "foobar": "$foobar"}
+            )
             .validate()
             .assert_equal("status_code", 200)
             .assert_equal("body.data.foo", "config_bar1")
             .assert_equal("body.data.baz", [2])
             .assert_equal("body.data.bar", "config_bar2")
+            .assert_equal("body.data.foobar", {"key": "value"})
         ),
     ]
