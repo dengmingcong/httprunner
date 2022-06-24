@@ -167,7 +167,7 @@ def extract_variables(content: Any) -> Set:
     elif isinstance(content, dict):
         variables = set()
         for key, value in content.items():
-            variables = variables | extract_variables(value)
+            variables = variables | extract_variables(value) | extract_variables(key)
         return variables
 
     elif isinstance(content, str):
