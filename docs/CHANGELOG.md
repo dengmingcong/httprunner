@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.7.3 (2022-06-24)
+### Fix
+* **parser:** Loop forever when key contains '$' ([`09dbdf4`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/09dbdf4513507d04334568b4660783e27a365519))
+
 ## v3.7.2 (2022-06-24)
 ### Fix
 * **parser:** Include leading variable of expression when extracting variables from raw_string to fix loop forever ([`5194268`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5194268ddba8c8331cca9d84a67e2f44ad47b6e8))
