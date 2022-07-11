@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v3.8.0 (2022-07-11)
+### Feature
+* Add method 'with_origin' to enable substituting url origin before sending requests ([`5188c0c`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5188c0c3acfc920078edb4fdd2e0605a4f797a76))
+
+### Performance
+* Call black to format files before pre-commit ([`fa242d0`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/fa242d03d748a3b7ccdc7da349895f84d97080da))
+
 ## v3.7.3 (2022-06-24)
 ### Fix
 * **parser:** Loop forever when key contains '$' ([`09dbdf4`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/09dbdf4513507d04334568b4660783e27a365519))
