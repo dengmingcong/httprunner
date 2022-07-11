@@ -4,6 +4,7 @@ import os
 import re
 import time
 from typing import Any, Set, Text, Callable, List, Dict
+from urllib.parse import urlparse
 
 from loguru import logger
 from sentry_sdk import capture_exception
@@ -48,6 +49,24 @@ def build_url(base_url, path):
         return "{}/{}".format(base_url.rstrip("/"), path.lstrip("/"))
     else:
         raise exceptions.ParamsError("base url missed!")
+
+
+def update_url_origin(url: str, origin: str) -> str:
+    """
+    Substitute origin of specific url.
+
+    >>> update_url_origin("http://foo.com/bar", "https://bar.com")
+    'https://bar.com/bar'
+    """
+    parsed_new_origin = urlparse(origin)
+
+    if not (new_scheme := parsed_new_origin.scheme):
+        raise ValueError(f"no scheme found in origin '{origin}'")
+
+    if not (new_netloc := parsed_new_origin.netloc):
+        raise ValueError(f"no netloc found in origin '{origin}'")
+
+    return urlparse(url)._replace(scheme=new_scheme, netloc=new_netloc).geturl()
 
 
 def regex_findall_variables(raw_string: Text) -> List[Text]:

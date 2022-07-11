@@ -21,7 +21,12 @@ from httprunner.client import HttpSession
 from httprunner.exceptions import ValidationFailure, ParamsError
 from httprunner.ext.uploader import prepare_upload_step
 from httprunner.loader import load_project_meta, load_testcase_file
-from httprunner.parser import build_url, parse_data, parse_variables_mapping
+from httprunner.parser import (
+    build_url,
+    parse_data,
+    parse_variables_mapping,
+    update_url_origin,
+)
 from httprunner.response import ResponseObject
 from httprunner.testcase import Config, Step
 from httprunner.utils import merge_variables
@@ -274,6 +279,11 @@ class HttpRunner(object):
         method = parsed_request_dict.pop("method")
         url_path = parsed_request_dict.pop("url")
         url = build_url(self.__config.base_url, url_path)
+
+        # substitute origin if request.origin is not None
+        if origin := parsed_request_dict.pop("origin"):
+            url = update_url_origin(url, origin)
+
         parsed_request_dict["verify"] = self.__config.verify
         parsed_request_dict["json"] = parsed_request_dict.pop("req_json", {})
 

@@ -243,7 +243,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_json_contains(
-            self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmes_path: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         """Equivalent to the JSONassert non-strict mode."""
         self.__step_context.validators.append(
@@ -252,7 +252,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_json_equal(
-            self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmes_path: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         """Equivalent to the JSONassert strict mode."""
         self.__step_context.validators.append(
@@ -261,7 +261,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_reports_match(
-            self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmes_path: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         """
         This assertion method MUST be used in api 'getAccessLog', and param expected_value MUST be an event dict.
@@ -272,7 +272,10 @@ class StepRequestValidation(object):
         return self
 
     def assert_list_sorted_in(
-            self, jmes_path: Text, expected_value: Union[Callable, Literal["ASC", "DSC"]], message: Text = ""
+        self,
+        jmes_path: Text,
+        expected_value: Union[Callable, Literal["ASC", "DSC"]],
+        message: Text = "",
     ) -> "StepRequestValidation":
         """
         Assert the list is sorted in some specific order.
@@ -296,7 +299,9 @@ class StepRequestExport(object):
     def __init__(self, step_context: TStep):
         self.__step_context = step_context
 
-    def variable(self, step_var_name: str, export_as: str = None) -> "StepRequestExport":
+    def variable(
+        self, step_var_name: str, export_as: str = None
+    ) -> "StepRequestExport":
         """Make local step variables global for steps next."""
         if export_as:
             self.__step_context.globalize.append({step_var_name: export_as})
@@ -341,6 +346,15 @@ class RequestWithOptionalArgs(object):
     def __init__(self, step_context: TStep):
         self.__step_context = step_context
 
+    def with_origin(self, origin: str) -> "RequestWithOptionalArgs":
+        """
+        Specify actual origin.
+
+        Origin specified by HTTP method or config.base_url will be substituted by this value.
+        """
+        self.__step_context.request.origin = origin
+        return self
+
     def with_params(self, **params) -> "RequestWithOptionalArgs":
         self.__step_context.request.params.update(params)
         return self
@@ -361,7 +375,9 @@ class RequestWithOptionalArgs(object):
         self.__step_context.request.req_json = req_json
         return self
 
-    def update_json_object(self, update_data: dict, deep=True) -> "RequestWithOptionalArgs":
+    def update_json_object(
+        self, update_data: dict, deep=True
+    ) -> "RequestWithOptionalArgs":
         """
         Update request.req_json if request.req_json is a JSON object.
 
@@ -424,7 +440,9 @@ class RequestWithOptionalArgs(object):
             Exception will be raised if any keys specified do not exist.
         """
         if (origin_json := self.__step_context.request.req_json) is None:
-            raise ValueError("please call 'with_json()' first before calling this method")
+            raise ValueError(
+                "please call 'with_json()' first before calling this method"
+            )
         if not isinstance(origin_json, dict):
             raise ValueError(
                 f"argument passed into method 'with_json()' must be a dict if you want to call this method, "
@@ -432,7 +450,9 @@ class RequestWithOptionalArgs(object):
             )
         for key in keys:
             if key not in origin_json:
-                raise ValueError(f"key '{key}' does not exist in request json '{origin_json}'")
+                raise ValueError(
+                    f"key '{key}' does not exist in request json '{origin_json}'"
+                )
             del origin_json[key]
 
         return self
@@ -480,7 +500,9 @@ class RunRequest(object):
     def __init__(self, name: Text):
         self.__step_context = TStep(name=name)
 
-    def retry_on_failure(self, retry_times: int, retry_interval: Union[int, float]) -> "RunRequest":
+    def retry_on_failure(
+        self, retry_times: int, retry_interval: Union[int, float]
+    ) -> "RunRequest":
         """
         Retry request step until success or max retried times.
 
