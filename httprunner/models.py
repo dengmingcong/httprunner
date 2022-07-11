@@ -52,7 +52,8 @@ class TRequest(BaseModel):
     """requests.Request model"""
 
     method: MethodEnum
-    url: Url
+    url: Url  # the origin part will be substituted by field origin if field origin is not None
+    origin: str = None
     params: Dict[Text, Text] = {}
     headers: Headers = {}
     req_json: Union[Dict, List, Text] = Field(None, alias="json")
