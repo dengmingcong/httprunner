@@ -46,6 +46,7 @@ class TConfig(BaseModel):
     export: Export = []
     path: Text = None
     weight: int = 1
+    continue_on_failure: bool = False
 
 
 class TRequest(BaseModel):
@@ -168,9 +169,11 @@ class SessionData(BaseModel):
     stat: RequestStat = RequestStat()
     address: AddressData = AddressData()
     validators: Dict = {}
+    exception: Exception = None
 
     class Config:
         json_encoders = {types.FunctionType: repr, type: repr, requests.Session: repr}
+        arbitrary_types_allowed = True
 
 
 class StepData(BaseModel):
