@@ -533,6 +533,9 @@ class HttpRunner(object):
                     step.skip_reason, step.variables, self.__project_meta.functions
                 )
                 logger.info(f"skip condition was met, reason: {parsed_skip_reason}")
+
+                # mark skipped step as success
+                step_data.success = True
             else:
                 logger.info("skip condition was not met, run the step")
 
