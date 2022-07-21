@@ -387,18 +387,22 @@ class HttpRunner(object):
 
         # validate
         validators = step.validators
-        session_success = False
+        self.__session.data.success = (
+            False  # default to False, re-assign it to make it more explicit
+        )
+
         try:
             resp_obj.validate(
                 validators, variables_mapping, self.__project_meta.functions
             )
-            session_success = True
+            self.__session.data.validators = resp_obj.validation_results
+            self.__session.data.success = True  # validate success
             self.__save_allure_data(
                 resp_obj.validation_results,
                 step_data.export_vars,
                 step.max_retry_times,
                 step.retry_times,
-                session_success,
+                self.__session.data.success,
             )
         except ValidationFailure as vf:
             self.__save_allure_data(
@@ -406,8 +410,9 @@ class HttpRunner(object):
                 step_data.export_vars,
                 step.max_retry_times,
                 step.retry_times,
-                session_success,
+                self.__session.data.success,
             )
+            self.__session.data.validators = resp_obj.validation_results
             # check if retry is needed
             if step.retry_times > 0:
                 logger.warning(
@@ -418,7 +423,6 @@ class HttpRunner(object):
                 step_data = self.__run_step_request(step)
                 return step_data
 
-            session_success = False
             self.__failed_steps.append(step)
             log_req_resp_details()
 
@@ -435,14 +439,10 @@ class HttpRunner(object):
             else:
                 self.success = True
 
-            step_data.success = session_success
+            step_data.success = self.__session.data.success
 
             if hasattr(self.__session, "data"):
                 # httprunner.client.HttpSession, not locust.clients.HttpSession
-                # save request & response meta data
-                self.__session.data.success = session_success
-                self.__session.data.validators = resp_obj.validation_results
-
                 # save step data
                 step_data.data = self.__session.data
 
