@@ -737,7 +737,7 @@ class HttpRunner(object):
                 if self.__failed_steps:
                     self.success = False
                     raise ValidationFailure(
-                        "continue_on_failure was set to True and some steps failed."
+                        f"continue_on_failure was set to True and {len(self.__failed_steps)} steps failed."
                     )
                 else:
                     self.success = True
