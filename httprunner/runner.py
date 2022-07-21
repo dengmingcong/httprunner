@@ -63,12 +63,14 @@ class HttpRunner(object):
     __duration: float = 0
     # log
     __log_path: Text = ""
+    __continue_on_failure: bool = False
 
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
         self.__teststeps = []
         for step in self.teststeps:
             self.__teststeps.append(step.perform())
+        self.__failed_steps: list[TStep] = []
 
     @property
     def raw_testcase(self) -> TestCase:
@@ -91,6 +93,10 @@ class HttpRunner(object):
 
     def with_variables(self, variables: VariablesMapping) -> "HttpRunner":
         self.__session_variables = variables
+        return self
+
+    def set_continue_on_failure(self, is_continue_on_failure: bool) -> "HttpRunner":
+        self.__continue_on_failure = is_continue_on_failure
         return self
 
     def with_export(self, export: List[Text]) -> "HttpRunner":
@@ -394,7 +400,7 @@ class HttpRunner(object):
                 step.retry_times,
                 session_success,
             )
-        except ValidationFailure:
+        except ValidationFailure as vf:
             self.__save_allure_data(
                 resp_obj.validation_results,
                 step_data.export_vars,
@@ -411,13 +417,24 @@ class HttpRunner(object):
                 time.sleep(step.retry_interval)
                 step_data = self.__run_step_request(step)
                 return step_data
+
             session_success = False
+            self.__failed_steps.append(step)
             log_req_resp_details()
+
             # log testcase duration before raise ValidationFailure
             self.__duration = time.time() - self.__start_at
-            raise
+
+            if self.__continue_on_failure:
+                self.__session.data.exception = vf
+            else:
+                raise
         finally:
-            self.success = session_success
+            if self.__failed_steps:
+                self.success = False
+            else:
+                self.success = True
+
             step_data.success = session_success
 
             if hasattr(self.__session, "data"):
@@ -445,6 +462,7 @@ class HttpRunner(object):
             testcase_cls = step.testcase
             case_result = (
                 testcase_cls()
+                .set_continue_on_failure(self.__continue_on_failure)
                 .with_session(self.__session)
                 .with_case_id(self.__case_id)
                 .with_variables(step_variables)
@@ -462,6 +480,7 @@ class HttpRunner(object):
 
             case_result = (
                 HttpRunner()
+                .set_continue_on_failure(self.__continue_on_failure)
                 .with_session(self.__session)
                 .with_case_id(self.__case_id)
                 .with_variables(step_variables)
@@ -480,8 +499,17 @@ class HttpRunner(object):
 
         step_data.data = case_result.get_step_datas()  # list of step data
         step_data.export_vars = case_result.get_export_variables()
-        step_data.success = case_result.success
-        self.success = case_result.success
+
+        if case_result.get_failed_steps():
+            step_data.success = False
+            self.__failed_steps.append(step)
+        else:
+            step_data.success = True
+
+        if self.__failed_steps:
+            self.success = False
+        else:
+            self.success = True
 
         if step_data.export_vars:
             logger.info(f"export variables: {step_data.export_vars}")
@@ -575,11 +603,25 @@ class HttpRunner(object):
             )
 
             # run step
-            if USE_ALLURE:
-                with allure.step(f"step: {step.name}"):
+            try:
+                if USE_ALLURE:
+                    with allure.step(f"step: {step.name}"):
+                        extract_mapping = self.__run_step(step)
+
+                        # raise exception to mark this step failed in allure report
+                        # run only when self.__continue_on_failure is True
+                        if not (step_data := self.__step_datas[-1]).success:
+                            if step.request:
+                                raise step_data.data.exception
+                            else:
+                                raise ValidationFailure(
+                                    "self.__continue_on_failure is set to True and step.testcase failed"
+                                )
+                else:
                     extract_mapping = self.__run_step(step)
-            else:
-                extract_mapping = self.__run_step(step)
+            except ValidationFailure:
+                if not self.__continue_on_failure:
+                    raise
 
             # save extracted variables to session variables
             extracted_variables.update(extract_mapping)
@@ -622,6 +664,14 @@ class HttpRunner(object):
 
         return export_vars_mapping
 
+    def get_failed_steps(self) -> List[TStep]:
+        """
+        Returns failed steps.
+
+        self.__failed_steps is a private attribute and cannot be accessed by instance directly.
+        """
+        return self.__failed_steps
+
     def get_summary(self) -> TestCaseSummary:
         """get testcase result summary"""
         start_at_timestamp = self.__start_at
@@ -646,6 +696,7 @@ class HttpRunner(object):
     def test_start(self, param: Dict = None) -> "HttpRunner":
         """main entrance, discovered by pytest"""
         self.__init_tests__()
+        self.__continue_on_failure = self.__config.continue_on_failure
         self.__project_meta = self.__project_meta or load_project_meta(
             self.__config.path
         )
@@ -674,9 +725,21 @@ class HttpRunner(object):
         )
 
         try:
-            return self.run_testcase(
+            case_result = self.run_testcase(
                 TestCase(config=self.__config, teststeps=self.__teststeps)
             )
+
+            # fail testcase finally after all steps were executed and failed steps existed
+            if self.__continue_on_failure:
+                if self.__failed_steps:
+                    self.success = False
+                    raise ValidationFailure(
+                        "continue_on_failure was set to True and some steps failed."
+                    )
+                else:
+                    self.success = True
+
+            return case_result
         finally:
             logger.remove(log_handler)
             logger.info(f"generate testcase log: {self.__log_path}")
