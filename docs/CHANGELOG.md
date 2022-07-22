@@ -2,6 +2,19 @@
 
 <!--next-version-placeholder-->
 
+## v3.9.0 (2022-07-22)
+### Feature
+* Add Config.continue_on_failure() to continue running next steps when one step failed ([`5ef0cf3`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5ef0cf3955276ee81be6d12ef36628ba79bd9175))
+
+### Fix
+* AttributeError when run debug_test ([`4e89c6a`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4e89c6af23d7b473c6b88d377ba180dab7106fca))
+* 'NoneType' object has no attribute 'exception' when step was skipped ([`f18945d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/f18945d03ddf6abb87d02626150fbca396e9f927))
+* Session_success incorrect when retrying steps ([`b4722a0`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b4722a06aa4849c5931856905073ad7b8db52cb4))
+
+### Documentation
+* Add comment to explain field SessionData.success ([`e4530fe`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/e4530fec2c1a39aea470c5dfcf4ee7bba324678b))
+* Add comment to indicate that data of each request is isolated ([`1a4301f`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1a4301fd9351970683d1d4c299fea3db92b93469))
+
 ## v3.8.0 (2022-07-11)
 ### Feature
 * Add method 'with_origin' to enable substituting url origin before sending requests ([`5188c0c`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5188c0c3acfc920078edb4fdd2e0605a4f797a76))
