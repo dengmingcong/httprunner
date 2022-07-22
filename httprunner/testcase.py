@@ -17,6 +17,7 @@ class Config(object):
         self.__variables = {}
         self.__base_url = ""
         self.__verify = False
+        self.__continue_on_failure = False
         self.__export = []
         self.__weight = 1
 
@@ -47,6 +48,10 @@ class Config(object):
         self.__verify = verify
         return self
 
+    def continue_on_failure(self) -> "Config":
+        self.__continue_on_failure = True
+        return self
+
     def export(self, *export_var_name: Text) -> "Config":
         self.__export.extend(export_var_name)
         return self
@@ -64,6 +69,7 @@ class Config(object):
             export=list(set(self.__export)),
             path=self.__path,
             weight=self.__weight,
+            continue_on_failure=self.__continue_on_failure,
         )
 
 

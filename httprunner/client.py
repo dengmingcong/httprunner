@@ -28,8 +28,7 @@ class ApiResponse(Response):
 
 
 def get_req_resp_record(resp_obj: Response, **kwargs) -> ReqRespData:
-    """ get request and response info from Response() object.
-    """
+    """get request and response info from Response() object."""
 
     def log_print(req_or_resp, r_type):
         msg = f"\n================== {r_type} details ==================\n"
@@ -170,6 +169,7 @@ class HttpSession(requests.Session):
         :param cert: (optional)
             if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
         """
+        # create a new instance of SessionData for each request, to ensure data are isolated
         self.data = SessionData()
 
         # timeout default to 120 seconds
@@ -215,7 +215,8 @@ class HttpSession(requests.Session):
             is_expand_nested_json = True
 
         self.data.req_resps = [
-            get_req_resp_record(resp_obj, is_expand_nested_json=is_expand_nested_json) for resp_obj in response_list
+            get_req_resp_record(resp_obj, is_expand_nested_json=is_expand_nested_json)
+            for resp_obj in response_list
         ]
 
         try:

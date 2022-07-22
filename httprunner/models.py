@@ -46,6 +46,7 @@ class TConfig(BaseModel):
     export: Export = []
     path: Text = None
     weight: int = 1
+    continue_on_failure: bool = False
 
 
 class TRequest(BaseModel):
@@ -161,16 +162,18 @@ class ReqRespData(BaseModel):
 class SessionData(BaseModel):
     """request session data, including request, response, validators and stat data"""
 
-    success: bool = False
+    success: bool = False  # represent the status (success or failure) of the latest HTTP request, default to False
     # in most cases, req_resps only contains one request & response
     # while when 30X redirect occurs, req_resps will contain multiple request & response
     req_resps: List[ReqRespData] = []
     stat: RequestStat = RequestStat()
     address: AddressData = AddressData()
     validators: Dict = {}
+    exception: Exception = None
 
     class Config:
         json_encoders = {types.FunctionType: repr, type: repr, requests.Session: repr}
+        arbitrary_types_allowed = True
 
 
 class StepData(BaseModel):
