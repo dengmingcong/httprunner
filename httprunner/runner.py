@@ -434,7 +434,7 @@ class HttpRunner(object):
             else:
                 raise
         finally:
-            if self.__failed_steps:
+            if hasattr(self, "__failed_steps") and self.__failed_steps:
                 self.success = False
             else:
                 self.success = True
