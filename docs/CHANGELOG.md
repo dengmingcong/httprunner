@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.9.1 (2022-08-04)
+### Fix
+* Do not save logging messages to log files to free disk space ([`21f9f89`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/21f9f89e8ca57edfe6795eb8ace59b642e0a9a46))
+
 ## v3.9.0 (2022-07-22)
 ### Feature
 * Add Config.continue_on_failure() to continue running next steps when one step failed ([`5ef0cf3`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5ef0cf3955276ee81be6d12ef36628ba79bd9175))
