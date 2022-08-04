@@ -707,7 +707,8 @@ class HttpRunner(object):
         self.__log_path = self.__log_path or os.path.join(
             self.__project_meta.RootDir, "logs", f"{self.__case_id}.run.log"
         )
-        log_handler = logger.add(self.__log_path, level="DEBUG")
+        # do not save logging messages to log files to free disk space
+        # log_handler = logger.add(self.__log_path, level="DEBUG")
 
         # parse config name
         config_variables = self.__config.variables
@@ -744,5 +745,6 @@ class HttpRunner(object):
 
             return case_result
         finally:
-            logger.remove(log_handler)
-            logger.info(f"generate testcase log: {self.__log_path}")
+            pass
+            # logger.remove(log_handler)
+            # logger.info(f"generate testcase log: {self.__log_path}")
