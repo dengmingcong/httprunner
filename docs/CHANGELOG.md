@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.9.2 (2022-08-17)
+### Fix
+* Omit long data to increase allure report readability ([`af50726`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/af50726a052a69cdcd9e07e79f2976c572b7fda6))
+
 ## v3.9.1 (2022-08-04)
 ### Fix
 * Do not save logging messages to log files to free disk space ([`21f9f89`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/21f9f89e8ca57edfe6795eb8ace59b642e0a9a46))
