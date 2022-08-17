@@ -10,11 +10,11 @@ from httprunner import exceptions
 from httprunner.exceptions import ValidationFailure, ParamsError
 from httprunner.models import VariablesMapping, Validators, FunctionsMapping
 from httprunner.parser import parse_data, parse_string_value, get_mapping_function
+from httprunner.utils import omit_long_data
 
 
 def get_uniform_comparator(comparator: Text):
-    """ convert comparator alias to uniform name
-    """
+    """convert comparator alias to uniform name"""
     if comparator in ["eq", "equals", "equal"]:
         return "equal"
     elif comparator in ["lt", "less_than"]:
@@ -53,7 +53,7 @@ def get_uniform_comparator(comparator: Text):
 
 
 def uniform_validator(validator):
-    """ unify validator
+    """unify validator
 
     Args:
         validator (dict): validator maybe in two formats:
@@ -117,7 +117,7 @@ def uniform_validator(validator):
 
 class ResponseObject(object):
     def __init__(self, resp_obj: requests.Response):
-        """ initialize with a requests.Response object
+        """initialize with a requests.Response object
 
         Args:
             resp_obj (instance): requests.Response instance
@@ -216,6 +216,9 @@ class ResponseObject(object):
                 # variable or function evaluation result is "" or not text
                 check_value = check_item
 
+            # omit check value
+            omitted_check_value = omit_long_data(str(check_value))
+
             # comparator
             assert_method = u_validator["assert"]
             assert_func = get_mapping_function(assert_method, functions_mapping)
@@ -224,13 +227,15 @@ class ResponseObject(object):
             expect_item = u_validator["expect"]
             # parse expected value with config/teststep/extracted variables
             expect_value = parse_data(expect_item, variables_mapping, functions_mapping)
+            # omit expect value
+            omitted_expect_value = omit_long_data(str(expect_value))
 
             # message
             message = u_validator["message"]
             # parse message with config/teststep/extracted variables
             message = parse_data(message, variables_mapping, functions_mapping)
 
-            validate_msg = f"assert {check_item} {assert_method} {expect_value}({type(expect_value).__name__})"
+            validate_msg = f"assert {check_item} {assert_method} {omitted_expect_value}({type(expect_value).__name__})"
 
             validator_dict = {
                 "comparator": assert_method,
@@ -260,9 +265,9 @@ class ResponseObject(object):
                 validate_msg += (
                     f"\n"
                     f"check_item: {check_item}\n"
-                    f"check_value: {check_value}({type(check_value).__name__})\n"
+                    f"check_value: {omitted_check_value}({type(check_value).__name__})\n"
                     f"assert_method: {assert_method}\n"
-                    f"expect_value: {expect_value}({type(expect_value).__name__})"
+                    f"expect_value: {omitted_expect_value}({type(expect_value).__name__})"
                 )
                 message = str(ex)
                 if message:
