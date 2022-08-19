@@ -72,6 +72,7 @@ class TStep(BaseModel):
     max_retry_times: Union[int, None] = 0
     retry_interval: Union[float, None] = 0
     skip_on_condition: Union[str, None] = None
+    run_on_condition: Union[str, None] = None
     skip_reason: Union[str, None] = None
     request: Union[TRequest, None] = None
     testcase: Union[Text, Callable, None] = None

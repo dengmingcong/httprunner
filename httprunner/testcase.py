@@ -525,6 +525,11 @@ class RunRequest(object):
         self.__step_context.skip_reason = reason
         return self
 
+    def skip_unless(self, condition: str, reason: str = None) -> "RunRequest":
+        self.__step_context.run_on_condition = condition
+        self.__step_context.skip_reason = reason
+        return self
+
     def with_variables(self, **variables) -> "RunRequest":
         self.__step_context.variables.update(variables)
         return self
@@ -592,6 +597,11 @@ class RunTestCase(object):
 
     def skip_if(self, condition: str, reason: str = None) -> "RunTestCase":
         self.__step_context.skip_on_condition = condition
+        self.__step_context.skip_reason = reason
+        return self
+
+    def skip_unless(self, condition: str, reason: str = None) -> "RunTestCase":
+        self.__step_context.run_on_condition = condition
         self.__step_context.skip_reason = reason
         return self
 

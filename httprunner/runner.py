@@ -522,6 +522,7 @@ class HttpRunner(object):
         logger.info(f"run step begin: {step.name} >>>>>>")
         step_data = StepData(name=step.name)
 
+        # handle skip_if
         if step.skip_on_condition:
             parsed_skip_condition = parse_data(
                 step.skip_on_condition, step.variables, self.__project_meta.functions
@@ -538,6 +539,24 @@ class HttpRunner(object):
                 step_data.success = True
             else:
                 logger.info("skip condition was not met, run the step")
+
+        # handle skip_unless
+        if step.run_on_condition:
+            parsed_run_condition = parse_data(
+                step.run_on_condition, step.variables, self.__project_meta.functions
+            )
+            logger.debug(f"parsed run condition: {parsed_run_condition}")
+            if not eval(parsed_run_condition):
+                is_skip_step = True
+                parsed_skip_reason = parse_data(
+                    step.skip_reason, step.variables, self.__project_meta.functions
+                )
+                logger.info(f"skip condition was met, reason: {parsed_skip_reason}")
+
+                # mark skipped step as success
+                step_data.success = True
+            else:
+                logger.info("run condition was met, run the step")
 
         if not is_skip_step:
             if step.request:
