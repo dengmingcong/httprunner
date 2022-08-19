@@ -48,11 +48,36 @@ class TestCaseRequestWithSkipTestcaseReference(HttpRunner):
             .assert_equal("status_code", 200)
         ),
         Step(
-            RunTestCase("skip request with functions")
+            RunTestCase("skip with skip_if")
             .skip_if("$status_code==200")
-            .with_variables(
-                **{"expect_foo1": "testcase_ref_bar1"}
-            )
+            .with_variables(**{"expect_foo1": "testsuite_config_bar1"})
+            .setup_hook("${sleep(0.1)}")
+            .call(RequestWithFunctions)
+            .teardown_hook("${sleep(0.2)}")
+            .export(*["foo3"])
+        ),
+        Step(
+            RunTestCase("run with skip_if")
+            .skip_if("$status_code!=200")
+            .with_variables(**{"expect_foo1": "testsuite_config_bar1"})
+            .setup_hook("${sleep(0.1)}")
+            .call(RequestWithFunctions)
+            .teardown_hook("${sleep(0.2)}")
+            .export(*["foo3"])
+        ),
+        Step(
+            RunTestCase("skip with skip_unless")
+            .skip_unless("$status_code!=200")
+            .with_variables(**{"expect_foo1": "testsuite_config_bar1"})
+            .setup_hook("${sleep(0.1)}")
+            .call(RequestWithFunctions)
+            .teardown_hook("${sleep(0.2)}")
+            .export(*["foo3"])
+        ),
+        Step(
+            RunTestCase("run with skip_unless")
+            .skip_unless("$status_code==200")
+            .with_variables(**{"expect_foo1": "testsuite_config_bar1"})
             .setup_hook("${sleep(0.1)}")
             .call(RequestWithFunctions)
             .teardown_hook("${sleep(0.2)}")
