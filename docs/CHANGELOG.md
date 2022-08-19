@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.10.0 (2022-08-19)
+### Feature
+* Add skip_unless to run step only when condition was met ([`a169291`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a1692918f8d40b7c12367fb2ad6672015402c470))
+
 ## v3.9.2 (2022-08-17)
 ### Fix
 * Omit long data to increase allure report readability ([`af50726`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/af50726a052a69cdcd9e07e79f2976c572b7fda6))
