@@ -266,6 +266,24 @@ class StepRequestValidation(object):
         )
         return self
 
+    def assert_json_contains_with_java(
+        self, jmes_path: Text, expected_value: Any, message: Text = "",
+    ) -> "StepRequestValidation":
+        """Equivalent to the JSONassert non-strict mode with java version."""
+        self.__step_context.validators.append(
+            {"json_contains_with_java": [jmes_path, expected_value, message]}
+        )
+        return self
+
+    def assert_json_equal_with_java(
+        self, jmes_path: Text, expected_value: Any, message: Text = "",
+    ) -> "StepRequestValidation":
+        """Equivalent to the JSONassert strict mode with java version."""
+        self.__step_context.validators.append(
+            {"json_equal_with_java": [jmes_path, expected_value, message]}
+        )
+        return self
+
     def assert_reports_match(
         self, jmes_path: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
