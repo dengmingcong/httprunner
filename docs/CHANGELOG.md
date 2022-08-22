@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.11.0 (2022-08-22)
+### Feature
+* 添加java版本json_contain断言入口 ([`7b2e95c`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/7b2e95c01959626ea44a6f32ff6ccae2e2573c6e))
+
 ## v3.10.0 (2022-08-19)
 ### Feature
 * Add skip_unless to run step only when condition was met ([`a169291`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a1692918f8d40b7c12367fb2ad6672015402c470))
