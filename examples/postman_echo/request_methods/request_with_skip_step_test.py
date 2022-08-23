@@ -57,8 +57,42 @@ class TestCaseRequestWithSkipStep(HttpRunner):
             .assert_equal("status_code", 200)
         ),
         Step(
+            RunRequest("skip this step with skip_if and parsed as boolean True")
+            .skip_if("True", "reason 2021")
+            .post("/post")
+            .with_headers(
+                **{
+                    "User-Agent": "HttpRunner/${get_httprunner_version()}",
+                    "Content-Type": "text/plain",
+                }
+            )
+            .with_data(
+                "This is expected to be sent back as part of response body: $foo1-$foo2-$foo3."
+            )
+            .validate()
+            .assert_equal("status_code", 200)
+        ),
+        Step(
             RunRequest("run this step with skip_if")
             .skip_if("'$foo3'!='bar21'", "reason 2021")
+            .post("/post")
+            .with_headers(
+                **{
+                    "User-Agent": "HttpRunner/${get_httprunner_version()}",
+                    "Content-Type": "text/plain",
+                }
+            )
+            .with_data(
+                "This is expected to be sent back as part of response body: $foo1-$foo2-$foo3."
+            )
+            .validate()
+            .assert_equal("status_code", 200)
+        ),
+        Step(
+            RunRequest(
+                "run this step with skip_if and condition was parsed as boolean False"
+            )
+            .skip_if("False", "reason 2021")
             .post("/post")
             .with_headers(
                 **{
@@ -89,8 +123,44 @@ class TestCaseRequestWithSkipStep(HttpRunner):
             .assert_equal("status_code", 200)
         ),
         Step(
+            RunRequest(
+                "run this step with skip_unless and condition was parsed as boolean True"
+            )
+            .skip_unless("True", "reason 2021")
+            .post("/post")
+            .with_headers(
+                **{
+                    "User-Agent": "HttpRunner/${get_httprunner_version()}",
+                    "Content-Type": "text/plain",
+                }
+            )
+            .with_data(
+                "This is expected to be sent back as part of response body: $foo1-$foo2-$foo3."
+            )
+            .validate()
+            .assert_equal("status_code", 200)
+        ),
+        Step(
             RunRequest("skip this step with skip_unless")
             .skip_unless("'$foo3'!='bar21'", "reason 2021")
+            .post("/post")
+            .with_headers(
+                **{
+                    "User-Agent": "HttpRunner/${get_httprunner_version()}",
+                    "Content-Type": "text/plain",
+                }
+            )
+            .with_data(
+                "This is expected to be sent back as part of response body: $foo1-$foo2-$foo3."
+            )
+            .validate()
+            .assert_equal("status_code", 200)
+        ),
+        Step(
+            RunRequest(
+                "skip this step with skip_unless and condition was parsed as boolean False"
+            )
+            .skip_unless("False", "reason 2021")
             .post("/post")
             .with_headers(
                 **{

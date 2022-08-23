@@ -527,8 +527,15 @@ class HttpRunner(object):
             parsed_skip_condition = parse_data(
                 step.skip_on_condition, step.variables, self.__project_meta.functions
             )
-            logger.debug(f"parsed skip condition: {parsed_skip_condition}")
-            if eval(parsed_skip_condition):
+            logger.debug(
+                f"parsed skip condition: {parsed_skip_condition} ({type(parsed_skip_condition)})"
+            )
+
+            # eval again if type is str
+            if isinstance(parsed_skip_condition, str):
+                parsed_skip_condition = eval(parsed_skip_condition)
+
+            if parsed_skip_condition:
                 is_skip_step = True
                 parsed_skip_reason = parse_data(
                     step.skip_reason, step.variables, self.__project_meta.functions
@@ -545,8 +552,15 @@ class HttpRunner(object):
             parsed_run_condition = parse_data(
                 step.run_on_condition, step.variables, self.__project_meta.functions
             )
-            logger.debug(f"parsed run condition: {parsed_run_condition}")
-            if not eval(parsed_run_condition):
+            logger.debug(
+                f"parsed run condition: {parsed_run_condition} ({type(parsed_run_condition)})"
+            )
+
+            # eval again if type is str
+            if isinstance(parsed_run_condition, str):
+                parsed_run_condition = eval(parsed_run_condition)
+
+            if not parsed_run_condition:
                 is_skip_step = True
                 parsed_skip_reason = parse_data(
                     step.skip_reason, step.variables, self.__project_meta.functions
