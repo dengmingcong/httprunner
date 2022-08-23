@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.11.1 (2022-08-23)
+### Fix
+* Eval condition only when result parsed by httprunner was str to fix unexpected eval result ([`061ad38`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/061ad385f9eb9d00db5793f571eca7c455453b7e))
+
 ## v3.11.0 (2022-08-22)
 ### Feature
 * 添加java版本json_contain断言入口 ([`7b2e95c`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/7b2e95c01959626ea44a6f32ff6ccae2e2573c6e))
