@@ -83,6 +83,24 @@ class TestCaseRequestWithSkipTestcaseReference(HttpRunner):
             .teardown_hook("${sleep(0.2)}")
             .export(*["foo3"])
         ),
+        Step(
+            RunTestCase("skip with skip_if and condition was boolean False")
+            .skip_if(True)
+            .with_variables(**{"expect_foo1": "testsuite_config_bar1"})
+            .setup_hook("${sleep(0.1)}")
+            .call(RequestWithFunctions)
+            .teardown_hook("${sleep(0.2)}")
+            .export(*["foo3"])
+        ),
+        Step(
+            RunTestCase("run with skip_unless and condition was boolean True")
+            .skip_unless(True)
+            .with_variables(**{"expect_foo1": "testsuite_config_bar1"})
+            .setup_hook("${sleep(0.1)}")
+            .call(RequestWithFunctions)
+            .teardown_hook("${sleep(0.2)}")
+            .export(*["foo3"])
+        ),
     ]
 
 

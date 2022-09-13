@@ -267,7 +267,10 @@ class StepRequestValidation(object):
         return self
 
     def assert_json_contains_with_java(
-        self, jmes_path: Text, expected_value: Any, message: Text = "",
+        self,
+        jmes_path: Text,
+        expected_value: Any,
+        message: Text = "",
     ) -> "StepRequestValidation":
         """Equivalent to the JSONassert non-strict mode with java version."""
         self.__step_context.validators.append(
@@ -276,7 +279,10 @@ class StepRequestValidation(object):
         return self
 
     def assert_json_equal_with_java(
-        self, jmes_path: Text, expected_value: Any, message: Text = "",
+        self,
+        jmes_path: Text,
+        expected_value: Any,
+        message: Text = "",
     ) -> "StepRequestValidation":
         """Equivalent to the JSONassert strict mode with java version."""
         self.__step_context.validators.append(
@@ -538,12 +544,12 @@ class RunRequest(object):
         self.__step_context.retry_interval = retry_interval
         return self
 
-    def skip_if(self, condition: str, reason: str = None) -> "RunRequest":
+    def skip_if(self, condition: Any, reason: str = None) -> "RunRequest":
         self.__step_context.skip_on_condition = condition
         self.__step_context.skip_reason = reason
         return self
 
-    def skip_unless(self, condition: str, reason: str = None) -> "RunRequest":
+    def skip_unless(self, condition: Any, reason: str = None) -> "RunRequest":
         self.__step_context.run_on_condition = condition
         self.__step_context.skip_reason = reason
         return self
@@ -613,12 +619,12 @@ class RunTestCase(object):
     def __init__(self, name: Text):
         self.__step_context = TStep(name=name)
 
-    def skip_if(self, condition: str, reason: str = None) -> "RunTestCase":
+    def skip_if(self, condition: Any, reason: str = None) -> "RunTestCase":
         self.__step_context.skip_on_condition = condition
         self.__step_context.skip_reason = reason
         return self
 
-    def skip_unless(self, condition: str, reason: str = None) -> "RunTestCase":
+    def skip_unless(self, condition: Any, reason: str = None) -> "RunTestCase":
         self.__step_context.run_on_condition = condition
         self.__step_context.skip_reason = reason
         return self
