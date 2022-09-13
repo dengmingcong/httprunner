@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.11.2 (2022-09-13)
+### Fix
+* Make the data type of skip condition as Any ([`7ee8e14`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/7ee8e14a1c17bb1a7b9d7a5e8af643262d0eb911))
+
 ## v3.11.1 (2022-08-23)
 ### Fix
 * Eval condition only when result parsed by httprunner was str to fix unexpected eval result ([`061ad38`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/061ad385f9eb9d00db5793f571eca7c455453b7e))
