@@ -431,7 +431,7 @@ class RequestWithOptionalArgs(object):
                     f"but got: {type(init_json)}"
                 )
             if deep:
-                init_json = update_dict_recursively(init_json, update_data)
+                init_json = update_dict_recursively(init_json, update_data)  # noqa
             else:
                 init_json.update(update_data)
 
@@ -668,7 +668,7 @@ class Step(object):
 
     @property
     def testcase(self) -> TestCase:
-        return self.__step_context.testcase
+        return self.__step_context.testcase  # noqa
 
     def perform(self) -> TStep:
         return self.__step_context
