@@ -607,11 +607,9 @@ class StepRefCase(object):
 
         return self
 
-    def export(self, *var_name: Text, **var_name_mapping: dict) -> "StepRefCase":
-        self.__step_context.export.extend(var_name)
-        self.__step_context.export.append(
-            var_name_mapping
-        )  # var will be renamed if in mapping
+    def export(self, *var_name: Text, **var_name_mapping) -> "StepRefCase":
+        self.__step_context.export.var_names.extend(var_name)
+        self.__step_context.export.var_rename_mapping.update(var_name_mapping)
         return self
 
     def perform(self) -> TStep:

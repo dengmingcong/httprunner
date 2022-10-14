@@ -20,7 +20,6 @@ Verify = bool
 Hooks = List[Union[Text, Dict[Text, Text]]]
 GlobalVars = List[Union[Text, Dict[Text, Text]]]  # added by @deng at 2022.2.9
 ConfigExport = List[Text]
-StepExport = List[Union[Text, dict]]
 Validators = List[Dict]
 Env = Dict[Text, Any]
 
@@ -67,6 +66,11 @@ class TRequest(BaseModel):
     upload: Dict = {}  # used for upload files
 
 
+class StepExport(BaseModel):
+    var_names: list[str] = []
+    var_rename_mapping: dict[str, str] = {}  # var will be renamed if in mapping
+
+
 class TStep(BaseModel):
     name: Name
     retry_times: Union[int, None] = 0
@@ -88,7 +92,7 @@ class TStep(BaseModel):
     globalize: GlobalVars = []
 
     # used to export session variables from referenced testcase
-    export: StepExport = []
+    export: StepExport = StepExport()
 
     validators: Validators = Field([], alias="validate")
     validate_script: List[Text] = []
