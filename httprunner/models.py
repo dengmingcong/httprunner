@@ -19,7 +19,8 @@ Cookies = Dict[Text, Text]
 Verify = bool
 Hooks = List[Union[Text, Dict[Text, Text]]]
 GlobalVars = List[Union[Text, Dict[Text, Text]]]  # added by @deng at 2022.2.9
-Export = List[Text]
+ConfigExport = List[Text]
+StepExport = List[Union[Text, dict]]
 Validators = List[Dict]
 Env = Dict[Text, Any]
 
@@ -43,7 +44,7 @@ class TConfig(BaseModel):
     parameters: Union[VariablesMapping, Text] = {}
     # setup_hooks: Hooks = []
     # teardown_hooks: Hooks = []
-    export: Export = []
+    export: ConfigExport = []
     path: Text = None
     weight: int = 1
     continue_on_failure: bool = False
@@ -87,7 +88,7 @@ class TStep(BaseModel):
     globalize: GlobalVars = []
 
     # used to export session variables from referenced testcase
-    export: Export = []
+    export: StepExport = []
 
     validators: Validators = Field([], alias="validate")
     validate_script: List[Text] = []
