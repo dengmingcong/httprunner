@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
-from httprunner.exceptions import ParamsError, VariableNotFound
+from httprunner.exceptions import ParamsError
 
 from .base_request import (
     TestCaseRequestAndExport as RequestAndExport,
@@ -180,7 +180,6 @@ class TestExportOnlyInAliasMapping(HttpRunner):
     ]
 
 
-@pytest.mark.xfail(causes=VariableNotFound)
 class TestExportOnlyInAliasMappingAndReference(HttpRunner):
 
     config = (
@@ -201,9 +200,12 @@ class TestExportOnlyInAliasMappingAndReference(HttpRunner):
             .with_json(
                 {
                     "key01": "$v01",
+                    "key02": "$v001",
                 }
             )
             .validate()
             .assert_equal("status_code", 200)
+            .assert_equal("body.json.key01", 1)
+            .assert_equal("body.json.key02", 1)
         ),
     ]
