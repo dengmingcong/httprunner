@@ -607,9 +607,15 @@ class StepRefCase(object):
 
         return self
 
-    def export(self, *var_name: Text, **var_name_mapping) -> "StepRefCase":
-        self.__step_context.export.var_names.extend(var_name)
-        self.__step_context.export.var_rename_mapping.update(var_name_mapping)
+    def export(self, *var_names: Text, **var_alias_mapping) -> "StepRefCase":
+        """
+        Export Variables from testcase referenced.
+
+        :param var_names: each item of this list will be exported as is
+        :param var_alias_mapping: key is the original variable name, value is the variable name that will be exported as
+        """
+        self.__step_context.export.var_names.extend(var_names)
+        self.__step_context.export.var_rename_mapping.update(var_alias_mapping)
         return self
 
     def perform(self) -> TStep:
