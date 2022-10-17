@@ -6,8 +6,7 @@ from typing import Dict, Text, Union, Callable
 from typing import List
 
 import requests
-from pydantic import BaseModel, Field
-from pydantic import HttpUrl
+from pydantic import BaseModel, Field, HttpUrl
 
 Name = Text
 Url = Text
@@ -68,7 +67,7 @@ class TRequest(BaseModel):
 
 class StepExport(BaseModel):
     var_names: list[str] = []
-    var_rename_mapping: dict[str, str] = {}  # var will be renamed if in mapping
+    var_alias_mapping: dict[str, str] = {}  # var will be renamed if in mapping
 
 
 class TStep(BaseModel):

@@ -615,7 +615,7 @@ class StepRefCase(object):
         :param var_alias_mapping: key is the original variable name, value is the variable name that will be exported as
         """
         self.__step_context.export.var_names.extend(var_names)
-        self.__step_context.export.var_rename_mapping.update(var_alias_mapping)
+        self.__step_context.export.var_alias_mapping.update(var_alias_mapping)
         return self
 
     def perform(self) -> TStep:
