@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
-from httprunner.exceptions import ParamsError
+from httprunner.exceptions import ParamsError, VariableNotFound
 
 from .base_request import (
     TestCaseRequestAndExport as RequestAndExport,
@@ -77,6 +77,24 @@ class TestExportKeyEqualsValue(HttpRunner):
             .validate()
             .assert_equal("status_code", 200)
             .assert_equal("body.json.key01", 1)
+        ),
+    ]
+
+
+@pytest.mark.xfail(raises=VariableNotFound)
+class TestFailToExportWhenVariableNotFound(HttpRunner):
+
+    config = (
+        Config("request methods testcase: reference testcase and export alias")
+        .base_url("https://postman-echo.com")
+        .verify(False)
+    )
+
+    teststeps = [
+        Step(
+            RunTestCase("type of value is not str")
+            .call(RequestAndExport)
+            .export("v06", v07="v007")
         ),
     ]
 
