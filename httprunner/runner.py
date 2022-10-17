@@ -720,7 +720,7 @@ class HttpRunner(object):
                     f"fail to export variables {non_exist_vars} from session variables"
                 )
 
-        elif isinstance(self.__export, ConfigExport):
+        elif isinstance(self.__export, list):
             # Make sure variables specified exist in session variables.
             if non_exist_vars := set(self.__export) - set(
                 self.__session_variables.keys()
