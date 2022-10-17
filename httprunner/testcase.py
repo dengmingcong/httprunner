@@ -431,7 +431,7 @@ class RequestWithOptionalArgs(object):
                     f"but got: {type(init_json)}"
                 )
             if deep:
-                init_json = update_dict_recursively(init_json, update_data)
+                init_json = update_dict_recursively(init_json, update_data)  # noqa
             else:
                 init_json.update(update_data)
 
@@ -607,8 +607,15 @@ class StepRefCase(object):
 
         return self
 
-    def export(self, *var_name: Text) -> "StepRefCase":
-        self.__step_context.export.extend(var_name)
+    def export(self, *var_names: Text, **var_alias_mapping) -> "StepRefCase":
+        """
+        Export Variables from testcase referenced.
+
+        :param var_names: each item of this list will be exported as is
+        :param var_alias_mapping: key is the original variable name, value is the variable name that will be exported as
+        """
+        self.__step_context.export.var_names.extend(var_names)
+        self.__step_context.export.var_alias_mapping.update(var_alias_mapping)
         return self
 
     def perform(self) -> TStep:
@@ -668,7 +675,7 @@ class Step(object):
 
     @property
     def testcase(self) -> TestCase:
-        return self.__step_context.testcase
+        return self.__step_context.testcase  # noqa
 
     def perform(self) -> TStep:
         return self.__step_context

@@ -3,7 +3,7 @@ import os
 import time
 import uuid
 from datetime import datetime
-from typing import List, Dict, Text, NoReturn
+from typing import List, Dict, Text, NoReturn, Union
 
 from httprunner.builtin import expand_nested_json
 
@@ -18,7 +18,7 @@ from loguru import logger
 
 from httprunner import utils, exceptions
 from httprunner.client import HttpSession
-from httprunner.exceptions import ValidationFailure, ParamsError
+from httprunner.exceptions import ValidationFailure, ParamsError, VariableNotFound
 from httprunner.ext.uploader import prepare_upload_step
 from httprunner.loader import load_project_meta, load_testcase_file
 from httprunner.parser import (
@@ -42,6 +42,8 @@ from httprunner.models import (
     TestCase,
     Hooks,
     SessionData,
+    StepExport,
+    ConfigExport,
 )
 
 
@@ -54,7 +56,7 @@ class HttpRunner(object):
     __teststeps: List[TStep]
     __project_meta: ProjectMeta = None
     __case_id: Text = ""
-    __export: List[Text] = []
+    __export: Union[StepExport, ConfigExport] = None  # testcase export
     __step_datas: List[StepData] = []
     __session: HttpSession = None
     __session_variables: VariablesMapping = {}
@@ -99,8 +101,8 @@ class HttpRunner(object):
         self.__continue_on_failure = is_continue_on_failure
         return self
 
-    def with_export(self, export: List[Text]) -> "HttpRunner":
-        self.__export = export
+    def with_export(self, step_export: StepExport) -> "HttpRunner":
+        self.__export = step_export
         return self
 
     def __call_hooks(
@@ -686,17 +688,85 @@ class HttpRunner(object):
     def get_step_datas(self) -> List[StepData]:
         return self.__step_datas
 
-    def get_export_variables(self) -> Dict:
-        # override testcase export vars with step export
-        export_var_names = self.__export or self.__config.export
-        export_vars_mapping = {}
-        for var_name in export_var_names:
-            if var_name not in self.__session_variables:
-                raise ParamsError(
-                    f"failed to export variable {var_name} from session variables {self.__session_variables}"
+    def validate_testcase_export(self) -> NoReturn:
+        """Validate testcase export."""
+        if isinstance(self.__export, StepExport):
+            same_key_value_items = []
+            for var_name, var_alias in self.__export.var_alias_mapping.items():
+                # type of var alias must be str
+                if not isinstance(var_alias, str):
+                    raise ParamsError(
+                        f"type of variable alias '{var_alias}' is not str, but got {type(var_alias)}"
+                    )
+
+                # var alias must not in var_names, otherwise exported variables will be overwritten
+                if var_alias in self.__export.var_names:
+                    raise ParamsError(
+                        f"variable alias ({var_alias}) must not in var_names {self.__export.var_names}"
+                    )
+
+                # handle if var_name equals var_alias
+                if var_name == var_alias:
+                    self.__export.var_names.append(var_name)
+                    same_key_value_items.append(var_name)
+
+            # pop keys (do pop in iteration will cause 'dictionary changed size during iteration' error)
+            for var_name in same_key_value_items:
+                self.__export.var_alias_mapping.pop(var_name)
+
+            # find non-exist variables
+            if non_exist_vars := (
+                set(self.__export.var_names).union(
+                    set(self.__export.var_alias_mapping.keys())
+                )
+                - set(self.__session_variables.keys())
+            ):
+                raise VariableNotFound(
+                    f"fail to export variables {non_exist_vars} from session variables"
                 )
 
-            export_vars_mapping[var_name] = self.__session_variables[var_name]
+        elif isinstance(self.__export, list):
+            # Make sure variables specified exist in session variables.
+            if non_exist_vars := set(self.__export) - set(
+                self.__session_variables.keys()
+            ):
+                raise VariableNotFound(
+                    f"fail to export variables {non_exist_vars} from session variables."
+                )
+        else:
+            raise ParamsError(
+                f"type of testcase export is supposed to be StepExport or ConfigExport, but got {type(self.__export)}"
+            )
+
+    def get_export_variables(self) -> dict:
+        """Export variables from testcase referenced."""
+
+        # override testcase export vars with step export
+        self.__export = self.__export or self.__config.export
+        self.validate_testcase_export()
+
+        export_vars_mapping = {}
+
+        if isinstance(self.__export, StepExport):
+            var_names_set = set(self.__export.var_names)
+            var_alias_mapping_keys_set = set(self.__export.var_alias_mapping.keys())
+
+            var_names_only_set = var_names_set - var_alias_mapping_keys_set
+
+            # export variable as both var_name and var_alias
+            for var_name in var_alias_mapping_keys_set:
+                var_alias = self.__export.var_alias_mapping[var_name]
+                export_vars_mapping[var_name] = (
+                    var_value := self.__session_variables[var_name]
+                )
+                export_vars_mapping[var_alias] = var_value
+
+            # export variable as var_name only
+            for var_name in var_names_only_set:
+                export_vars_mapping[var_name] = self.__session_variables[var_name]
+        else:
+            for var_name in self.__export:
+                export_vars_mapping[var_name] = self.__session_variables[var_name]
 
         return export_vars_mapping
 
