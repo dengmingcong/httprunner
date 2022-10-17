@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v3.12.0 (2022-10-17)
+### Feature
+* Add support to export variables from testcase referenced with specified names ([`4a55baf`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4a55bafcf5c3b9560e9f436d810ef648a8b464d7))
+
+### Fix
+* Pop keys outside for loop to avoid 'dictionary changed size during iteration' ([`58a1250`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/58a1250e4c7ea4d4aefb6fa8de2b82e4cdc708c2))
+* Replace ConfigExport with list to fix "Subscripted generics cannot be used with class and instance checks" ([`f9cd093`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/f9cd0933faa8a8fdd0c752b56496e6041911ea7a))
+
+### Documentation
+* Add docs for method export() ([`ec567ff`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ec567ff0d52003b26af62ad9b993a58efe729826))
+
 ## v3.11.2 (2022-09-13)
 ### Fix
 * Make the data type of skip condition as Any ([`7ee8e14`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/7ee8e14a1c17bb1a7b9d7a5e8af643262d0eb911))
