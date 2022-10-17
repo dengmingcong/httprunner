@@ -18,7 +18,7 @@ from loguru import logger
 
 from httprunner import utils, exceptions
 from httprunner.client import HttpSession
-from httprunner.exceptions import ValidationFailure, ParamsError
+from httprunner.exceptions import ValidationFailure, ParamsError, VariableNotFound
 from httprunner.ext.uploader import prepare_upload_step
 from httprunner.loader import load_project_meta, load_testcase_file
 from httprunner.parser import (
@@ -721,7 +721,7 @@ class HttpRunner(object):
                 )
                 - set(self.__session_variables.keys())
             ):
-                raise ParamsError(
+                raise VariableNotFound(
                     f"fail to export variables {non_exist_vars} from session variables"
                 )
 
@@ -730,7 +730,7 @@ class HttpRunner(object):
             if non_exist_vars := set(self.__export) - set(
                 self.__session_variables.keys()
             ):
-                raise ParamsError(
+                raise VariableNotFound(
                     f"fail to export variables {non_exist_vars} from session variables."
                 )
         else:
