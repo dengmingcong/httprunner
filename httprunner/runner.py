@@ -711,8 +711,9 @@ class HttpRunner(object):
 
             # find non-exist variables
             if non_exist_vars := (
-                set(self.__export.var_names)
-                | set(self.__export.var_alias_mapping.keys())
+                set(self.__export.var_names).union(
+                    set(self.__export.var_alias_mapping.keys())
+                )
                 - set(self.__session_variables.keys())
             ):
                 raise ParamsError(
