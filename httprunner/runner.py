@@ -691,6 +691,7 @@ class HttpRunner(object):
     def validate_testcase_export(self) -> NoReturn:
         """Validate testcase export."""
         if isinstance(self.__export, StepExport):
+            same_key_value_items = []
             for var_name, var_alias in self.__export.var_alias_mapping.items():
                 # type of var alias must be str
                 if not isinstance(var_alias, str):
@@ -706,8 +707,12 @@ class HttpRunner(object):
 
                 # handle if var_name equals var_alias
                 if var_name == var_alias:
-                    self.__export.var_alias_mapping.pop(var_name)
                     self.__export.var_names.append(var_name)
+                    same_key_value_items.append(var_name)
+
+            # pop keys (do pop in iteration will cause 'dictionary changed size during iteration' error)
+            for var_name in same_key_value_items:
+                self.__export.var_alias_mapping.pop(var_name)
 
             # find non-exist variables
             if non_exist_vars := (
