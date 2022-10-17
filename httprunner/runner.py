@@ -701,7 +701,7 @@ class HttpRunner(object):
                 # var alias must not in var_names, otherwise exported variables will be overwritten
                 if var_alias in self.__export.var_names:
                     raise ParamsError(
-                        f"variable alias ({var_alias}) must not in var_names"
+                        f"variable alias ({var_alias}) must not in var_names {self.__export.var_names}"
                     )
 
                 # handle if var_name equals var_alias
