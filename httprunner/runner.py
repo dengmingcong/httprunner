@@ -751,12 +751,10 @@ class HttpRunner(object):
             var_names_set = set(self.__export.var_names)
             var_alias_mapping_keys_set = set(self.__export.var_alias_mapping.keys())
 
-            intersection_set = var_names_set & var_alias_mapping_keys_set
             var_names_only_set = var_names_set - var_alias_mapping_keys_set
-            var_alias_only_set = var_alias_mapping_keys_set - var_names_set
 
             # export variable as both var_name and var_alias
-            for var_name in intersection_set:
+            for var_name in var_alias_mapping_keys_set:
                 var_alias = self.__export.var_alias_mapping[var_name]
                 export_vars_mapping[var_name] = (
                     var_value := self.__session_variables[var_name]
@@ -766,11 +764,6 @@ class HttpRunner(object):
             # export variable as var_name only
             for var_name in var_names_only_set:
                 export_vars_mapping[var_name] = self.__session_variables[var_name]
-
-            # export variables as var_alias only
-            for var_name in var_alias_only_set:
-                var_alias = self.__export.var_alias_mapping[var_name]
-                export_vars_mapping[var_alias] = self.__session_variables[var_name]
         else:
             for var_name in self.__export:
                 export_vars_mapping[var_name] = self.__session_variables[var_name]
