@@ -66,7 +66,7 @@ class TRequest(BaseModel):
 
 
 class StepExport(BaseModel):
-    var_names: list[str] = []
+    var_names: Union[list[str], tuple[str]] = []
     var_alias_mapping: dict[str, str] = {}  # var will be renamed if in mapping
 
 
@@ -90,8 +90,8 @@ class TStep(BaseModel):
     # used to export local step variables, steps next can use these variables then
     globalize: GlobalVars = []
 
-    # used to export session variables from referenced testcase
-    export: StepExport = StepExport()
+    # used to export session variables from referenced testcase, only take effect for RunTestCase step
+    export: StepExport = None
 
     validators: Validators = Field([], alias="validate")
     validate_script: List[Text] = []

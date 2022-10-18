@@ -8,6 +8,7 @@ from httprunner.models import (
     TRequest,
     MethodEnum,
     TestCase,
+    StepExport,
 )
 
 
@@ -607,15 +608,20 @@ class StepRefCase(object):
 
         return self
 
-    def export(self, *var_names: Text, **var_alias_mapping) -> "StepRefCase":
+    def export(self, *var_names: str, **var_alias_mapping: str) -> "StepRefCase":
         """
         Export Variables from testcase referenced.
 
         :param var_names: each item of this list will be exported as is
         :param var_alias_mapping: key is the original variable name, value is the variable name that will be exported as
         """
-        self.__step_context.export.var_names.extend(var_names)
-        self.__step_context.export.var_alias_mapping.update(var_alias_mapping)
+        if not self.__step_context.export:
+            self.__step_context.export = StepExport(
+                var_names=var_names, var_alias_mapping=var_alias_mapping
+            )
+        else:
+            self.__step_context.export.var_names.extend(var_names)
+            self.__step_context.export.var_alias_mapping.update(var_alias_mapping)
         return self
 
     def perform(self) -> TStep:
