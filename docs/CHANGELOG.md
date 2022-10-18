@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.12.1 (2022-10-18)
+### Fix
+* Set field TStep.export as None by default and initiate an object when calling method export() ([`fe0d710`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/fe0d71070368af4c123629e3334bfc1c6ca6d93a))
+
 ## v3.12.0 (2022-10-17)
 ### Feature
 * Add support to export variables from testcase referenced with specified names ([`4a55baf`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4a55bafcf5c3b9560e9f436d810ef648a8b464d7))
