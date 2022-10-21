@@ -66,6 +66,7 @@ class HttpRunner(object):
     # log
     __log_path: Text = ""
     __continue_on_failure: bool = False
+    __use_allure: bool = USE_ALLURE
 
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
@@ -73,6 +74,13 @@ class HttpRunner(object):
         for step in self.teststeps:
             self.__teststeps.append(step.perform())
         self.__failed_steps: list[TStep] = []
+
+    def skip_allure(self) -> "HttpRunner":
+        """
+        Do not save allure data even if allure was installed.
+        """
+        self.__use_allure = False
+        return self
 
     @property
     def raw_testcase(self) -> TestCase:
@@ -226,7 +234,7 @@ class HttpRunner(object):
         self,
         validation_results: dict,
         exported_vars: dict,
-        max_retries: int,
+        allow_max_retry_times: int,
         remaining_retry_times: int,
         is_success: bool,
     ) -> NoReturn:
@@ -235,23 +243,25 @@ class HttpRunner(object):
 
         Note:
             1. this function is exclusively used for method self.__run_step_request().
-            2. if retry is needed (max_retries > 0), add new step as context
+            2. if retry is needed (max_retries > 0), add new allure step as context
         """
         if not hasattr(self.__session, "data"):
             return
 
-        if max_retries > 0:
+        if allow_max_retry_times > 0:
             if is_success:
                 result = "PASS"
             else:
                 result = "FAIL"
 
-            if max_retries == remaining_retry_times:
+            if allow_max_retry_times == remaining_retry_times:
                 title = f"first request ({result})"
             elif remaining_retry_times == 0:
-                title = f"retry: {max_retries} - last retry ({result})"
+                title = f"retry: {allow_max_retry_times} - last retry ({result})"
             else:
-                title = f"retry: {max_retries - remaining_retry_times} ({result})"
+                title = (
+                    f"retry: {allow_max_retry_times - remaining_retry_times} ({result})"
+                )
             with allure.step(title):
                 self.__add_allure_attachments(
                     self.__session.data, validation_results, exported_vars, is_success
@@ -399,22 +409,26 @@ class HttpRunner(object):
             )
             self.__session.data.validators = resp_obj.validation_results
             self.__session.data.success = True  # validate success
-            self.__save_allure_data(
-                resp_obj.validation_results,
-                step_data.export_vars,
-                step.max_retry_times,
-                step.retry_times,
-                self.__session.data.success,
-            )
+
+            if self.__use_allure:
+                self.__save_allure_data(
+                    resp_obj.validation_results,
+                    step_data.export_vars,
+                    step.max_retry_times,
+                    step.retry_times,
+                    self.__session.data.success,
+                )
         except ValidationFailure as vf:
-            self.__save_allure_data(
-                resp_obj.validation_results,
-                step_data.export_vars,
-                step.max_retry_times,
-                step.retry_times,
-                self.__session.data.success,
-            )
+            if self.__use_allure:
+                self.__save_allure_data(
+                    resp_obj.validation_results,
+                    step_data.export_vars,
+                    step.max_retry_times,
+                    step.retry_times,
+                    self.__session.data.success,
+                )
             self.__session.data.validators = resp_obj.validation_results
+
             # check if retry is needed
             if step.retry_times > 0:
                 logger.warning(
@@ -642,7 +656,7 @@ class HttpRunner(object):
 
             # run step
             try:
-                if USE_ALLURE:
+                if self.__use_allure:
                     with allure.step(f"step: {step.name}"):
                         extract_mapping = self.__run_step(step)
 
@@ -657,13 +671,21 @@ class HttpRunner(object):
                                 )
                 else:
                     extract_mapping = self.__run_step(step)
+
+                    if not (step_data := self.__step_datas[-1]).success:
+                        if step.request:
+                            raise step_data.data.exception
+                        else:
+                            raise ValidationFailure(
+                                "self.__continue_on_failure is set to True and step.testcase failed"
+                            )
             except ValidationFailure:
                 if not self.__continue_on_failure:
                     raise
 
-            # save extracted variables to session variables
             extracted_variables.update(extract_mapping)
 
+        # save extracted variables to session variables
         self.__session_variables.update(extracted_variables)
         self.__duration = time.time() - self.__start_at
         return self
@@ -822,7 +844,7 @@ class HttpRunner(object):
             self.__config.name, config_variables, self.__project_meta.functions
         )
 
-        if USE_ALLURE:
+        if self.__use_allure:
             # update allure report meta
             allure.dynamic.title(self.__config.name)
             allure.dynamic.description(f"TestCase ID: {self.__case_id}")
@@ -836,7 +858,7 @@ class HttpRunner(object):
                 TestCase(config=self.__config, teststeps=self.__teststeps)
             )
 
-            # fail testcase finally after all steps were executed and failed steps existed
+            # mark testcase as failed finally after all steps were executed and failed steps existed
             if self.__continue_on_failure:
                 if self.__failed_steps:
                     self.success = False
