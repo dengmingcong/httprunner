@@ -66,6 +66,7 @@ class HttpRunner(object):
     # log
     __log_path: Text = ""
     __continue_on_failure: bool = False
+    __use_allure: bool = USE_ALLURE
 
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
@@ -73,6 +74,13 @@ class HttpRunner(object):
         for step in self.teststeps:
             self.__teststeps.append(step.perform())
         self.__failed_steps: list[TStep] = []
+
+    def skip_allure(self) -> "HttpRunner":
+        """
+        Do not save allure data even if allure was installed.
+        """
+        self.__use_allure = False
+        return self
 
     @property
     def raw_testcase(self) -> TestCase:
@@ -226,7 +234,7 @@ class HttpRunner(object):
         self,
         validation_results: dict,
         exported_vars: dict,
-        max_retries: int,
+        allow_max_retry_times: int,
         remaining_retry_times: int,
         is_success: bool,
     ) -> NoReturn:
@@ -235,23 +243,25 @@ class HttpRunner(object):
 
         Note:
             1. this function is exclusively used for method self.__run_step_request().
-            2. if retry is needed (max_retries > 0), add new step as context
+            2. if retry is needed (max_retries > 0), add new allure step as context
         """
         if not hasattr(self.__session, "data"):
             return
 
-        if max_retries > 0:
+        if allow_max_retry_times > 0:
             if is_success:
                 result = "PASS"
             else:
                 result = "FAIL"
 
-            if max_retries == remaining_retry_times:
+            if allow_max_retry_times == remaining_retry_times:
                 title = f"first request ({result})"
             elif remaining_retry_times == 0:
-                title = f"retry: {max_retries} - last retry ({result})"
+                title = f"retry: {allow_max_retry_times} - last retry ({result})"
             else:
-                title = f"retry: {max_retries - remaining_retry_times} ({result})"
+                title = (
+                    f"retry: {allow_max_retry_times - remaining_retry_times} ({result})"
+                )
             with allure.step(title):
                 self.__add_allure_attachments(
                     self.__session.data, validation_results, exported_vars, is_success
