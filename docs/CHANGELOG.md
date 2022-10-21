@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.13.1 (2022-10-21)
+### Fix
+* Call set_use_allure() in nested testcase-like steps ([`f88d242`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/f88d242bc13a93da2ab3342a42324de8bfe24c84))
+
 ## v3.13.0 (2022-10-21)
 ### Feature
 * Add attribute __use_allure to control allure data saving in testcase-specific scope ([`fe7d32c`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/fe7d32cc5a0f50b85ec83103de84d88d5f77cf88))
