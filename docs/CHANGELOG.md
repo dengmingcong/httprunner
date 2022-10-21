@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.13.0 (2022-10-21)
+### Feature
+* Add attribute __use_allure to control allure data saving in testcase-specific scope ([`fe7d32c`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/fe7d32cc5a0f50b85ec83103de84d88d5f77cf88))
+
 ## v3.12.1 (2022-10-18)
 ### Fix
 * Set field TStep.export as None by default and initiate an object when calling method export() ([`fe0d710`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/fe0d71070368af4c123629e3334bfc1c6ca6d93a))
