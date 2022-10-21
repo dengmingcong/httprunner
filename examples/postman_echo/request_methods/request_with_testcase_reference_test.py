@@ -28,6 +28,7 @@ class TestCaseRequestWithTestcaseReference(HttpRunner):
         )
         .base_url("https://postman-echo.com")
         .verify(False)
+        .export("foo3")
     )
 
     teststeps = [

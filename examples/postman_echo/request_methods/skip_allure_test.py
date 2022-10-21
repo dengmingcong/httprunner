@@ -13,9 +13,12 @@ from httprunner import HttpRunner, Config, Step, RunRequest
 from .request_with_functions_test import (
     TestCaseRequestWithFunctions as RequestWithFunctions,
 )
+from .request_with_testcase_reference_test import (
+    TestCaseRequestWithTestcaseReference as RequestWithTestcaseReference,
+)
 
 
-def run_testcase_without_allure() -> dict:
+def run_plain_testcase_without_allure() -> dict:
     """
     Run testcase and skip allure data saving.
     """
@@ -24,13 +27,13 @@ def run_testcase_without_allure() -> dict:
         .with_variables(
             {"foo1": "testcase_ref_bar1", "expect_foo1": "testcase_ref_bar1"}
         )
-        .skip_allure()
+        .set_use_allure(False)
         .run()
         .get_export_variables()
     )
 
 
-class TestCaseRequestWithTestcaseReference(HttpRunner):
+class TestPlainTestcase(HttpRunner):
 
     config = (
         Config("request methods testcase: reference testcase")
@@ -39,7 +42,7 @@ class TestCaseRequestWithTestcaseReference(HttpRunner):
                 "foo1": "testsuite_config_bar1",
                 "expect_foo1": "testsuite_config_bar1",
                 "expect_foo2": "config_bar2",
-                "foo3": run_testcase_without_allure()["foo3"],
+                "foo3": run_plain_testcase_without_allure()["foo3"],
             }
         )
         .base_url("https://postman-echo.com")
@@ -66,5 +69,49 @@ class TestCaseRequestWithTestcaseReference(HttpRunner):
     ]
 
 
-if __name__ == "__main__":
-    TestCaseRequestWithTestcaseReference().test_start()
+def run_nested_testcase_without_allure() -> dict:
+    """
+    Run testcase and skip allure data saving.
+    """
+    return (
+        RequestWithTestcaseReference()
+        .set_use_allure(False)
+        .run()
+        .get_export_variables()
+    )
+
+
+class TestNestedTestcase(HttpRunner):
+
+    config = (
+        Config("request methods testcase: reference testcase")
+        .variables(
+            **{
+                "foo1": "testsuite_config_bar1",
+                "expect_foo1": "testsuite_config_bar1",
+                "expect_foo2": "config_bar2",
+                "foo3": run_nested_testcase_without_allure()["foo3"],
+            }
+        )
+        .base_url("https://postman-echo.com")
+        .verify(False)
+    )
+
+    teststeps = [
+        Step(
+            RunRequest("post form data")
+            .with_variables(**{"foo1": "bar1"})
+            .post("/post")
+            .with_headers(
+                **{
+                    "User-Agent": "HttpRunner/${get_httprunner_version()}",
+                    "Content-Type": "application/x-www-form-urlencoded",
+                }
+            )
+            .with_data("foo1=$foo1&foo2=$foo3")
+            .validate()
+            .assert_equal("status_code", 200)
+            .assert_equal("body.form.foo1", "bar1")
+            .assert_equal("body.form.foo2", "bar21")
+        ),
+    ]
