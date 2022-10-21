@@ -75,11 +75,11 @@ class HttpRunner(object):
             self.__teststeps.append(step.perform())
         self.__failed_steps: list[TStep] = []
 
-    def skip_allure(self) -> "HttpRunner":
+    def set_use_allure(self, is_use_allure: bool) -> "HttpRunner":
         """
-        Do not save allure data even if allure was installed.
+        set if saving allure data no matter if allure was installed
         """
-        self.__use_allure = False
+        self.__use_allure = is_use_allure
         return self
 
     @property
@@ -479,6 +479,7 @@ class HttpRunner(object):
             case_result = (
                 testcase_cls()
                 .set_continue_on_failure(self.__continue_on_failure)
+                .set_use_allure(self.__use_allure)
                 .with_session(self.__session)
                 .with_case_id(self.__case_id)
                 .with_variables(step_variables)
@@ -497,6 +498,7 @@ class HttpRunner(object):
             case_result = (
                 HttpRunner()
                 .set_continue_on_failure(self.__continue_on_failure)
+                .set_use_allure(self.__use_allure)
                 .with_session(self.__session)
                 .with_case_id(self.__case_id)
                 .with_variables(step_variables)
