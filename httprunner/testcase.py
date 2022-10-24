@@ -9,7 +9,9 @@ from httprunner.models import (
     MethodEnum,
     TestCase,
     StepExport,
+    TRequestConfig,
 )
+from utils import merge_variables
 
 
 class Config(object):
@@ -527,13 +529,19 @@ class RequestWithOptionalArgs(object):
         return self.__step_context
 
 
-class RunRequest(object):
+class RunRequestSetupMixin(object):
+    """
+    Mixin representing setup for RunRequest.
+
+    This class was separated from original RunRequest for new HttpRunnerRequest.
+    """
+
     def __init__(self, name: Text):
         self.__step_context = TStep(name=name)
 
     def retry_on_failure(
         self, retry_times: int, retry_interval: Union[int, float]
-    ) -> "RunRequest":
+    ) -> "RunRequestSetupMixin":
         """
         Retry request step until success or max retried times.
 
@@ -545,27 +553,33 @@ class RunRequest(object):
         self.__step_context.retry_interval = retry_interval
         return self
 
-    def skip_if(self, condition: Any, reason: str = None) -> "RunRequest":
+    def skip_if(self, condition: Any, reason: str = None) -> "RunRequestSetupMixin":
         self.__step_context.skip_on_condition = condition
         self.__step_context.skip_reason = reason
         return self
 
-    def skip_unless(self, condition: Any, reason: str = None) -> "RunRequest":
+    def skip_unless(self, condition: Any, reason: str = None) -> "RunRequestSetupMixin":
         self.__step_context.run_on_condition = condition
         self.__step_context.skip_reason = reason
         return self
 
-    def with_variables(self, **variables) -> "RunRequest":
+    def with_variables(self, **variables) -> "RunRequestSetupMixin":
         self.__step_context.variables.update(variables)
         return self
 
-    def setup_hook(self, hook: Text, assign_var_name: Text = None) -> "RunRequest":
+    def setup_hook(
+        self, hook: Text, assign_var_name: Text = None
+    ) -> "RunRequestSetupMixin":
         if assign_var_name:
             self.__step_context.setup_hooks.append({assign_var_name: hook})
         else:
             self.__step_context.setup_hooks.append(hook)
-
         return self
+
+
+class RunRequest(RunRequestSetupMixin):
+    def __init__(self, name: Text):
+        super().__init__(name)
 
     def get(self, url: Text) -> RequestWithOptionalArgs:
         self.__step_context.request = TRequest(method=MethodEnum.GET, url=url)
@@ -594,6 +608,63 @@ class RunRequest(object):
     def patch(self, url: Text) -> RequestWithOptionalArgs:
         self.__step_context.request = TRequest(method=MethodEnum.PATCH, url=url)
         return RequestWithOptionalArgs(self.__step_context)
+
+
+class RequestConfig(object):
+    """
+    Class representing request config.
+    """
+
+    def __init__(self, name: Text):
+        self.__name = name
+        self.__variables = {}
+
+    def variables(self, **variables) -> "RequestConfig":
+        self.__variables.update(variables)
+        return self
+
+    def perform(self) -> TRequestConfig:
+        return TRequestConfig(
+            name=self.__name,
+            variables=self.__variables,
+        )
+
+
+class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
+    """
+    Class representing a HttpRunner request.
+
+    The class attribute 'request' will be used as the default TStep.
+    """
+
+    config: RequestConfig
+    request: Union[RequestWithOptionalArgs, StepRequestValidation]
+
+    def __init__(self, name: Text = None):  # noqa
+        # make sure type of class attributes correct
+        if not isinstance(self.config, RequestConfig):
+            raise ValueError("type of request config must be RequestConfig")
+        if not isinstance(
+            self.request,
+            (RequestWithOptionalArgs, StepRequestValidation, StepRequestExtraction),
+        ):
+            raise ValueError(
+                "type of request must be one of "
+                "RequestWithOptionalArgs, StepRequestValidation, or StepRequestExtraction"
+            )
+
+        # refer to class attribute 'request' as the default TStep
+        self.__step_context = self.request.perform()  # type: TStep
+
+        # update name and variables with data of config
+        self.__config = self.config.perform()
+        self.__step_context.name = self.__config.name
+        # step variables > config.vars
+        merge_variables(self.__step_context.variables, self.__config.variables)
+
+        # overwrite name with instance attribute 'name' if existed
+        if name:
+            self.__step_context.name = name
 
 
 class StepRefCase(object):
