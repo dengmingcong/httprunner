@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v3.14.0 (2022-10-24)
+### Feature
+* Add class HttpRunnerRequest to support adding extra setup, validate, export, and extract ([`07cd647`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/07cd647e733b6373223315af5f5a86df21663aaf))
+
+### Fix
+* Import merge_variables with absolute import statement ([`9aed34b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9aed34b48bab54a0d02db82389ae821825ea4a57))
+* Make a duplication of TStep to prevent side effect ([`7ecc697`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/7ecc69752e486da0365e25989fb072a8d34422f7))
+* Assign the result of variables merging back to instance attribute to fix merging not worked ([`e480ce8`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/e480ce8ba9c3f6a31ec223b33f374e38ce2da865))
+* Rename private attributes to make them protected and accessible when subclassing ([`e9441ca`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/e9441ca7999423afc6f811cdba9ed7abf5c24147))
+
 ## v3.13.1 (2022-10-21)
 ### Fix
 * Call set_use_allure() in nested testcase-like steps ([`f88d242`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/f88d242bc13a93da2ab3342a42324de8bfe24c84))
