@@ -638,7 +638,9 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
     """
 
     config: RequestConfig
-    request: Union[RequestWithOptionalArgs, StepRequestValidation]
+    request: Union[
+        RequestWithOptionalArgs, StepRequestValidation, StepRequestExtraction
+    ]
 
     def __init__(self, name: Text = None):  # noqa
         # make sure type of class attributes correct
@@ -660,7 +662,9 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
         self.__config = self.config.perform()
         self._step_context.name = self.__config.name
         # step variables > config.vars
-        merge_variables(self._step_context.variables, self.__config.variables)
+        self._step_context.variables = merge_variables(
+            self._step_context.variables, self.__config.variables
+        )
 
         # overwrite name with instance attribute 'name' if existed
         if name:
