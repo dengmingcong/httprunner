@@ -655,8 +655,9 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
                 "RequestWithOptionalArgs, StepRequestValidation, or StepRequestExtraction"
             )
 
-        # refer to class attribute 'request' as the default TStep
-        self._step_context = self.request.perform()  # type: TStep
+        # refer to the duplication of class attribute 'request' as the default TStep
+        # note: copy() is required
+        self._step_context = self.request.perform().copy(deep=True)  # type: TStep
 
         # update name and variables with data of config
         self.__config = self.config.perform()
