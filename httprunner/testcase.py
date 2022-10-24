@@ -11,7 +11,7 @@ from httprunner.models import (
     StepExport,
     TRequestConfig,
 )
-from utils import merge_variables
+from httprunner.utils import merge_variables
 
 
 class Config(object):
