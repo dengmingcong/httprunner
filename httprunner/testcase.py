@@ -670,6 +670,9 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
         if name:
             self._step_context.name = name
 
+    def perform(self) -> TStep:
+        return self._step_context
+
 
 class StepRefCase(object):
     def __init__(self, step_context: TStep):
@@ -741,6 +744,7 @@ class Step(object):
     def __init__(
         self,
         step_context: Union[
+            HttpRunnerRequest,
             StepRequestValidation,
             StepRequestExtraction,
             RequestWithOptionalArgs,
