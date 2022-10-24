@@ -48,6 +48,11 @@ class TConfig(BaseModel):
     continue_on_failure: bool = False
 
 
+class TRequestConfig(BaseModel):
+    name: Name
+    variables: Union[VariablesMapping, Text] = {}
+
+
 class TRequest(BaseModel):
     """requests.Request model"""
 
