@@ -8,78 +8,99 @@ from httprunner.testcase import HttpRunnerRequest, RequestConfig
 
 class PostmanEchoPost(HttpRunnerRequest):
     config = RequestConfig("default name").variables(
-        **{"foo1": "bar12", "foo3": "bar32", "foo2": "error"}
+        **{
+            "foo": "request_config_foo",
+            "bar": "request_config_bar",
+            "qux": "request_config_qux",
+            "fred": "request_config_fred",
+        }
     )
     request = (
         RunRequest("")
+        .with_variables(**{"foo": "step_init_foo", "bar": "step_init_bar"})
         .post("/post")
         .with_headers(**{"User-Agent": "HttpRunner/3.0", "Content-Type": "text/plain"})
+        .with_data("$foo-$bar")
     )
 
 
 class TestCaseRequestWithHttpRunnerRequest(HttpRunner):
 
     config = (
-        Config("request methods testcase with variables")
-        .variables(**{"foo1": "testcase_config_bar1", "foo2": "testcase_config_bar2"})
+        Config("test variables priority")
+        .variables(
+            **{
+                "foo": "testcase_config_foo",
+                "bar": "testcase_config_bar",
+                "baz": "testcase_config_baz",
+                "qux": "testcase_config_qux",
+            }
+        )
         .base_url("https://postman-echo.com")
         .verify(False)
     )
 
     teststeps = [
+        Step(PostmanEchoPost()),  # test default name from config
         Step(
-            RunRequest("get with params")
-            .with_variables(**{"foo1": "bar11", "foo2": "bar21"})
+            PostmanEchoPost("step append vars > step init vars")
+            .with_variables(**{"foo": "step_append_foo", "bar": "step_append_bar"})
+            .with_data("$foo-$bar")
+            .validate()
+            .assert_equal(
+                "body.data",
+                "step_append_foo-step_append_bar",
+            )
+        ),
+        Step(
+            RunRequest("extract variables")
             .get("/get")
-            .with_params(**{"foo1": "$foo1", "foo2": "$foo2"})
+            .with_params(
+                **{"foo": "extract_foo", "bar": "extract_bar", "baz": "extract_baz"}
+            )
             .with_headers(**{"User-Agent": "HttpRunner/3.0"})
             .extract()
-            .with_jmespath("body.args.foo2", "foo3")
+            .with_jmespath("body.args.foo", "foo")
+            .with_jmespath("body.args.bar", "bar")
+            .with_jmespath("body.args.baz", "baz")
             .validate()
             .assert_equal("status_code", 200)
-            .assert_equal("body.args.foo1", "bar11")
-            .assert_equal("body.args.foo2", "bar21")
         ),
-        Step(PostmanEchoPost("class self, no append")),
         Step(
-            PostmanEchoPost()  # test default name from config
-            .with_data(
-                "This is expected to be sent back as part of response body: $foo1-$foo3."
-            )
+            PostmanEchoPost("step init vars > extract vars")
+            .with_data("$foo-$bar")
             .validate()
-            .assert_equal("status_code", 200)
             .assert_equal(
                 "body.data",
-                "This is expected to be sent back as part of response body: bar12-bar32.",
+                "step_init_foo-step_init_bar",
             )
         ),
         Step(
-            PostmanEchoPost("overwrite config name with custom name")
-            .with_data(
-                "This is expected to be sent back as part of response body: $foo1-$foo3."
-            )
+            PostmanEchoPost("extract vars > testcase config vars")
+            .with_data("$foo-$bar-$baz")
             .validate()
-            .assert_equal("status_code", 200)
             .assert_equal(
                 "body.data",
-                "This is expected to be sent back as part of response body: bar12-bar32.",
+                "step_init_foo-step_init_bar-extract_baz",
             )
         ),
         Step(
-            PostmanEchoPost("overwrite config variables")
-            .with_headers(
-                **{
-                    "User-Agent": "HttpRunner/3.0",
-                    "Content-Type": "application/x-www-form-urlencoded",
-                }
-            )
-            .with_variables(**{"foo2": "bar23"})
-            .with_data("foo1=$foo1&foo2=$foo2&foo3=$foo3")
+            PostmanEchoPost("testcase config vars > request config vars")
+            .with_data("$foo-$bar-$baz-$qux")
             .validate()
-            .assert_equal("status_code", 200)
-            .assert_equal("body.form.foo1", "bar12")
-            .assert_equal("body.form.foo2", "bar23")
-            .assert_equal("body.form.foo3", "bar32")
+            .assert_equal(
+                "body.data",
+                "step_init_foo-step_init_bar-extract_baz-testcase_config_qux",
+            )
+        ),
+        Step(
+            PostmanEchoPost("merge request config vars")
+            .with_data("$foo-$bar-$baz-$qux-$fred")
+            .validate()
+            .assert_equal(
+                "body.data",
+                "step_init_foo-step_init_bar-extract_baz-testcase_config_qux-request_config_fred",
+            )
         ),
     ]
 
