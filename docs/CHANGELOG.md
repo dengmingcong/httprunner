@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.14.1 (2022-10-25)
+### Fix
+* Testcase config vars overwritten by step request config vars ([`9f3b5ff`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9f3b5ff4b8a59f430588effc80af4289fb105423))
+
 ## v3.14.0 (2022-10-24)
 ### Feature
 * Add class HttpRunnerRequest to support adding extra setup, validate, export, and extract ([`07cd647`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/07cd647e733b6373223315af5f5a86df21663aaf))
