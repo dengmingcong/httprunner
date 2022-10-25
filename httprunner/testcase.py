@@ -11,7 +11,6 @@ from httprunner.models import (
     StepExport,
     TRequestConfig,
 )
-from httprunner.utils import merge_variables
 
 
 class Config(object):
@@ -646,6 +645,8 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
         # make sure type of class attributes correct
         if not isinstance(self.config, RequestConfig):
             raise ValueError("type of request config must be RequestConfig")
+
+        # make sure TStep.request exist and is not None
         if not isinstance(
             self.request,
             (RequestWithOptionalArgs, StepRequestValidation, StepRequestExtraction),
@@ -659,17 +660,15 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
         # note: copy() is required
         self._step_context = self.request.perform().copy(deep=True)  # type: TStep
 
-        # update name and variables with data of config
+        # update name with data of config
         self.__config = self.config.perform()
         self._step_context.name = self.__config.name
-        # step variables > config.vars
-        self._step_context.variables = merge_variables(
-            self._step_context.variables, self.__config.variables
-        )
-
         # overwrite name with instance attribute 'name' if existed
         if name:
             self._step_context.name = name
+
+        # save request config for later usage: testcase config variables > request config variables
+        self._step_context.request_config = self.__config
 
     def perform(self) -> TStep:
         return self._step_context

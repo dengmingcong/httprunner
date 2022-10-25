@@ -641,10 +641,14 @@ class HttpRunner(object):
         # run teststeps
         for step in self.__teststeps:
             # override variables
-            # step variables > extracted variables from previous steps
+            # step variables > extracted variables from previous steps > testcase config variables
+            # > HttpRunnerRequest config variables
             step.variables = merge_variables(step.variables, extracted_variables)
-            # step variables > testcase config variables
             step.variables = merge_variables(step.variables, self.__config.variables)
+            if step.request_config:
+                step.variables = merge_variables(
+                    step.variables, step.request_config.variables
+                )
 
             # parse variables
             step.variables = parse_variables_mapping(
