@@ -89,8 +89,7 @@ class TStep(BaseModel):
     setup_hooks: Hooks = []
     teardown_hooks: Hooks = []
 
-    # used to extract request's response field
-    extract: VariablesMapping = {}
+    extract: VariablesMapping = {}  # used to extract request's response field
 
     # used to export local step variables, steps next can use these variables then
     globalize: GlobalVars = []
@@ -100,6 +99,9 @@ class TStep(BaseModel):
 
     validators: Validators = Field([], alias="validate")
     validate_script: List[Text] = []
+
+    # config for HttpRunnerRequest
+    request_config: TRequestConfig = None
 
 
 class TestCase(BaseModel):
