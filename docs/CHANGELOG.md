@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v3.15.0 (2022-10-26)
+### Feature
+* Add method clear() to clear validators and extract ([`73ec22b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/73ec22bbf7463211e17b5fc87f905d2b077b2480))
+
+### Fix
+* Add 'return self' to enable chain call ([`2d2f4aa`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/2d2f4aa9427f62aef092faa84b351791c455f23e))
+* Union StepRequestExport to ignore warning when export was called last ([`c5a6b47`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c5a6b47c8b7fdb50016d2e9955b0dd1760bc9d1d))
+
 ## v3.14.1 (2022-10-25)
 ### Fix
 * Testcase config vars overwritten by step request config vars ([`9f3b5ff`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9f3b5ff4b8a59f430588effc80af4289fb105423))
