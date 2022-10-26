@@ -105,5 +105,56 @@ class TestCaseRequestWithHttpRunnerRequest(HttpRunner):
     ]
 
 
-if __name__ == "__main__":
-    TestCaseRequestWithHttpRunnerRequest().test_start()
+class PostmanEchoPostWithExtractAndValidators(HttpRunnerRequest):
+    config = RequestConfig("default name").variables(
+        **{
+            "foo": "request_config_foo",
+            "bar": "request_config_bar",
+            "qux": "request_config_qux",
+            "fred": "request_config_fred",
+        }
+    )
+    request = (
+        RunRequest("")
+        .with_variables(**{"foo": "step_init_foo", "bar": "step_init_bar"})
+        .post("/post")
+        .with_headers(**{"User-Agent": "HttpRunner/3.0", "Content-Type": "text/plain"})
+        .with_data("$foo-$bar")
+        .extract()
+        .with_jmespath("[?bad-expression", "wont-export")
+        .validate()
+        .assert_equal("status_code", 204)
+    )
+
+
+class TestCaseRequestWithHttpRunnerRequestAndClear(HttpRunner):
+
+    config = (
+        Config("test clear")
+        .variables(
+            **{
+                "foo": "testcase_config_foo",
+                "bar": "testcase_config_bar",
+                "baz": "testcase_config_baz",
+                "qux": "testcase_config_qux",
+            }
+        )
+        .base_url("https://postman-echo.com")
+        .verify(False)
+    )
+
+    teststeps = [
+        Step(
+            PostmanEchoPostWithExtractAndValidators("test clear")
+            .with_variables(**{"foo": "step_append_foo", "bar": "step_append_bar"})
+            .with_data("$foo-$bar")
+            .extract()
+            .clear()
+            .validate()
+            .clear()
+            .assert_equal(
+                "body.data",
+                "step_append_foo-step_append_bar",
+            )
+        ),
+    ]
