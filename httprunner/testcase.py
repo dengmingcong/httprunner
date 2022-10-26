@@ -747,6 +747,7 @@ class Step(object):
             HttpRunnerRequest,
             StepRequestValidation,
             StepRequestExtraction,
+            StepRequestExport,
             RequestWithOptionalArgs,
             RunTestCase,
             StepRefCase,
