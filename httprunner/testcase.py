@@ -79,6 +79,11 @@ class StepRequestValidation(object):
     def __init__(self, step_context: TStep):
         self._step_context = step_context
 
+    def clear(self) -> "StepRequestValidation":
+        """Clear all validators added."""
+        self._step_context.validators.clear()
+        return self
+
     def assert_equal(
         self, jmes_path: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
@@ -351,6 +356,11 @@ class StepRequestExport(object):
 class StepRequestExtraction(object):
     def __init__(self, step_context: TStep):
         self._step_context = step_context
+
+    def clear(self) -> "StepRequestExtraction":
+        """Clear extractors already added."""
+        self._step_context.extract = {}
+        return self
 
     def with_jmespath(self, jmes_path: Text, var_name: Text) -> "StepRequestExtraction":
         self._step_context.extract[var_name] = jmes_path
@@ -747,6 +757,7 @@ class Step(object):
             HttpRunnerRequest,
             StepRequestValidation,
             StepRequestExtraction,
+            StepRequestExport,
             RequestWithOptionalArgs,
             RunTestCase,
             StepRefCase,
