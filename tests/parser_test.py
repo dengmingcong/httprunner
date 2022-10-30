@@ -7,10 +7,31 @@ from pydantic import BaseModel
 from httprunner import parser
 from httprunner.exceptions import VariableNotFound, FunctionNotFound
 from httprunner.loader import load_project_meta
+from httprunner.parser import ParseMe
 
 
 class Obj(BaseModel):
     foo: list = [{}, {"bar": [1, 2, 3]}]
+
+
+class Subject(ParseMe):
+    def __init__(self, name: str, score: int, rank: str):
+        self.name = name
+        self.score = score
+        self.rank = rank
+
+
+def get_score_rank(score: int):
+    if score >= 60:
+        return "good"
+    else:
+        return "bad"
+
+
+class Student(ParseMe):
+    def __init__(self, name: str, subjects: list[Subject]):
+        self.name = name
+        self.subjects = subjects
 
 
 class TestParserBasic(unittest.TestCase):
@@ -573,3 +594,17 @@ class TestParserBasic(unittest.TestCase):
             )
             == "http://www.example.com"
         )
+
+    def test_parse_class_instances(self):
+        variables_mapping = {"name": "Deng"}
+        functions_mapping = {"get_score_rank": get_score_rank}
+        math = Subject("math", 89, "${get_score_rank(89)}")
+        math_id = id(math)
+        deng = Student("$name", [math])
+        parsed_deng = parser.parse_data(deng, variables_mapping, functions_mapping)
+        assert parsed_deng is deng
+        assert math_id == id(deng.subjects[0])
+        # print(parsed_deng.__dict__)
+        # print(parsed_deng.subjects[0].__dict__)
+        assert deng.subjects[0].rank == "good"
+        assert deng.name == "Deng"
