@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.16.0 (2022-10-30)
+### Feature
+* Add support to parsing specific class instances ([`ef90726`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ef90726950be63f4284b390d5e254113e9e11c3c))
+
 ## v3.15.0 (2022-10-26)
 ### Feature
 * Add method clear() to clear validators and extract ([`73ec22b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/73ec22bbf7463211e17b5fc87f905d2b077b2480))
