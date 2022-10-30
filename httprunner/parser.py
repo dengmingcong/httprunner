@@ -480,6 +480,19 @@ def parse_string(
     return parsed_string
 
 
+class ParseMe(object):
+    """
+    Instances of all classes subclassing this class will be resolved by function 'parse_data'.
+
+    Note:
+        You must inherit this class if you want to resolve attributes of instances,
+        for resolving any class instances implicitly may cause problems,
+        e.g. attributes containing $ will be recognized as variable and VariableNotFound exception may be thrown.
+    """
+
+    pass
+
+
 def parse_data(
     raw_data: Any,
     variables_mapping: VariablesMapping = None,
@@ -509,6 +522,12 @@ def parse_data(
             parsed_data[parsed_key] = parsed_value
 
         return parsed_data
+
+    elif isinstance(raw_data, ParseMe):
+        raw_data.__dict__ = parse_data(
+            raw_data.__dict__, variables_mapping, functions_mapping
+        )
+        return raw_data
 
     else:
         # other types, e.g. None, int, float, bool
