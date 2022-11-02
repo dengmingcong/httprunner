@@ -449,6 +449,16 @@ class HttpRunner(object):
                 self.__session.data.exception = vf
             else:
                 raise
+        except Exception:
+            if self.__use_allure:
+                self.__save_allure_data(
+                    resp_obj.validation_results,
+                    step_data.export_vars,
+                    step.max_retry_times,
+                    step.retry_times,
+                    self.__session.data.success,
+                )
+            raise
         finally:
             if hasattr(self, "__failed_steps") and self.__failed_steps:
                 self.success = False
