@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.16.1 (2022-11-02)
+### Fix
+* Allure attachments were not saved when exception is not ValidationFailure ([`ac801da`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ac801dab5aab6761f0687d4778fff88331b625ee))
+
 ## v3.16.0 (2022-10-30)
 ### Feature
 * Add support to parsing specific class instances ([`ef90726`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ef90726950be63f4284b390d5e254113e9e11c3c))
