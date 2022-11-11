@@ -172,6 +172,17 @@ class ResponseObject(object):
         extract_mapping = {}
         for key, field in extractors.items():
             field_value = self._search_jmespath(field)
+
+            try:
+                field_value_as_str = json.dumps(field_value)
+
+                if "$" in field_value_as_str:
+                    # replace $ with $$ to make sure parse_variables_mapping() works fine
+                    field_value_as_str = field_value_as_str.replace("$", "$$")
+                    field_value = json.loads(field_value_as_str)
+            except (TypeError, Exception):
+                pass
+
             extract_mapping[key] = field_value
 
         logger.info(f"extract mapping: {extract_mapping}")
