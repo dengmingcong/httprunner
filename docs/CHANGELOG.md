@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.16.2 (2022-11-11)
+### Fix
+* Replace $ with $$ to make sure parse_variables_mapping works fine ([`f0879d4`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/f0879d4483293a110abc636d44b8cc7fe9b24805))
+
 ## v3.16.1 (2022-11-02)
 ### Fix
 * Allure attachments were not saved when exception is not ValidationFailure ([`ac801da`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ac801dab5aab6761f0687d4778fff88331b625ee))
