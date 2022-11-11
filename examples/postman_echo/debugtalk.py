@@ -27,3 +27,10 @@ def calculate_two_nums(a, b=1):
 
 def get_raw_func():
     return "${calculate_two_nums(1, 1)}"
+
+
+def get_raw_data_name(raw_data: dict) -> str:
+    """
+    Test extracted value containing dollar as function argument.
+    """
+    return raw_data["name"]
