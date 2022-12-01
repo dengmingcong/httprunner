@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.16.3 (2022-12-01)
+### Fix
+* Add type 'str' into type hint to support debugtalk or httprunner variable string ([`94680a0`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/94680a0bddfb8e024e47516454bf6a8c5f1b404e))
+
 ## v3.16.2 (2022-11-11)
 ### Fix
 * Replace $ with $$ to make sure parse_variables_mapping works fine ([`f0879d4`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/f0879d4483293a110abc636d44b8cc7fe9b24805))
