@@ -101,7 +101,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_greater_than(
-        self, jmes_path: Text, expected_value: Union[int, float], message: Text = ""
+        self, jmes_path: Text, expected_value: Union[int, float, str], message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"greater_than": [jmes_path, expected_value, message]}
@@ -109,7 +109,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_less_than(
-        self, jmes_path: Text, expected_value: Union[int, float], message: Text = ""
+        self, jmes_path: Text, expected_value: Union[int, float, str], message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"less_than": [jmes_path, expected_value, message]}
@@ -117,7 +117,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_greater_or_equals(
-        self, jmes_path: Text, expected_value: Union[int, float], message: Text = ""
+        self, jmes_path: Text, expected_value: Union[int, float, str], message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"greater_or_equals": [jmes_path, expected_value, message]}
@@ -125,7 +125,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_less_or_equals(
-        self, jmes_path: Text, expected_value: Union[int, float], message: Text = ""
+        self, jmes_path: Text, expected_value: Union[int, float, str], message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"less_or_equals": [jmes_path, expected_value, message]}
@@ -133,7 +133,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_length_equal(
-        self, jmes_path: Text, expected_value: int, message: Text = ""
+        self, jmes_path: Text, expected_value: Union[int, str], message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"length_equal": [jmes_path, expected_value, message]}
@@ -141,7 +141,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_length_greater_than(
-        self, jmes_path: Text, expected_value: int, message: Text = ""
+        self, jmes_path: Text, expected_value: Union[int, str], message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"length_greater_than": [jmes_path, expected_value, message]}
@@ -149,7 +149,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_length_less_than(
-        self, jmes_path: Text, expected_value: int, message: Text = ""
+        self, jmes_path: Text, expected_value: Union[int, str], message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"length_less_than": [jmes_path, expected_value, message]}
@@ -157,7 +157,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_length_greater_or_equals(
-        self, jmes_path: Text, expected_value: int, message: Text = ""
+        self, jmes_path: Text, expected_value: Union[int, str], message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"length_greater_or_equals": [jmes_path, expected_value, message]}
@@ -165,7 +165,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_length_less_or_equals(
-        self, jmes_path: Text, expected_value: int, message: Text = ""
+        self, jmes_path: Text, expected_value: Union[int, str], message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"length_less_or_equals": [jmes_path, expected_value, message]}
