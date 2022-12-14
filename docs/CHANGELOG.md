@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v3.16.4 (2022-12-14)
+### Fix
+* Variables parsing loop forever for request config variables are merged into step variables before parsed ([`ab5a1ba`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ab5a1bae78b931d94e16395cb90e5c084a6b5d0a))
+
+### Documentation
+* Document variables priority in test ([`fcde34f`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/fcde34fc157ee1cb3f7b2f7273aaafbe04488a25))
+
 ## v3.16.3 (2022-12-01)
 ### Fix
 * Add type 'str' into type hint to support debugtalk or httprunner variable string ([`94680a0`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/94680a0bddfb8e024e47516454bf6a8c5f1b404e))
