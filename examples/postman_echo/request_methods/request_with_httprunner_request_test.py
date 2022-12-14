@@ -25,6 +25,10 @@ class PostmanEchoPost(HttpRunnerRequest):
 
 
 class TestCaseRequestWithHttpRunnerRequest(HttpRunner):
+    """
+    variables priority:
+        step append vars > step init vars > extract vars > testcase config vars > request config vars
+    """
 
     config = (
         Config("test variables priority")
@@ -155,6 +159,111 @@ class TestCaseRequestWithHttpRunnerRequestAndClear(HttpRunner):
             .assert_equal(
                 "body.data",
                 "step_append_foo-step_append_bar",
+            )
+        ),
+    ]
+
+
+class PostmanEchoPostWithNestedVars(HttpRunnerRequest):
+    config = RequestConfig("default name").variables(
+        **{
+            "foo": "request_config_foo",
+            "bar": "request_config_bar",
+            "qux": "request_config_qux",
+            "fred": "request_config_fred",
+            "user": {
+                "account_id": "$account_id",
+                "token": "$token"
+            }
+        }
+    )
+    request = (
+        RunRequest("")
+        .with_variables(**{
+            "foo": "step_init_foo", "bar": "step_init_bar",
+            "account_id": "${user['account_id']}",
+            "token": "${user['token']}",
+        })
+        .post("/post")
+        .with_headers(**{"User-Agent": "HttpRunner/3.0"})
+        .with_json({
+            "foo": "$foo",
+            "bar": "$bar",
+            "account_id": "$account_id",
+            "token": "$token",
+        })
+        .validate()
+        .assert_equal("status_code", 200)
+    )
+
+
+class TestCaseRequestWithHttpRunnerRequestWithNestedVariableUser(HttpRunner):
+
+    config = (
+        Config("test nested variable user")
+        .variables(
+            **{
+                "foo": "testcase_config_foo",
+                "bar": "testcase_config_bar",
+                "baz": "testcase_config_baz",
+                "qux": "testcase_config_qux",
+                "user": {
+                    "account_id": 1,
+                    "token": "some-token"
+                }
+            }
+        )
+        .base_url("https://postman-echo.com")
+        .verify(False)
+    )
+
+    teststeps = [
+        Step(
+            PostmanEchoPostWithNestedVars("test clear")
+            .with_variables(**{"foo": "step_append_foo", "bar": "step_append_bar"})
+            .validate()
+            .assert_equal(
+                "body.json.account_id",
+                1
+            )
+            .assert_equal(
+                "body.json.token",
+                "some-token"
+            )
+        ),
+    ]
+
+
+class TestCaseRequestWithHttpRunnerRequestWithNestedVariableUserParts(HttpRunner):
+
+    config = (
+        Config("test nested variable user")
+        .variables(
+            **{
+                "foo": "testcase_config_foo",
+                "bar": "testcase_config_bar",
+                "baz": "testcase_config_baz",
+                "qux": "testcase_config_qux",
+                "account_id": 1,
+                "token": "some-token"
+            }
+        )
+        .base_url("https://postman-echo.com")
+        .verify(False)
+    )
+
+    teststeps = [
+        Step(
+            PostmanEchoPostWithNestedVars("test clear")
+            .with_variables(**{"foo": "step_append_foo", "bar": "step_append_bar"})
+            .validate()
+            .assert_equal(
+                "body.json.account_id",
+                1
+            )
+            .assert_equal(
+                "body.json.token",
+                "some-token"
             )
         ),
     ]

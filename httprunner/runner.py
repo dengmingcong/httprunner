@@ -650,15 +650,21 @@ class HttpRunner(object):
 
         # run teststeps
         for step in self.__teststeps:
-            # override variables
-            # step variables > extracted variables from previous steps > testcase config variables
-            # > HttpRunnerRequest config variables
-            step.variables = merge_variables(step.variables, extracted_variables)
-            step.variables = merge_variables(step.variables, self.__config.variables)
+            # variables got from outside of step
+            step_config_variables = merge_variables(extracted_variables, self.__config.variables)
+
             if step.request_config:
-                step.variables = merge_variables(
-                    step.variables, step.request_config.variables
+                # extracted variables > testcase config variables > HttpRunnerRequest config variables
+                step_config_variables = merge_variables(
+                    step_config_variables, step.request_config.variables
                 )
+                # step config variables are supposed to be self-parsed before merged into step.variables
+                step_config_variables = parse_variables_mapping(
+                    step_config_variables, self.__project_meta.functions
+                )
+
+            # step variables > extracted variables > testcase config variables > HttpRunnerRequest config variables
+            step.variables = merge_variables(step.variables, step_config_variables)
 
             # parse variables
             step.variables = parse_variables_mapping(
