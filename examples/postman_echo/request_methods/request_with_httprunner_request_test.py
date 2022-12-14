@@ -179,14 +179,18 @@ class PostmanEchoPostWithNestedVars(HttpRunnerRequest):
     )
     request = (
         RunRequest("")
-        .with_variables(**{"foo": "step_init_foo", "bar": "step_init_bar"})
+        .with_variables(**{
+            "foo": "step_init_foo", "bar": "step_init_bar",
+            "account_id": "${user['account_id']}",
+            "token": "${user['token']}",
+        })
         .post("/post")
         .with_headers(**{"User-Agent": "HttpRunner/3.0"})
         .with_json({
             "foo": "$foo",
             "bar": "$bar",
-            "account_id": "${user['account_id']}",
-            "token": "${user['token']}",
+            "account_id": "$account_id",
+            "token": "$token",
         })
         .validate()
         .assert_equal("status_code", 200)
