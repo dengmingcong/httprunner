@@ -653,7 +653,16 @@ class HttpRunner(object):
             # variables got from outside of step
             step_config_variables = merge_variables(extracted_variables, self.__config.variables)
 
+            # step variables set with HttpRunnerRequest.with_variables() > step outside variables
+            step_config_variables = merge_variables(step.variables, step_config_variables)
+
+            # parse variables
+            step_config_variables = parse_variables_mapping(
+                step_config_variables, self.__project_meta.functions
+            )
+
             if step.request_config:
+                # step variables set with HttpRunnerRequest.with_variables() >
                 # extracted variables > testcase config variables > HttpRunnerRequest config variables
                 step_config_variables = merge_variables(
                     step_config_variables, step.request_config.variables
@@ -663,8 +672,10 @@ class HttpRunner(object):
                     step_config_variables, self.__project_meta.functions
                 )
 
-            # step variables > extracted variables > testcase config variables > HttpRunnerRequest config variables
-            step.variables = merge_variables(step.variables, step_config_variables)
+            # final priority order:
+            # step builtin variables > step variables set with HttpRunnerRequest.with_variables() >
+            # extracted variables > testcase config variables > HttpRunnerRequest config variables
+            step.variables = merge_variables(step.builtin_variables, step_config_variables)
 
             # parse variables
             step.variables = parse_variables_mapping(
