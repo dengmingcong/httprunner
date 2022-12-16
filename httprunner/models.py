@@ -86,6 +86,7 @@ class TStep(BaseModel):
     request: Union[TRequest, None] = None
     testcase: Union[Text, Callable, None] = None
     variables: VariablesMapping = {}
+    builtin_variables: VariablesMapping = {}
     setup_hooks: Hooks = []
     teardown_hooks: Hooks = []
 
