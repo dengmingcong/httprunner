@@ -651,25 +651,39 @@ class HttpRunner(object):
         # run teststeps
         for step in self.__teststeps:
             # variables got from outside of step
+            # extracted variables > testcase config variables
             step_config_variables = merge_variables(extracted_variables, self.__config.variables)
 
-            if step.request_config:
-                # extracted variables > testcase config variables > HttpRunnerRequest config variables
-                step_config_variables = merge_variables(
-                    step_config_variables, step.request_config.variables
-                )
-                # step config variables are supposed to be self-parsed before merged into step.variables
-                step_config_variables = parse_variables_mapping(
-                    step_config_variables, self.__project_meta.functions
-                )
-
-            # step variables > extracted variables > testcase config variables > HttpRunnerRequest config variables
+            # step variables set with HttpRunnerRequest.with_variables() > step outside variables
             step.variables = merge_variables(step.variables, step_config_variables)
 
             # parse variables
             step.variables = parse_variables_mapping(
                 step.variables, self.__project_meta.functions
             )
+
+            # for HttpRunnerRequest step
+            if step.request_config:
+                # step variables set with HttpRunnerRequest.with_variables() >
+                # extracted variables > testcase config variables > HttpRunnerRequest config variables
+                step.variables = merge_variables(
+                    step.variables, step.request_config.variables
+                )
+
+                # step config variables are supposed to be self-parsed before merged into step.variables
+                step.variables = parse_variables_mapping(
+                    step.variables, self.__project_meta.functions
+                )
+
+                # final priority order:
+                # step builtin variables > step variables set with HttpRunnerRequest.with_variables() >
+                # extracted variables > testcase config variables > HttpRunnerRequest config variables
+                step.variables = merge_variables(step.builtin_variables, step.variables)
+
+                # parse variables
+                step.variables = parse_variables_mapping(
+                    step.variables, self.__project_meta.functions
+                )
 
             # parse step name for allure report
             step.name = parse_data(

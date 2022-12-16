@@ -47,13 +47,13 @@ class TestCaseRequestWithHttpRunnerRequest(HttpRunner):
     teststeps = [
         Step(PostmanEchoPost()),  # test default name from config
         Step(
-            PostmanEchoPost("step append vars > step init vars")
+            PostmanEchoPost("step init vars > step append vars")
             .with_variables(**{"foo": "step_append_foo", "bar": "step_append_bar"})
             .with_data("$foo-$bar")
             .validate()
             .assert_equal(
                 "body.data",
-                "step_append_foo-step_append_bar",
+                "step_init_foo-step_init_bar",
             )
         ),
         Step(
@@ -71,12 +71,13 @@ class TestCaseRequestWithHttpRunnerRequest(HttpRunner):
             .assert_equal("status_code", 200)
         ),
         Step(
-            PostmanEchoPost("step init vars > extract vars")
-            .with_data("$foo-$bar")
+            PostmanEchoPost("step append vars > extract vars")
+            .with_variables(**{"baz": "step_append_baz"})
+            .with_data("$baz")
             .validate()
             .assert_equal(
                 "body.data",
-                "step_init_foo-step_init_bar",
+                "step_append_baz",
             )
         ),
         Step(
@@ -120,7 +121,6 @@ class PostmanEchoPostWithExtractAndValidators(HttpRunnerRequest):
     )
     request = (
         RunRequest("")
-        .with_variables(**{"foo": "step_init_foo", "bar": "step_init_bar"})
         .post("/post")
         .with_headers(**{"User-Agent": "HttpRunner/3.0", "Content-Type": "text/plain"})
         .with_data("$foo-$bar")
