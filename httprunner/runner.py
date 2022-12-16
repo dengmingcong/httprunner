@@ -651,6 +651,7 @@ class HttpRunner(object):
         # run teststeps
         for step in self.__teststeps:
             # variables got from outside of step
+            # extracted variables > testcase config variables
             step_config_variables = merge_variables(extracted_variables, self.__config.variables)
 
             # step variables set with HttpRunnerRequest.with_variables() > step outside variables
