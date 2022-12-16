@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v3.16.5 (2022-12-16)
+### Fix
+* Swap the priority order between step variables and step builtin variables ([`a2cfb56`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a2cfb565dca896be2f85de359d44ddf5fe68d672))
+
+### Documentation
+* Add comment on variable priority ([`20461da`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/20461da4da4ecf2bbbc78bc1a82e20186a5057bc))
+
 ## v3.16.4 (2022-12-14)
 ### Fix
 * Variables parsing loop forever for request config variables are merged into step variables before parsed ([`ab5a1ba`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ab5a1bae78b931d94e16395cb90e5c084a6b5d0a))
