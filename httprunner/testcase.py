@@ -474,31 +474,6 @@ class RequestWithOptionalArgs(object):
 
         return self
 
-    def pop_json_object_keys(self, *keys) -> "RequestWithOptionalArgs":
-        """
-        Pop keys of json.
-
-        Note:
-            Exception will be raised if any keys specified do not exist.
-        """
-        if (origin_json := self._step_context.request.req_json) is None:
-            raise ValueError(
-                "please call 'with_json()' first before calling this method"
-            )
-        if not isinstance(origin_json, dict):
-            raise ValueError(
-                f"argument passed into method 'with_json()' must be a dict if you want to call this method, "
-                f"but got type: {type(origin_json)}"
-            )
-        for key in keys:
-            if key not in origin_json:
-                raise ValueError(
-                    f"key '{key}' does not exist in request json '{origin_json}'"
-                )
-            del origin_json[key]
-
-        return self
-
     def set_timeout(self, timeout: float) -> "RequestWithOptionalArgs":
         self._step_context.request.timeout = timeout
         return self
