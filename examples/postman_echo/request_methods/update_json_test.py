@@ -82,6 +82,39 @@ class TestCaseUpdateJson(HttpRunner):
             .assert_equal("body.json.data.bar", "$bar")
             .assert_equal("body.json.data.baz", None)
         ),
+        Step(
+            RunRequest("set json and json_update with variable")
+            .with_variables(**{
+                "init_json": {
+                    "data": {
+                        "foo": 3,
+                        "baz": "$baz"
+                    }
+                },
+                "update_json": {
+                    "data": {
+                        "foo": "$foo",
+                        "bar": "$bar"
+                    }
+                }
+            })
+            .post("/post")
+            .with_json("$init_json")
+            .update_json_object("$update_json", True)
+            .validate()
+            .assert_equal("body.json.data.foo", 1)
+            .assert_equal("body.json.data.bar", 2)
+            .assert_equal("body.json.data.baz", 3)
+        ),
+        Step(
+            RunRequest("set json and json_update with debugtalk")
+            .post("/post")
+            .with_json("${get_json(1, 2)}")
+            .update_json_object("${get_json(3, 4)}", True)
+            .validate()
+            .assert_equal("body.json.foo", 3)
+            .assert_equal("body.json.bar", 4)
+        ),
     ]
 
 
