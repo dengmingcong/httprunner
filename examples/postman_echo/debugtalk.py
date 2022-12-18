@@ -34,3 +34,10 @@ def get_raw_data_name(raw_data: dict) -> str:
     Test extracted value containing dollar as function argument.
     """
     return raw_data["name"]
+
+
+def get_json(foo, bar):
+    return {
+        "foo": foo,
+        "bar": bar
+    }

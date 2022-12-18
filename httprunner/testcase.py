@@ -1,7 +1,6 @@
 import inspect
 from typing import Text, Any, Union, Callable, Literal
 
-from httprunner.builtin.functions import update_dict_recursively
 from httprunner.models import (
     TConfig,
     TStep,
@@ -418,10 +417,10 @@ class RequestWithOptionalArgs(object):
         return self
 
     def update_json_object(
-        self, update_data: dict, deep=True
+        self, req_json_update: Union[dict, str], deep=True
     ) -> "RequestWithOptionalArgs":
         """
-        Update request.req_json if request.req_json is a JSON object.
+        Update request.req_json.
 
         If 'deep' is True, update recursively.
 
@@ -434,22 +433,12 @@ class RequestWithOptionalArgs(object):
             3. if 'with_json()' was called after this method, 'request.req_json' will be overwritten by
                 the argument of 'with_json()'. In particular, this method takes no effect.
         """
-        if (init_json := self._step_context.request.req_json) is None:
-            self._step_context.request.req_json = update_data
-        else:
-            if not isinstance(init_json, dict):
-                raise ValueError(
-                    f"this method can only be used when request json is set to a json object, "
-                    f"but got: {type(init_json)}"
-                )
-            if deep:
-                init_json = update_dict_recursively(init_json, update_data)  # noqa
-            else:
-                init_json.update(update_data)
+        self._step_context.request.req_json_update = req_json_update
+        self._step_context.request.is_req_json_update_deep = deep
 
         return self
 
-    def update_form_data(self, update_data: dict) -> "RequestWithOptionalArgs":
+    def update_form_data(self, data_update: Union[dict, str], deep=True) -> "RequestWithOptionalArgs":
         """
         Update 'request.data' if 'request.data' is a JSON object.
 
@@ -462,40 +451,8 @@ class RequestWithOptionalArgs(object):
             3. if 'with_data()' was called after this method, 'request.data' will be overwritten by
                 the argument of 'with_data()'. In particular, this method takes no effect.
         """
-        if (init_data := self._step_context.request.data) is None:
-            self._step_context.request.data = update_data
-        else:
-            if not isinstance(init_data, dict):
-                raise ValueError(
-                    f"this method can only be used when request data is set to a json object, "
-                    f"but got: {type(init_data)}"
-                )
-            init_data.update(update_data)
-
-        return self
-
-    def pop_json_object_keys(self, *keys) -> "RequestWithOptionalArgs":
-        """
-        Pop keys of json.
-
-        Note:
-            Exception will be raised if any keys specified do not exist.
-        """
-        if (origin_json := self._step_context.request.req_json) is None:
-            raise ValueError(
-                "please call 'with_json()' first before calling this method"
-            )
-        if not isinstance(origin_json, dict):
-            raise ValueError(
-                f"argument passed into method 'with_json()' must be a dict if you want to call this method, "
-                f"but got type: {type(origin_json)}"
-            )
-        for key in keys:
-            if key not in origin_json:
-                raise ValueError(
-                    f"key '{key}' does not exist in request json '{origin_json}'"
-                )
-            del origin_json[key]
+        self._step_context.request.data_update = data_update
+        self._step_context.request.is_data_update_deep = deep
 
         return self
 
