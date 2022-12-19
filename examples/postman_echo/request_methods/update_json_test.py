@@ -115,6 +115,18 @@ class TestCaseUpdateJson(HttpRunner):
             .assert_equal("body.json.foo", 3)
             .assert_equal("body.json.bar", 4)
         ),
+        Step(
+            RunRequest("update_json_object should be applied if with_json is a dict")
+            .post("/post")
+            .with_json({
+                "foo": "$FAKE_VAR"
+            })
+            .update_json_object({
+                "foo": 3
+            }, True)
+            .validate()
+            .assert_equal("body.json.foo", 3)
+        ),
     ]
 
 

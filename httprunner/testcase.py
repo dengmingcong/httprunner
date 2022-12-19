@@ -1,6 +1,7 @@
 import inspect
 from typing import Text, Any, Union, Callable, Literal
 
+from httprunner.builtin import update_dict_recursively
 from httprunner.models import (
     TConfig,
     TStep,
@@ -433,8 +434,15 @@ class RequestWithOptionalArgs(object):
             3. if 'with_json()' was called after this method, 'request.req_json' will be overwritten by
                 the argument of 'with_json()'. In particular, this method takes no effect.
         """
-        self._step_context.request.req_json_update = req_json_update
-        self._step_context.request.is_req_json_update_deep = deep
+        # apply update if both are dict to avoid parsing error
+        if isinstance(self._step_context.request.req_json, dict) and isinstance(req_json_update, dict):
+            if deep:
+                update_dict_recursively(self._step_context.request.req_json, req_json_update)
+            else:
+                self._step_context.request.req_json.update(req_json_update)
+        else:
+            self._step_context.request.req_json_update = req_json_update
+            self._step_context.request.is_req_json_update_deep = deep
 
         return self
 
@@ -451,8 +459,15 @@ class RequestWithOptionalArgs(object):
             3. if 'with_data()' was called after this method, 'request.data' will be overwritten by
                 the argument of 'with_data()'. In particular, this method takes no effect.
         """
-        self._step_context.request.data_update = data_update
-        self._step_context.request.is_data_update_deep = deep
+        # apply update if both are dict to avoid parsing error
+        if isinstance(self._step_context.request.data, dict) and isinstance(data_update, dict):
+            if deep:
+                update_dict_recursively(self._step_context.request.data, data_update)
+            else:
+                self._step_context.request.data.update(data_update)
+        else:
+            self._step_context.request.data_update = data_update
+            self._step_context.request.is_data_update_deep = deep
 
         return self
 
