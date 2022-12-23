@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union
 
 from httprunner.builtin import expand_nested_json, update_dict_recursively
+from httprunner.json_encoders import BytesEncoder
 
 try:
     import allure
@@ -206,7 +207,7 @@ class HttpRunner(object):
             )
             # save export vars
             allure.attach(
-                json.dumps(exported_vars, indent=4, ensure_ascii=False),
+                json.dumps(exported_vars, indent=4, ensure_ascii=False, cls=BytesEncoder),
                 "exported variables",
                 allure.attachment_type.JSON,
             )
@@ -225,7 +226,7 @@ class HttpRunner(object):
             )
             # save export vars
             allure.attach(
-                json.dumps(exported_vars, indent=4, ensure_ascii=False),
+                json.dumps(exported_vars, indent=4, ensure_ascii=False, cls=BytesEncoder),
                 "exported variables",
                 allure.attachment_type.JSON,
             )
