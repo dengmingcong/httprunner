@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v3.16.7 (2022-12-19)
+### Fix
+* Variable not found when update_json_object not applied first ([`9b204da`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9b204da33d38c96cb32af3229692175e54e0bb1b))
+
+## v3.16.6 (2022-12-18)
+### Fix
+* Update request when running testcase to support debugtalk and variables ([`282157a`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/282157a31c5db076743b6459ea85ce56bdc6caa6))
+
 ## v3.16.5 (2022-12-16)
 ### Fix
 * Swap the priority order between step variables and step builtin variables ([`a2cfb56`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a2cfb565dca896be2f85de359d44ddf5fe68d672))

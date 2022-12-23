@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union
 
-from httprunner.builtin import expand_nested_json
+from httprunner.builtin import expand_nested_json, update_dict_recursively
 from httprunner.json_encoders import BytesEncoder
 
 try:
@@ -272,6 +272,54 @@ class HttpRunner(object):
                 self.__session.data, validation_results, exported_vars, is_success
             )
 
+    @staticmethod
+    def __handle_update_json_object(parsed_request_dict: dict) -> NoReturn:
+        """
+        Update request with data from update_json_object.
+        """
+        if req_json_update := parsed_request_dict["req_json_update"]:
+            req_json = parsed_request_dict["req_json"]
+            if req_json is None:
+                parsed_request_dict["req_json"] = req_json_update
+            else:
+                if not isinstance(req_json, dict):
+                    raise ValueError(
+                        f"method update_json_object() can only be used when req_json is a dict or None, "
+                        f"but got: {type(req_json)}"
+                    )
+                if parsed_request_dict["is_req_json_update_deep"]:
+                    update_dict_recursively(req_json, req_json_update)
+                else:
+                    req_json.update(req_json_update)
+
+        # pop keys redundant for requests
+        parsed_request_dict.pop("req_json_update", None)
+        parsed_request_dict.pop("is_req_json_update_deep", None)
+
+    @staticmethod
+    def __handle_update_form_data(parsed_request_dict: dict) -> NoReturn:
+        """
+        Update request with data from update_form_data.
+        """
+        if data_update := parsed_request_dict["data_update"]:
+            init_data = parsed_request_dict["data"]
+            if init_data is None:
+                parsed_request_dict["data"] = data_update
+            else:
+                if not isinstance(init_data, dict):
+                    raise ValueError(
+                        f"method update_form_data() can only be used when data is a dict or None, "
+                        f"but got: {type(init_data)}"
+                    )
+                if parsed_request_dict["is_data_update_deep"]:
+                    update_dict_recursively(init_data, data_update)
+                else:
+                    init_data.update(data_update)
+
+        # pop keys redundant for requests
+        parsed_request_dict.pop("data_update", None)
+        parsed_request_dict.pop("is_data_update_deep", None)
+
     def __run_step_request(self, step: TStep) -> StepData:
         """run teststep: request"""
         step_data = StepData(name=step.name)
@@ -283,6 +331,10 @@ class HttpRunner(object):
         parsed_request_dict = parse_data(
             request_dict, step.variables, self.__project_meta.functions
         )
+
+        self.__handle_update_json_object(parsed_request_dict)
+        self.__handle_update_form_data(parsed_request_dict)
+
         parsed_request_dict["headers"].setdefault(
             "HRUN-Request-ID",
             f"HRUN-{self.__case_id}-{str(int(time.time() * 1000))[-6:]}",

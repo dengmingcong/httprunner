@@ -42,6 +42,26 @@ class TestCaseUpdateFormData(HttpRunner):
             .assert_equal("body.form.bar", "$bar")
             .assert_equal("body.form.baz", "$baz")
         ),
+        Step(
+            RunRequest("json set by variables")
+            .with_variables(**{
+                "init_data": {
+                    "foo": "3",
+                    "baz": "$baz"
+                },
+                "update_data": {
+                    "foo": "$foo",
+                    "bar": "$bar"
+                }
+            })
+            .post("/post")
+            .with_data("$init_data")
+            .update_form_data("$update_data")
+            .validate()
+            .assert_equal("body.form.foo", "1")
+            .assert_equal("body.form.bar", "2")
+            .assert_equal("body.form.baz", "3")
+        ),
     ]
 
 
