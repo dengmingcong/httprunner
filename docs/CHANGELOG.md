@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.16.8 (2022-12-23)
+### Fix
+* Add BytesEncoder to fix 'Object of type bytes is not JSON serializable' ([`feb53a5`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/feb53a5ce866d23b79c4985a221b2f945028bd4c))
+
 ## v3.16.7 (2022-12-19)
 ### Fix
 * Variable not found when update_json_object not applied first ([`9b204da`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9b204da33d38c96cb32af3229692175e54e0bb1b))
