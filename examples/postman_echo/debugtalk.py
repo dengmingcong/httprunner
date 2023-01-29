@@ -29,6 +29,10 @@ def get_raw_func():
     return "${calculate_two_nums(1, 1)}"
 
 
+def get_raw_dict():
+    return {"foo": "$bar"}
+
+
 def get_raw_data_name(raw_data: dict) -> str:
     """
     Test extracted value containing dollar as function argument.
@@ -37,7 +41,4 @@ def get_raw_data_name(raw_data: dict) -> str:
 
 
 def get_json(foo, bar):
-    return {
-        "foo": foo,
-        "bar": bar
-    }
+    return {"foo": foo, "bar": bar}
