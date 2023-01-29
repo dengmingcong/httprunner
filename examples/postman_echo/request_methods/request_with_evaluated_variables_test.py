@@ -20,13 +20,18 @@ class TestCaseRequestWithVariables(HttpRunner):
             .with_variables(
                 **{
                     "func": "${get_raw_func()}",
+                    "bar": "bar",
+                    "foo": "${get_raw_dict()}",
                 }
             )
             .post("/post")
-            .with_json({"value": "${eval_var($func)}"})
+            .with_json(
+                {"value01": "${eval_var($func)}", "value02": "${eval_var($foo)}"}
+            )
             .validate()
             .assert_equal("status_code", 200)
-            .assert_equal("body.data.value", [2, 0])
+            .assert_equal("body.data.value01", [2, 0])
+            .assert_equal("body.data.value02.foo", "bar")
         ),
     ]
 
