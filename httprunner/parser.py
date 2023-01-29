@@ -415,16 +415,10 @@ def parse_string(
                     raise ValueError(
                         f"no keyword arguments are expected when func name is 'eval_var', but got: {len(kwargs)}"
                     )
-                if not isinstance((parsed_arg := parsed_args[0]), (str, float, int)):
-                    raise ValueError(
-                        f"when func name is 'eval_var', the value of variable ({args[0]}) is expected "
-                        f"to be either str, int, or float, but got: {type(parsed_arg)}, "
-                        f"and value is {parsed_arg}"
-                    )
 
                 # parse again
-                func_eval_value = parse_string(
-                    parsed_arg, variables_mapping, functions_mapping
+                func_eval_value = parse_data(
+                    parsed_args[0], variables_mapping, functions_mapping
                 )
             else:
                 func = get_mapping_function(func_name, functions_mapping)
