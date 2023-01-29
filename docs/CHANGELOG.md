@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.16.9 (2023-01-29)
+### Fix
+* Eval_var cannot parse a dict (only str is supported) ([`e49c767`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/e49c767f758768423dc52f0970741c701084b2a0))
+
 ## v3.16.8 (2022-12-23)
 ### Fix
 * Add BytesEncoder to fix 'Object of type bytes is not JSON serializable' ([`feb53a5`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/feb53a5ce866d23b79c4985a221b2f945028bd4c))
