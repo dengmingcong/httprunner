@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union
 
 from httprunner.builtin import expand_nested_json, update_dict_recursively
-from httprunner.json_encoders import BytesEncoder
+from httprunner.json_encoders import ExportVariableEncoder
 
 try:
     import allure
@@ -207,7 +207,12 @@ class HttpRunner(object):
             )
             # save export vars
             allure.attach(
-                json.dumps(exported_vars, indent=4, ensure_ascii=False, cls=BytesEncoder),
+                json.dumps(
+                    exported_vars,
+                    indent=4,
+                    ensure_ascii=False,
+                    cls=ExportVariableEncoder,
+                ),
                 "exported variables",
                 allure.attachment_type.JSON,
             )
@@ -226,7 +231,12 @@ class HttpRunner(object):
             )
             # save export vars
             allure.attach(
-                json.dumps(exported_vars, indent=4, ensure_ascii=False, cls=BytesEncoder),
+                json.dumps(
+                    exported_vars,
+                    indent=4,
+                    ensure_ascii=False,
+                    cls=ExportVariableEncoder,
+                ),
                 "exported variables",
                 allure.attachment_type.JSON,
             )
@@ -705,7 +715,9 @@ class HttpRunner(object):
         for step in self.__teststeps:
             # variables got from outside of step
             # extracted variables > testcase config variables
-            step_config_variables = merge_variables(extracted_variables, self.__config.variables)
+            step_config_variables = merge_variables(
+                extracted_variables, self.__config.variables
+            )
 
             # step variables set with HttpRunnerRequest.with_variables() > step outside variables
             step.variables = merge_variables(step.variables, step_config_variables)

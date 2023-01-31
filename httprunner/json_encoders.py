@@ -1,10 +1,11 @@
 import json
 
 
-class BytesEncoder(json.JSONEncoder):
+class ExportVariableEncoder(json.JSONEncoder):
     """
     JSON encoder for export vars.
     """
+
     def default(self, obj):
         if isinstance(obj, bytes):
             return repr(obj)
