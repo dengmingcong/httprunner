@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.16.10 (2023-02-01)
+### Fix
+* Class instance is not JSON serializable ([`5d4a2c3`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5d4a2c3e5c59a935ea50797125b24061debffbb7))
+
 ## v3.16.9 (2023-01-29)
 ### Fix
 * Eval_var cannot parse a dict (only str is supported) ([`e49c767`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/e49c767f758768423dc52f0970741c701084b2a0))
