@@ -265,7 +265,7 @@ def get_mapping_variable(
         return variables_mapping[variable_name]
     except KeyError:
         raise exceptions.VariableNotFound(
-            f"{variable_name} not found in {variables_mapping}"
+            f"{variable_name} not found in {variables_mapping}", variable_name
         )
 
 
