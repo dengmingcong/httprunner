@@ -500,7 +500,8 @@ def parse_data(
         variables_mapping = variables_mapping or {}
         functions_mapping = functions_mapping or {}
         # only strip whitespaces and tabs, \n\r is left because they maybe used in changeset
-        raw_data = raw_data.strip(" \t")
+        # do not strip blank space, otherwise comparison will fail
+        # raw_data = raw_data.strip(" \t")
         return parse_string(raw_data, variables_mapping, functions_mapping)
 
     elif isinstance(raw_data, (list, set, tuple)):
