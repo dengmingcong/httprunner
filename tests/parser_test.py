@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from httprunner import parser
 from httprunner.exceptions import VariableNotFound, FunctionNotFound
 from httprunner.loader import load_project_meta
-from httprunner.parser import ParseMe
+from httprunner.parser import ParseMe, parse_variables_mapping
 
 
 class Obj(BaseModel):
@@ -608,3 +608,16 @@ class TestParserBasic(unittest.TestCase):
         # print(parsed_deng.subjects[0].__dict__)
         assert deng.subjects[0].rank == "good"
         assert deng.name == "Deng"
+
+    def test_eval_var(self):
+        def get_raw_dict():
+            return {"foo": "$bar"}
+
+        variables = {
+            "a": "${get_raw_dict()}",
+            "b": "${eval_var($a)}"
+        }
+        try:
+            parse_variables_mapping(variables, {"get_raw_dict": get_raw_dict})
+        except TimeoutError as exc:
+            print(exc)
