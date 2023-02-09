@@ -2,6 +2,11 @@
 
 <!--next-version-placeholder-->
 
+## v3.16.11 (2023-02-09)
+### Fix
+* Variables cannot be identified when parsing eval_var and VariableNotFound exception raised ([`06b8de9`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/06b8de98a0a2d0d9ea52b744ea8d46a07ae463c3))
+* String comparison failure when blank spaces exist at end/start of line ([`5ede49e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5ede49e7ca7332fae449da95d1b9c9ce6b06b836))
+
 ## v3.16.10 (2023-02-01)
 ### Fix
 * Class instance is not JSON serializable ([`5d4a2c3`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5d4a2c3e5c59a935ea50797125b24061debffbb7))
