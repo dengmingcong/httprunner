@@ -537,17 +537,22 @@ def parse_variables_mapping(
     """
 
     parsed_variables: VariablesMapping = {}
+    not_found_variables: set = set()
+
     start = time.time()
 
     while len(parsed_variables) != len(variables_mapping):
 
         elapsed = time.time() - start
-        if elapsed > 7:
+        if elapsed > 3:
+            not_parsed_variables = {
+                name: variables_mapping[name]
+                for name in set(variables_mapping.keys()) - set(parsed_variables.keys())
+            }
+            not_found_variables = not_found_variables - set(parsed_variables.keys())
             raise TimeoutError(
-                f"it has taken more than 7 seconds at function parse_variables_mapping, "
-                f"most likely forever loop occurs."
-                f"\nparsed_variables: {parsed_variables}"
-                f"\nvariables_mapping: {variables_mapping}"
+                f"\nvariable mapping that cannot be parsed: {not_parsed_variables}"
+                f"\nvariables not found: {list(not_found_variables)}"
             )
 
         for var_name in variables_mapping:
@@ -578,7 +583,10 @@ def parse_variables_mapping(
                 parsed_value = parse_data(
                     var_value, parsed_variables, functions_mapping
                 )
-            except exceptions.VariableNotFound:
+            except exceptions.VariableNotFound as exc:
+                # get variables from exception arguments
+                if len(exc.args) >= 2:
+                    not_found_variables.add(exc.args[1])
                 continue
 
             parsed_variables[var_name] = parsed_value
