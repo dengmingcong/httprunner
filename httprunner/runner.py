@@ -201,6 +201,7 @@ class HttpRunner(object):
                     validation_results.get("validate_extractor", []),
                     indent=4,
                     ensure_ascii=False,
+                    cls=AllureJSONAttachmentEncoder,
                 ),
                 f"validation results ({result})",
                 allure.attachment_type.JSON,
