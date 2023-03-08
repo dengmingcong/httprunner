@@ -291,7 +291,7 @@ class ResponseObject(object):
                 message = str(ex)
                 if message:
                     validate_msg += (
-                        f"\nHint:\n"
+                        f"\nHints:\n"
                         f"{message}"
                     )
 
