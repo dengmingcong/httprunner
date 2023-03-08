@@ -278,15 +278,22 @@ class ResponseObject(object):
                 validator_dict["Result"] = "❌"
                 validate_msg += "\t==> fail"
                 validate_msg += (
-                    f"\n"
-                    f"check_item: {check_item}\n"
-                    f"check_value: {omitted_check_value}({type(check_value).__name__})\n"
-                    f"assert_method: {assert_method}\n"
-                    f"expect_value: {omitted_expect_value}({type(expect_value).__name__})"
+                    f"\n\n"
+                    f"Actual Value:\n"
+                    f"    {omitted_check_value}({type(check_value).__name__})\n"
+                    f"Comparator:\n"
+                    f"    {assert_method}\n"
+                    f"Expect Value:\n"
+                    f"    {omitted_expect_value}({type(expect_value).__name__})\n"
+                    f"\nJMESPath:\n"
+                    f"    {check_item}\n"
                 )
                 message = str(ex)
                 if message:
-                    validate_msg += f"\nmessage: {message}"
+                    validate_msg += (
+                        f"\nHint:\n"
+                        f"{message}"
+                    )
 
                 logger.error(validate_msg)
                 failures.append(validate_msg)
