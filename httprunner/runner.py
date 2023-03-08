@@ -255,7 +255,7 @@ class HttpRunner(object):
         self,
         validation_results: dict,
         exported_vars: dict,
-        allow_max_retry_times: int,
+        max_retry_times: int,
         remaining_retry_times: int,
         is_success: bool,
     ) -> NoReturn:
@@ -269,19 +269,19 @@ class HttpRunner(object):
         if not hasattr(self.__session, "data"):
             return
 
-        if allow_max_retry_times > 0:
+        if max_retry_times > 0:
             if is_success:
                 result = "PASS"
             else:
                 result = "FAIL"
 
-            if allow_max_retry_times == remaining_retry_times:
+            if max_retry_times == remaining_retry_times:
                 title = f"first request ({result})"
             elif remaining_retry_times == 0:
-                title = f"retry: {allow_max_retry_times} - last retry ({result})"
+                title = f"retry: {max_retry_times} - last retry ({result})"
             else:
                 title = (
-                    f"retry: {allow_max_retry_times - remaining_retry_times} ({result})"
+                    f"retry: {max_retry_times - remaining_retry_times} ({result})"
                 )
             with allure.step(title):
                 self.__add_allure_attachments(
