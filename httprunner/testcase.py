@@ -13,6 +13,9 @@ from httprunner.models import (
 )
 
 
+Number = Union[int, float]
+
+
 class Config(object):
     def __init__(self, name: Text):
         self.__name = name
@@ -325,6 +328,24 @@ class StepRequestValidation(object):
         """
         self._step_context.validators.append(
             {"sort_list": [jmes_path, expected_value, message]}
+        )
+        return self
+
+    def assert_is_close(
+            self, jmes_path: Text, expected_value: tuple[Number, Number], message: Text = ""
+    ) -> "StepRequestValidation":
+        """
+        Return True if the valuse are close to each other and False otherwise.
+
+        References:
+            math.isclose() from https://docs.python.org/3/library/math.html
+
+        :param jmes_path: JMESPath search result must be int or float
+        :param expected_value: a tuple, the first element is the expected number, the second is the absolute tolerance
+        :param message: error message
+        """
+        self._step_context.validators.append(
+            {"is_close": [jmes_path, expected_value, message]}
         )
         return self
 

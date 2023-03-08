@@ -1,9 +1,12 @@
 """
 Built-in validate comparators.
 """
-
+import math
 import re
 from typing import Text, Any, Union
+
+
+Number = Union[int, float]
 
 
 def equal(check_value: Any, expect_value: Any, message: Text = ""):
@@ -103,7 +106,7 @@ def type_match(check_value: Any, expect_value: Any, message: Text = ""):
             return name
         elif isinstance(name, str):
             try:
-                return __builtins__[name]
+                return __builtins__[name]  # noqa
             except KeyError:
                 raise ValueError(name)
         else:
@@ -127,3 +130,16 @@ def startswith(check_value: Any, expect_value: Any, message: Text = ""):
 
 def endswith(check_value: Text, expect_value: Any, message: Text = ""):
     assert str(check_value).endswith(str(expect_value)), message
+
+
+def is_close(
+    check_value: Number, expect_value: tuple[Number, Number], message: Text = ""
+):
+    a = check_value
+    b = expect_value[0]
+    abs_tol = expect_value[1]
+
+    if not message:
+        message = f"difference ({abs(a - b)}) between {a} and {b} exceeded the minimum absolute tolerance ({abs_tol})"
+
+    assert math.isclose(a, b, abs_tol=abs_tol), message
