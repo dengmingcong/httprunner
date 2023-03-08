@@ -2,6 +2,19 @@
 
 <!--next-version-placeholder-->
 
+## v3.17.0 (2023-03-08)
+### Feature
+* Add expression "${pyexp()}" to enhance parsing ability ([`213d4bb`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/213d4bbc93d5a0cadc5d279eff032a7c907b7598))
+* Add __init_subclass__ to validate subclass and fail fast ([`bdc7b5f`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/bdc7b5fab196270029f069c554ba8b4eb2aed959))
+* Add validation method assert_is_close() ([`b8bbe60`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b8bbe6015c9cdace139d921f8a70e660ad94aff9))
+* Replace words 'PASS', 'FAIL' with emoji to increase readability of allure report ([`c4b8900`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c4b890046967ebcb328dc00692529b7a7b889b97))
+* Extract 'Date' from request headers and display it in attachment title ([`9d0ddfd`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9d0ddfdb9b19378af8568231eb6841a90bb59adc))
+* Set request header 'Date' to represent request timestamp ([`283cb89`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/283cb8917004b686b3663e7e7b72731abcbe1f95))
+
+### Fix
+* Json dumps error when functions exist in validation result ([`1257ddf`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1257ddf003075195eaf86da40b4fe58c5ccc1496))
+* Add custom JSONEncoder for validation results to fix JSON serializing error ([`b4a66f4`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b4a66f4553e93f57726a4dc6db34ee4012533781))
+
 ## v3.16.11 (2023-02-09)
 ### Fix
 * Variables cannot be identified when parsing eval_var and VariableNotFound exception raised ([`06b8de9`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/06b8de98a0a2d0d9ea52b744ea8d46a07ae463c3))
