@@ -250,12 +250,15 @@ class ResponseObject(object):
             validate_msg = f"assert {check_item} {assert_method} {omitted_expect_value}({type(expect_value).__name__})"
 
             validator_dict = {
-                "comparator": assert_method,
-                "check": check_item,
-                "check_value": check_value,
-                "expect": expect_item,
-                "expect_value": expect_value,
-                "message": message,
+                "Result": None,
+                "Assert": {
+                    "ActualValue": check_value,
+                    "Comparator": assert_method,
+                    "ExpectValue": expect_value,
+                },
+                "Message": message,
+                "JMESPath": check_item,
+                "RawExpectValue": expect_item,
             }
 
             # fix: TypeError: Object of type function is not JSON serializable
@@ -269,10 +272,10 @@ class ResponseObject(object):
                 assert_func(check_value, expect_value, message)
                 validate_msg += "\t==> pass"
                 logger.info(validate_msg)
-                validator_dict["check_result"] = "✔️️"
+                validator_dict["Result"] = "✔️️"
             except AssertionError as ex:
                 validate_pass = False
-                validator_dict["check_result"] = "❌"
+                validator_dict["Result"] = "❌"
                 validate_msg += "\t==> fail"
                 validate_msg += (
                     f"\n"
