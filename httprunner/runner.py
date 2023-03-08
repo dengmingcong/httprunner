@@ -185,9 +185,13 @@ class HttpRunner(object):
             response_data = session_data.req_resps[0].response
 
             # save request data
+            if request_at := request_data.headers.get('Date', None):
+                request_attachment_name = f"request 🕒 {request_at}"
+            else:
+                request_attachment_name = "request"
             allure.attach(
                 request_data.json(indent=4, ensure_ascii=False),
-                "request",
+                request_attachment_name,
                 allure.attachment_type.JSON,
             )
 
