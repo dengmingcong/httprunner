@@ -269,7 +269,7 @@ class ResponseObject(object):
                 assert_func(check_value, expect_value, message)
                 validate_msg += "\t==> pass"
                 logger.info(validate_msg)
-                validator_dict["check_result"] = "✔️"
+                validator_dict["check_result"] = "✔️️"
             except AssertionError as ex:
                 validate_pass = False
                 validator_dict["check_result"] = "❌"
