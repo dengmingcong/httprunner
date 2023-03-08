@@ -69,6 +69,23 @@ class HttpRunner(object):
     __continue_on_failure: bool = False
     __use_allure: bool = USE_ALLURE
 
+    def __init_subclass__(cls):
+        """Add validation for subclass."""
+        super().__init_subclass__()
+
+        # make sure type of attribute 'config' correct
+        if not isinstance(cls.config, Config):
+            raise TypeError(f"type of class attribute 'config' must be Config, but got {type(cls.config)}")
+
+        # make sure teststeps is a list
+        if not isinstance(cls.teststeps, list):
+            raise TypeError(f"type of class attribute 'teststeps' must be list, but got {type(cls.teststeps)}")
+
+        # make sure every element of teststeps is a Step instance
+        for step in cls.teststeps:
+            if not isinstance(step, Step):
+                raise TypeError(f"type of each test step must be Step, but got {type(step)}")
+
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
         self.__teststeps = []
