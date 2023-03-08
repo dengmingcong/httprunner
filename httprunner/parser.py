@@ -23,6 +23,8 @@ function_regex_compile = re.compile(r"\$\{(\w+)\(([$\w.\-/\s=,]*)\)}")
 # python expression
 expression_regex_compile = re.compile(r"""\$\{([$\w.[\]:'"]*[.[][$\w.[\]:'"]*)}""")
 expression_leading_var_regex_compile = re.compile(r"(\w+)[.\[]")
+# pyexp
+pyexp_regex_compile = re.compile(r"\$\{pyexp\((.*)\)}")
 
 
 def parse_string_value(str_value: Text) -> Any:
@@ -339,6 +341,19 @@ def parse_string(
         >>> parse_string(_raw_string, _variables_mapping, _functions_mapping)
             "abc4def"
     """
+    # search ${pyexp()}
+    if "$" in raw_string and pyexp_regex_compile.search(raw_string):
+        pyexp_full_match = pyexp_regex_compile.fullmatch(raw_string)
+        if not pyexp_full_match:
+            raise SyntaxError(
+                f"The whole string must match regular expression {pyexp_regex_compile} if you want to user pyexp"
+            )
+        else:
+            globals_ = {}
+            globals_.update(variables_mapping)
+            globals_.update(functions_mapping)
+            return eval(pyexp_full_match.group(1), globals_)
+
     try:
         match_start_position = raw_string.index("$", 0)
         parsed_string = raw_string[0:match_start_position]
