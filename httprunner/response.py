@@ -261,13 +261,6 @@ class ResponseObject(object):
                 "RawExpectValue": expect_item,
             }
 
-            # fix: TypeError: Object of type function is not JSON serializable
-            try:
-                json.dumps(validator_dict)
-            except TypeError:
-                validator_dict["expect"] = repr(expect_item)
-                validator_dict["expect_value"] = repr(expect_value)
-
             try:
                 assert_func(check_value, expect_value, message)
                 validate_msg += "\t==> pass"

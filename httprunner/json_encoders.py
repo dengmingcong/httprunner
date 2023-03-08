@@ -16,6 +16,10 @@ class AllureJSONAttachmentEncoder(json.JSONEncoder):
         if isinstance(o, bytes):
             return repr(o)
 
+        # functions
+        if callable(o):
+            return repr(o)
+
         # has attribute __dict__
         if hasattr(o, "__dict__"):
             return o.__dict__
