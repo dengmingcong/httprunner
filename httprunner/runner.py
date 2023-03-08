@@ -183,18 +183,21 @@ class HttpRunner(object):
 
             request_data = session_data.req_resps[0].request
             response_data = session_data.req_resps[0].response
+
             # save request data
             allure.attach(
                 request_data.json(indent=4, ensure_ascii=False),
                 "request",
                 allure.attachment_type.JSON,
             )
+
             # save response data
             allure.attach(
                 response_data.json(indent=4, ensure_ascii=False),
                 "response",
                 allure.attachment_type.JSON,
             )
+
             # save validation results
             allure.attach(
                 json.dumps(
@@ -206,6 +209,7 @@ class HttpRunner(object):
                 f"validation results ({result})",
                 allure.attachment_type.JSON,
             )
+
             # save export vars
             allure.attach(
                 json.dumps(
@@ -217,6 +221,7 @@ class HttpRunner(object):
                 "exported variables",
                 allure.attachment_type.JSON,
             )
+
             # save stat
             allure.attach(
                 session_data.stat.json(indent=4, ensure_ascii=False),
