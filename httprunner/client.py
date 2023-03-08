@@ -1,5 +1,6 @@
 import json
 import time
+from datetime import datetime, timedelta, timezone
 
 import requests
 import urllib3
@@ -179,6 +180,13 @@ class HttpSession(requests.Session):
         kwargs["stream"] = True
 
         start_timestamp = time.time()
+
+        # set header 'Date' to represent request timestamp
+        now = datetime.now(timezone(timedelta(hours=8)))
+        kwargs["headers"].update({
+            "Date": now.strftime("%Y-%m-%d %H:%M:%S %Z")
+        })
+
         response = self._send_request_safe_mode(method, url, **kwargs)
         response_time_ms = round((time.time() - start_timestamp) * 1000, 2)
 
