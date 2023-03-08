@@ -212,7 +212,7 @@ class ResponseObject(object):
 
             u_validator = uniform_validator(v)
 
-            # check item
+            # check item (jmespath)
             check_item = u_validator["check"]
             if "$" in check_item:
                 # check_item is variable or function
@@ -222,7 +222,7 @@ class ResponseObject(object):
                 check_item = parse_string_value(check_item)
 
             if check_item and isinstance(check_item, Text):
-                check_value = self._search_jmespath(check_item)
+                check_value = self._search_jmespath(check_item)  # actual value
             else:
                 # variable or function evaluation result is "" or not text
                 check_value = check_item
@@ -232,6 +232,7 @@ class ResponseObject(object):
 
             # comparator
             assert_method = u_validator["assert"]
+            # functions found in package httprunner.builtin will be added to functions mapping too
             assert_func = get_mapping_function(assert_method, functions_mapping)
 
             # expect item
@@ -268,10 +269,10 @@ class ResponseObject(object):
                 assert_func(check_value, expect_value, message)
                 validate_msg += "\t==> pass"
                 logger.info(validate_msg)
-                validator_dict["check_result"] = "pass"
+                validator_dict["check_result"] = "✔️"
             except AssertionError as ex:
                 validate_pass = False
-                validator_dict["check_result"] = "fail"
+                validator_dict["check_result"] = "❌"
                 validate_msg += "\t==> fail"
                 validate_msg += (
                     f"\n"
