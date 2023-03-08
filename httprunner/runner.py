@@ -177,9 +177,9 @@ class HttpRunner(object):
         # if only one request exists
         if len(session_data.req_resps) == 1:
             if is_success:
-                result = "PASS"
+                result = "🟢"
             else:
-                result = "FAIL"
+                result = "🔴"
 
             request_data = session_data.req_resps[0].request
             response_data = session_data.req_resps[0].response
@@ -210,7 +210,7 @@ class HttpRunner(object):
                     ensure_ascii=False,
                     cls=AllureJSONAttachmentEncoder,
                 ),
-                f"validation results ({result})",
+                f"validation results {result}",
                 allure.attachment_type.JSON,
             )
 
@@ -271,17 +271,17 @@ class HttpRunner(object):
 
         if max_retry_times > 0:
             if is_success:
-                result = "PASS"
+                result = "🟢"
             else:
-                result = "FAIL"
+                result = "🔴"
 
             if max_retry_times == remaining_retry_times:
-                title = f"first request ({result})"
+                title = f"first request {result}"
             elif remaining_retry_times == 0:
-                title = f"retry: {max_retry_times} - last retry ({result})"
+                title = f"retry: {max_retry_times} - last retry {result}"
             else:
                 title = (
-                    f"retry: {max_retry_times - remaining_retry_times} ({result})"
+                    f"retry: {max_retry_times - remaining_retry_times} {result}"
                 )
             with allure.step(title):
                 self.__add_allure_attachments(
