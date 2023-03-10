@@ -1,12 +1,12 @@
 from pydantic import BaseSettings
 
 
-class ResultDictIcons(BaseSettings):
+class ContentIcons(BaseSettings):
     pass_: str = "✔️"
     fail: str = "❌"
 
 
-class ResultDictKeys(BaseSettings):
+class ContentKeys(BaseSettings):
     """Settings for validation result keys."""
     result: str = "Result"
     assert_: str = "Assert"
@@ -18,28 +18,24 @@ class ResultDictKeys(BaseSettings):
     raw_expect_value: str = "RawExpectValue"
 
 
-class ResultAttachmentIcons(BaseSettings):
+class AttachmentIcons(BaseSettings):
     pass_: str = "🟢"
     fail: str = "🔴"
 
 
-class ResultDict(BaseSettings):
-    keys: ResultDictKeys = ResultDictKeys()
-    icons: ResultDictIcons = ResultDictIcons()
+class Content(BaseSettings):
+    keys: ContentKeys = ContentKeys()
+    icons: ContentIcons = ContentIcons()
 
 
-class ResultAttachment(BaseSettings):
-    icons: ResultAttachmentIcons = ResultAttachmentIcons()
-
-
-class Result(BaseSettings):
-    dict_: ResultDict = ResultDict()
-    attachment: ResultAttachment = ResultAttachment()
+class Attachment(BaseSettings):
+    icons: AttachmentIcons = AttachmentIcons()
 
 
 class ValidationSettings(BaseSettings):
     """Settings for validation."""
-    result: Result = Result()
+    content: Content = Content()
+    attachment: Attachment = Attachment()
 
 
 validation_settings = ValidationSettings()
