@@ -19,8 +19,8 @@ class ContentKeys(BaseSettings):
 
 
 class AttachmentIcons(BaseSettings):
-    pass_: str = "🟢"
-    fail: str = "🔴"
+    pass_: str = "✔️"
+    fail: str = "❌"
 
 
 class Content(BaseSettings):
