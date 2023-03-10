@@ -40,3 +40,6 @@ class Result(BaseSettings):
 class ValidationSettings(BaseSettings):
     """Settings for validation."""
     result: Result = Result()
+
+
+validation_settings = ValidationSettings()
