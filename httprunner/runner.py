@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union
 
 from httprunner.builtin import expand_nested_json, update_dict_recursively
+from httprunner.configs.validation import validation_settings
 from httprunner.json_encoders import AllureJSONAttachmentEncoder
 
 try:
@@ -194,9 +195,9 @@ class HttpRunner(object):
         # if only one request exists
         if len(session_data.req_resps) == 1:
             if is_success:
-                result = "🟢"
+                result = validation_settings.attachment.icons.pass_
             else:
-                result = "🔴"
+                result = validation_settings.attachment.icons.fail
 
             request_data = session_data.req_resps[0].request
             response_data = session_data.req_resps[0].response
@@ -288,9 +289,9 @@ class HttpRunner(object):
 
         if max_retry_times > 0:
             if is_success:
-                result = "🟢"
+                result = validation_settings.attachment.icons.pass_
             else:
-                result = "🔴"
+                result = validation_settings.attachment.icons.fail
 
             if max_retry_times == remaining_retry_times:
                 title = f"first request {result}"
