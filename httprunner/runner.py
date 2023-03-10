@@ -6,6 +6,8 @@ from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union
 
 from httprunner.builtin import expand_nested_json, update_dict_recursively
+from httprunner.configs.emoji import emojis
+from httprunner.configs.validation import validation_settings
 from httprunner.json_encoders import AllureJSONAttachmentEncoder
 
 try:
@@ -75,16 +77,22 @@ class HttpRunner(object):
 
         # make sure type of attribute 'config' correct
         if not isinstance(cls.config, Config):
-            raise TypeError(f"type of class attribute 'config' must be Config, but got {type(cls.config)}")
+            raise TypeError(
+                f"type of class attribute 'config' must be Config, but got {type(cls.config)}"
+            )
 
         # make sure teststeps is a list
         if not isinstance(cls.teststeps, list):
-            raise TypeError(f"type of class attribute 'teststeps' must be list, but got {type(cls.teststeps)}")
+            raise TypeError(
+                f"type of class attribute 'teststeps' must be list, but got {type(cls.teststeps)}"
+            )
 
         # make sure every element of teststeps is a Step instance
         for step in cls.teststeps:
             if not isinstance(step, Step):
-                raise TypeError(f"type of each test step must be Step, but got {type(step)}")
+                raise TypeError(
+                    f"type of each test step must be Step, but got {type(step)}"
+                )
 
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
@@ -185,7 +193,6 @@ class HttpRunner(object):
         session_data: SessionData,
         validation_results: dict,
         exported_vars: dict,
-        is_success: bool,
     ) -> NoReturn:
         """
         Add attachments to allure.
@@ -193,16 +200,11 @@ class HttpRunner(object):
         # split session data into request, response, validation results, export vars, and stat
         # if only one request exists
         if len(session_data.req_resps) == 1:
-            if is_success:
-                result = "🟢"
-            else:
-                result = "🔴"
-
             request_data = session_data.req_resps[0].request
             response_data = session_data.req_resps[0].response
 
             # save request data
-            if request_at := request_data.headers.get('Date', None):
+            if request_at := request_data.headers.get("Date", None):
                 request_attachment_name = f"request 🕒 {request_at}"
             else:
                 request_attachment_name = "request"
@@ -220,16 +222,30 @@ class HttpRunner(object):
             )
 
             # save validation results
-            allure.attach(
-                json.dumps(
-                    validation_results.get("validate_extractor", []),
-                    indent=4,
-                    ensure_ascii=False,
-                    cls=AllureJSONAttachmentEncoder,
-                ),
-                f"validation results {result}",
-                allure.attachment_type.JSON,
-            )
+            for validation_result in validation_results.get("validate_extractor", []):  # type: dict
+                jmespath_ = validation_result.get(
+                    validation_settings.content.keys.jmespath_
+                )
+                # it is possible that jmespath is not str
+                jmespath_ = jmespath_ if isinstance(jmespath_, str) else "NA"
+
+                result = validation_result.pop(validation_settings.content.keys.result, "NA")
+                comparator = validation_result.get(
+                    validation_settings.content.keys.assert_, {}
+                ).get(validation_settings.content.keys.comparator, "NA")
+
+                validation_attachment_name = f"{result} validate - {jmespath_} / {comparator}"
+
+                allure.attach(
+                    json.dumps(
+                        validation_result,
+                        indent=4,
+                        ensure_ascii=False,
+                        cls=AllureJSONAttachmentEncoder,
+                    ),
+                    validation_attachment_name,
+                    allure.attachment_type.JSON,
+                )
 
             # save export vars
             allure.attach(
@@ -288,25 +304,23 @@ class HttpRunner(object):
 
         if max_retry_times > 0:
             if is_success:
-                result = "🟢"
+                result = emojis.success
             else:
-                result = "🔴"
+                result = emojis.failure
 
             if max_retry_times == remaining_retry_times:
                 title = f"first request {result}"
             elif remaining_retry_times == 0:
                 title = f"retry: {max_retry_times} - last retry {result}"
             else:
-                title = (
-                    f"retry: {max_retry_times - remaining_retry_times} {result}"
-                )
+                title = f"retry: {max_retry_times - remaining_retry_times} {result}"
             with allure.step(title):
                 self.__add_allure_attachments(
-                    self.__session.data, validation_results, exported_vars, is_success
+                    self.__session.data, validation_results, exported_vars
                 )
         else:
             self.__add_allure_attachments(
-                self.__session.data, validation_results, exported_vars, is_success
+                self.__session.data, validation_results, exported_vars
             )
 
     @staticmethod
