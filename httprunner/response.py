@@ -7,6 +7,7 @@ from jmespath.exceptions import JMESPathError
 from loguru import logger
 
 from httprunner import exceptions
+from httprunner.configs.emoji import emojis
 from httprunner.configs.validation import validation_settings
 from httprunner.exceptions import ValidationFailure, ParamsError
 from httprunner.models import VariablesMapping, Validators, FunctionsMapping
@@ -266,10 +267,10 @@ class ResponseObject(object):
                 assert_func(check_value, expect_value, message)
                 validate_msg += "\t==> pass"
                 logger.info(validate_msg)
-                validator_dict["Result"] = validation_settings.content.icons.pass_
+                validator_dict["Result"] = emojis.success
             except AssertionError as ex:
                 validate_pass = False
-                validator_dict["Result"] = validation_settings.content.icons.fail
+                validator_dict["Result"] = emojis.failure
                 validate_msg += "\t==> fail"
                 validate_msg += (
                     f"\n\n"

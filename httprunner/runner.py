@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union
 
 from httprunner.builtin import expand_nested_json, update_dict_recursively
+from httprunner.configs.emoji import emojis
 from httprunner.configs.validation import validation_settings
 from httprunner.json_encoders import AllureJSONAttachmentEncoder
 
@@ -221,23 +222,19 @@ class HttpRunner(object):
             )
 
             # save validation results
-            for validation_result in validation_results.get("validate_extractor", []):
+            for validation_result in validation_results.get("validate_extractor", []):  # type: dict
                 jmespath_ = validation_result.get(
                     validation_settings.content.keys.jmespath_
                 )
-                result = validation_result.get(validation_settings.content.keys.result)
-                comparator = validation_result.get(
-                    validation_settings.content.keys.assert_, {}
-                ).get(validation_settings.content.keys.comparator)
-
+                # it is possible that jmespath is not str
                 jmespath_ = jmespath_ if isinstance(jmespath_, str) else "NA"
 
-                if result == validation_settings.content.icons.fail:
-                    icon = validation_settings.attachment.icons.fail
-                else:
-                    icon = validation_settings.attachment.icons.pass_
+                result = validation_result.pop(validation_settings.content.keys.result, "NA")
+                comparator = validation_result.get(
+                    validation_settings.content.keys.assert_, {}
+                ).get(validation_settings.content.keys.comparator, "NA")
 
-                validation_attachment_name = f"{icon} validate - {jmespath_} / {comparator}"
+                validation_attachment_name = f"{result} validate - {jmespath_} / {comparator}"
 
                 allure.attach(
                     json.dumps(
@@ -307,9 +304,9 @@ class HttpRunner(object):
 
         if max_retry_times > 0:
             if is_success:
-                result = validation_settings.attachment.icons.pass_
+                result = emojis.success
             else:
-                result = validation_settings.attachment.icons.fail
+                result = emojis.failure
 
             if max_retry_times == remaining_retry_times:
                 title = f"first request {result}"
