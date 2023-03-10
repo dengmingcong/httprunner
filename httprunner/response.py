@@ -7,6 +7,7 @@ from jmespath.exceptions import JMESPathError
 from loguru import logger
 
 from httprunner import exceptions
+from httprunner.configs.validation import validation_settings
 from httprunner.exceptions import ValidationFailure, ParamsError
 from httprunner.models import VariablesMapping, Validators, FunctionsMapping
 from httprunner.parser import parse_data, parse_string_value, get_mapping_function
@@ -250,25 +251,25 @@ class ResponseObject(object):
             validate_msg = f"assert {check_item} {assert_method} {omitted_expect_value}({type(expect_value).__name__})"
 
             validator_dict = {
-                "Result": None,
-                "Assert": {
-                    "ActualValue": check_value,
-                    "Comparator": assert_method,
-                    "ExpectValue": expect_value,
+                validation_settings.content.keys.result: None,
+                validation_settings.content.keys.assert_: {
+                    validation_settings.content.keys.actual_value: check_value,
+                    validation_settings.content.keys.comparator: assert_method,
+                    validation_settings.content.keys.expect_value: expect_value,
                 },
-                "Message": message,
-                "JMESPath": check_item,
-                "RawExpectValue": expect_item,
+                validation_settings.content.keys.message: message,
+                validation_settings.content.keys.jmespath_: check_item,
+                validation_settings.content.keys.raw_expect_value: expect_item,
             }
 
             try:
                 assert_func(check_value, expect_value, message)
                 validate_msg += "\t==> pass"
                 logger.info(validate_msg)
-                validator_dict["Result"] = "✔️"
+                validator_dict["Result"] = validation_settings.content.icons.pass_
             except AssertionError as ex:
                 validate_pass = False
-                validator_dict["Result"] = "❌"
+                validator_dict["Result"] = validation_settings.content.icons.fail
                 validate_msg += "\t==> fail"
                 validate_msg += (
                     f"\n\n"
