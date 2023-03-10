@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.17.1 (2023-03-10)
+### Fix
+* Cannot reference emoji settings from validation settings ([`08c1866`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/08c18667aa9f28b08de93c7ec5907c930760bfe2))
+
 ## v3.17.0 (2023-03-08)
 ### Feature
 * Add expression "${pyexp()}" to enhance parsing ability ([`213d4bb`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/213d4bbc93d5a0cadc5d279eff032a7c907b7598))
