@@ -659,7 +659,7 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
                 "RequestWithOptionalArgs, StepRequestValidation, or StepRequestExtraction"
             )
 
-        # refer to the duplicate of class attribute 'request' as the default TStep
+        # refer to the copy of class attribute 'request' as the default TStep
         # note: copy() is required for class attribute are shared among instances
         step = self.request.perform().copy(deep=True)  # type: TStep
 
