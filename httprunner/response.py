@@ -216,7 +216,7 @@ class ResponseObject(object):
 
             # check item (jmespath)
             check_item = u_validator["check"]
-            if "$" in check_item:
+            if isinstance(check_item, Text) and "$" in check_item:
                 # check_item is variable or function
                 check_item = parse_data(
                     check_item, variables_mapping, functions_mapping
