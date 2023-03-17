@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v3.18.0 (2023-03-17)
+### Feature
+* Validate jmespath expression before running test steps ([`4846aa2`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4846aa2294e411bb530884bfaf6825f74542f224))
+
+### Fix
+* Operator 'in' will cause exception if check item is not str ([`2d40167`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/2d40167ea71a509df29d2ff385febed202b343bc))
+
+### Documentation
+* Replace word 'duplicate' with 'copy' ([`771bf5e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/771bf5ea9975ef8a9dac35e3422b33681ffefe8a))
+
 ## v3.17.1 (2023-03-10)
 ### Fix
 * Cannot reference emoji settings from validation settings ([`08c1866`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/08c18667aa9f28b08de93c7ec5907c930760bfe2))
