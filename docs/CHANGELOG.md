@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.19.0 (2023-03-21)
+### Feature
+* Disable validating jmespath expression before running test steps ([`5ea1365`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5ea1365cceaa8fa41e0af4c243361d2771aa2b7d))
+
 ## v3.18.0 (2023-03-17)
 ### Feature
 * Validate jmespath expression before running test steps ([`4846aa2`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4846aa2294e411bb530884bfaf6825f74542f224))
