@@ -3,13 +3,12 @@ import os
 import time
 import uuid
 from datetime import datetime
-from typing import List, Dict, Text, NoReturn, Union, Any
+from typing import List, Dict, Text, NoReturn, Union
 
 from httprunner.builtin import expand_nested_json, update_dict_recursively
 from httprunner.configs.emoji import emojis
 from httprunner.configs.validation import validation_settings
 from httprunner.json_encoders import AllureJSONAttachmentEncoder
-from jmespath.parser import Parser
 
 try:
     import allure
@@ -74,18 +73,6 @@ class HttpRunner(object):
 
     def __init_subclass__(cls):
         """Add validation for subclass."""
-        def validate_jmespath_expression(expression: Any) -> NoReturn:
-            """Validate if jmespath expression is valid."""
-            # ignore non-str values
-            if not isinstance(expression, str):
-                return
-
-            # ignore values containing "$" (httprunner variable or function)
-            if "$" in expression:
-                return
-
-            Parser().parse(expression)
-
         super().__init_subclass__()
 
         # make sure type of attribute 'config' correct
@@ -106,20 +93,6 @@ class HttpRunner(object):
                 raise TypeError(
                     f"type of each test step must be Step, but got {type(step)}"
                 )
-
-            t_step = step.perform()  # type: TStep
-
-            # validate expressions in extract
-            for var_name, jmespath_expression in t_step.extract.items():
-                validate_jmespath_expression(jmespath_expression)
-
-            # validate expressions in validators
-            for validator in t_step.validators:
-                # ignore if not format2
-                if len(validator) != 1:
-                    continue
-
-                validate_jmespath_expression(list(validator.values())[0][0])
 
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
