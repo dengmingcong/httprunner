@@ -967,6 +967,9 @@ class HttpRunner(object):
         """main entrance, discovered by pytest"""
         self.__init_tests__()
         self.__continue_on_failure = self.__config.continue_on_failure
+
+        # the location of the first testcase decided the project meta
+        # for project meta would usually be located once
         self.__project_meta = self.__project_meta or load_project_meta(
             self.__config.path
         )
