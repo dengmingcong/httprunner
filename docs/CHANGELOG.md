@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v3.19.1 (2023-03-22)
+### Fix
+* Set config.path when subclassing HttpRunner to eliminate the bad affect on performance introduced by inspect.stack() ([`40dd4e9`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/40dd4e97741cceb558a4182c9d0a6c37e0d54145))
+
+### Documentation
+* Denote how the project root directory was searched ([`87cd09d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/87cd09d27fadcd3979f0a949ee2c380acb7941a5))
+* Denote that project meta was determined by the first testcase ([`ac67d56`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ac67d56461db42fe38a165da3a2d25711356a63b))
+
 ## v3.19.0 (2023-03-21)
 ### Feature
 * Disable validating jmespath expression before running test steps ([`5ea1365`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5ea1365cceaa8fa41e0af4c243361d2771aa2b7d))
