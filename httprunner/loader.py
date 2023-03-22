@@ -404,6 +404,8 @@ def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
     if not test_path:
         return project_meta
 
+    # search recursively upward until file debugtalk.py was found starting from test_path
+    # project_root_directory was set to the parent directory of debugtalk.py
     debugtalk_path, project_root_directory = locate_project_root_directory(test_path)
 
     # add project RootDir to sys.path

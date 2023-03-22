@@ -2,6 +2,7 @@ import json
 import os
 import time
 import uuid
+import inspect
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union
 
@@ -93,6 +94,9 @@ class HttpRunner(object):
                 raise TypeError(
                     f"type of each test step must be Step, but got {type(step)}"
                 )
+
+        # update config.path
+        cls.config.path = inspect.getfile(cls)
 
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
@@ -967,6 +971,9 @@ class HttpRunner(object):
         """main entrance, discovered by pytest"""
         self.__init_tests__()
         self.__continue_on_failure = self.__config.continue_on_failure
+
+        # the location of the first testcase decided the project meta
+        # for project meta would usually be located once
         self.__project_meta = self.__project_meta or load_project_meta(
             self.__config.path
         )

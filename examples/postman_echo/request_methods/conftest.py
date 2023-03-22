@@ -15,7 +15,7 @@ def session_fixture(request):
     for item in request.node.items:
         testcase = {
             "name": item.cls.config.name,
-            "path": item.cls.config.path,
+            "path": item.fspath,
             "node_id": item.nodeid,
         }
         testcases.append(testcase)
