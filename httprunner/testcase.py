@@ -1,5 +1,4 @@
-import inspect
-from typing import Text, Any, Union, Callable, Literal
+from typing import Text, Any, Union, Callable, Literal, NoReturn
 
 from httprunner.builtin import update_dict_recursively
 from httprunner.models import (
@@ -11,7 +10,6 @@ from httprunner.models import (
     StepExport,
     TRequestConfig,
 )
-
 
 Number = Union[int, float]
 
@@ -25,9 +23,7 @@ class Config(object):
         self.__continue_on_failure = False
         self.__export = []
         self.__weight = 1
-
-        caller_frame = inspect.stack()[1]
-        self.__path = caller_frame.filename
+        self.__path = None
 
     @property
     def name(self) -> Text:
@@ -36,6 +32,10 @@ class Config(object):
     @property
     def path(self) -> Text:
         return self.__path
+
+    @path.setter
+    def path(self, testcase_file_path: Text) -> NoReturn:
+        self.__path = testcase_file_path
 
     @property
     def weight(self) -> int:
