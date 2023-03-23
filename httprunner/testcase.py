@@ -10,6 +10,7 @@ from httprunner.models import (
     StepExport,
     TRequestConfig,
 )
+from httprunner.utils import merge_variables
 
 Number = Union[int, float]
 
@@ -644,21 +645,26 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
         RequestWithOptionalArgs, StepRequestValidation, StepRequestExtraction
     ]
 
-    def __init__(self, name: Text = None):  # noqa
+    def __init_subclass__(cls):
+        """Add validation for subclasses."""
+        super().__init_subclass__()
+
         # make sure type of class attributes correct
-        if not isinstance(self.config, RequestConfig):
+        if not isinstance(cls.config, RequestConfig):
             raise ValueError("type of request config must be RequestConfig")
 
         # make sure TStep.request exist and is not None
         if not isinstance(
-            self.request,
-            (RequestWithOptionalArgs, StepRequestValidation, StepRequestExtraction),
+                cls.request,
+                (RequestWithOptionalArgs, StepRequestValidation, StepRequestExtraction),
         ):
             raise ValueError(
                 "type of request must be one of "
                 "RequestWithOptionalArgs, StepRequestValidation, or StepRequestExtraction"
             )
 
+
+    def __init__(self, name: Text = None):  # noqa
         # refer to the copy of class attribute 'request' as the default TStep
         # note: copy() is required for class attribute are shared among instances
         step = self.request.perform().copy(deep=True)  # type: TStep
@@ -675,8 +681,8 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
         if name:
             self._step_context.name = name
 
-        # save request config for later usage: testcase config variables > request config variables
-        self._step_context.request_config = self.__config
+        # HttpRunnerRequest request variables > HttpRunnerRequest config variables
+        step.builtin_variables = merge_variables(step.builtin_variables, self.__config.variables)
 
     def perform(self) -> TStep:
         return self._step_context
