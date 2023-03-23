@@ -90,7 +90,7 @@ class TStep(BaseModel):
     request: Union[TRequest, None] = None
     testcase: Union[Text, Callable, None] = None
     variables: VariablesMapping = {}
-    builtin_variables: VariablesMapping = {}
+    builtin_variables: VariablesMapping = {}  # variables set by HttRunnerRequest.request
     setup_hooks: Hooks = []
     teardown_hooks: Hooks = []
 
