@@ -105,9 +105,6 @@ class TStep(BaseModel):
     validators: Validators = Field([], alias="validate")
     validate_script: List[Text] = []
 
-    # config for HttpRunnerRequest
-    request_config: TRequestConfig = None
-
 
 class TestCase(BaseModel):
     config: TConfig
