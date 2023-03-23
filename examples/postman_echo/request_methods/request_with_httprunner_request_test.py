@@ -27,7 +27,7 @@ class PostmanEchoPost(HttpRunnerRequest):
 class TestCaseRequestWithHttpRunnerRequest(HttpRunner):
     """
     variables priority:
-        step append vars > step init vars > extract vars > testcase config vars > request config vars
+        step init vars > step append vars > extract vars > testcase config vars > request config vars
     """
 
     config = (
