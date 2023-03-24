@@ -10,7 +10,6 @@ from httprunner.models import (
     StepExport,
     TRequestConfig,
 )
-from httprunner.utils import merge_variables
 
 Number = Union[int, float]
 
@@ -670,7 +669,7 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
         step = self.request.perform().copy(deep=True)  # type: TStep
 
         # move variables from step.variables to step.builtin_variables
-        step.builtin_variables = step.variables
+        step.private_variables = step.variables
         step.variables = {}
         self._step_context = step
 
@@ -681,8 +680,8 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
         if name:
             self._step_context.name = name
 
-        # HttpRunnerRequest request variables > HttpRunnerRequest config variables
-        step.builtin_variables = merge_variables(step.builtin_variables, self.__config.variables)
+        # save request config for later usage: testcase config variables > request config variables
+        self._step_context.request_config = self.__config
 
     def perform(self) -> TStep:
         return self._step_context

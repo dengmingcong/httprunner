@@ -90,7 +90,7 @@ class TStep(BaseModel):
     request: Union[TRequest, None] = None
     testcase: Union[Text, Callable, None] = None
     variables: VariablesMapping = {}
-    builtin_variables: VariablesMapping = {}  # variables set by HttRunnerRequest request + config
+    private_variables: VariablesMapping = {}  # variables set by HttRunnerRequest request
     setup_hooks: Hooks = []
     teardown_hooks: Hooks = []
 
@@ -104,6 +104,9 @@ class TStep(BaseModel):
 
     validators: Validators = Field([], alias="validate")
     validate_script: List[Text] = []
+
+    # HttpRunnerRequest config
+    request_config: TRequestConfig = None
 
 
 class TestCase(BaseModel):
