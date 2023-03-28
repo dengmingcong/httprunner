@@ -81,6 +81,7 @@ class StepExport(BaseModel):
 
 class TStep(BaseModel):
     name: Name
+    parametrize: tuple = None
     retry_times: Union[int, None] = 0
     max_retry_times: Union[int, None] = 0
     retry_interval: Union[float, None] = 0
