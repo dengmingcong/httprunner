@@ -788,17 +788,14 @@ class HttpRunner(object):
                     )
 
         if ids is not None:
-            if isinstance(ids, (list, tuple)):
-                if len(ids) != len(argvalues):
-                    raise ValueError(
-                        f"length of ids must be equal to parsed argvalues if ids is a list or tuple"
-                    )
-            elif isinstance(ids, Callable):
-                pass
-            else:
+            if not isinstance(ids, (list, tuple)):
                 raise TypeError(
-                    f"if ids were specified, it's type must be either one of list, tuple, or Callable, "
-                    f"but got {type(ids)}"
+                    f"if ids was specified, it's type must be list or tuple, but got {type(ids)}"
+                )
+
+            if len(ids) != len(argvalues):
+                raise ValueError(
+                    f"length of ids must be equal to parsed argvalues if ids is a list or tuple"
                 )
 
         step.parametrize = (argnames, argvalues, ids)

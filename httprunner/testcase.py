@@ -575,7 +575,7 @@ class RunRequestSetupMixin(object):
         self,
         argnames: str,
         argvalues: Union[str, Iterable[Union[Sequence[object], object]]],
-        ids: Optional[Union[str, Iterable, Callable]] = None,
+        ids: Optional[Union[str, Iterable]] = None,
     ) -> "RunRequestSetupMixin":
         """
         Parametrize step.
@@ -774,7 +774,7 @@ class RunTestCase(object):
         self,
         argnames: str,
         argvalues: Union[str, Iterable[Union[Sequence[object], object]]],
-        ids: Optional[Union[str, Iterable, Callable]] = None,
+        ids: Optional[Union[str, Iterable]] = None,
     ) -> "RunTestCase":
         """
         Parametrize step.
