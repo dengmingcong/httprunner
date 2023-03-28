@@ -787,11 +787,11 @@ class HttpRunner(object):
                         f"length of each argvalue-element must be equal to argnames if argnames contain comma"
                     )
 
-        if ids:
+        if ids is not None:
             if isinstance(ids, (list, tuple)):
                 if len(ids) != len(argvalues):
                     raise ValueError(
-                        f"length of ids must be equal to length of parsed argvalues"
+                        f"length of ids must be equal to parsed argvalues if ids is a list or tuple"
                     )
             elif isinstance(ids, Callable):
                 pass
