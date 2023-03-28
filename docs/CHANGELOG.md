@@ -2,6 +2,15 @@
 
 <!--next-version-placeholder-->
 
+## v3.19.2 (2023-03-23)
+### Fix
+* Adjust HttpRunnerRequest variable priority to comply with RunTestCase ([`a3b4246`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a3b4246e2f334306a7b26967d2eed51bbb159a8d))
+
+### Documentation
+* Change the meaning of field builtin_variables ([`c721bfe`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c721bfe85d37008bf58d45abecf03e70f824c221))
+* Adjust priority ([`4d7ddf7`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4d7ddf7851515912307782daee72aa6bdfd562f8))
+* How builtin_variables was set ([`ca073dd`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ca073dd20afe366fae2f3c45b06401aff00f15ed))
+
 ## v3.19.1 (2023-03-22)
 ### Fix
 * Set config.path when subclassing HttpRunner to eliminate the bad affect on performance introduced by inspect.stack() ([`40dd4e9`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/40dd4e97741cceb558a4182c9d0a6c37e0d54145))
