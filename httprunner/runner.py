@@ -4,7 +4,7 @@ import time
 import uuid
 import inspect
 from datetime import datetime
-from typing import List, Dict, Text, NoReturn, Union
+from typing import List, Dict, Text, NoReturn, Union, Optional, Callable
 
 from httprunner.builtin import expand_nested_json, update_dict_recursively
 from httprunner.configs.emoji import emojis
@@ -226,19 +226,25 @@ class HttpRunner(object):
             )
 
             # save validation results
-            for validation_result in validation_results.get("validate_extractor", []):  # type: dict
+            for validation_result in validation_results.get(
+                "validate_extractor", []
+            ):  # type: dict
                 jmespath_ = validation_result.get(
                     validation_settings.content.keys.jmespath_
                 )
                 # it is possible that jmespath is not str
                 jmespath_ = jmespath_ if isinstance(jmespath_, str) else "NA"
 
-                result = validation_result.pop(validation_settings.content.keys.result, "NA")
+                result = validation_result.pop(
+                    validation_settings.content.keys.result, "NA"
+                )
                 comparator = validation_result.get(
                     validation_settings.content.keys.assert_, {}
                 ).get(validation_settings.content.keys.comparator, "NA")
 
-                validation_attachment_name = f"{result} validate - {jmespath_} / {comparator}"
+                validation_attachment_name = (
+                    f"{result} validate - {jmespath_} / {comparator}"
+                )
 
                 allure.attach(
                     json.dumps(
@@ -734,6 +740,120 @@ class HttpRunner(object):
             config.base_url, config.variables, self.__project_meta.functions
         )
 
+    def __get_first_parametrized_step_index(self) -> Optional[int]:
+        """Get the index of the first parametrized step."""
+        for index, step in enumerate(self.__teststeps):
+            if step.parametrize:
+                return index
+
+        return None
+
+    def __parse_validate_parametrized_step_parameters(self, step: TStep) -> NoReturn:
+        """Parse and validate parameters of specific parametrized step."""
+        argnames, argvalues, ids = step.parametrize
+
+        # make sure argnames is a str
+        if not isinstance(argnames, str):
+            raise TypeError(
+                f"type of argnames must be str, but got {type(argnames)}\n"
+                f"hint: use comma to split multiple arguments"
+            )
+
+        argvalues = parse_data(
+            argvalues, self.__config.variables, self.__project_meta.functions
+        )
+        ids = parse_data(ids, self.__config.variables, self.__project_meta.functions)
+
+        if not isinstance(argvalues, (list, tuple)):
+            raise TypeError(
+                f"type of argvalues after parsing must be either list or tuple, but got {type(argvalues)}"
+            )
+
+        if "," in argnames:
+            argnames = [_.strip() for _ in argnames.split(",")]
+
+            # each element should be a tuple
+            for argvalue in argvalues:
+                if not isinstance(argvalue, (tuple, list)):
+                    raise TypeError(
+                        f"type of each argvalue-element must be tuple or list if argnames contain comma"
+                    )
+
+                if len(argvalue) == len(argnames):
+                    raise ValueError(
+                        f"length of each argvalue-element must be equal to argnames if argnames contain comma"
+                    )
+
+        if ids:
+            if isinstance(ids, (list, tuple)):
+                if len(ids) != len(argvalues):
+                    raise ValueError(
+                        f"length of ids must be equal to length of parsed argvalues"
+                    )
+            elif isinstance(ids, Callable):
+                pass
+            else:
+                raise TypeError(
+                    f"if ids were specified, it's type must be either one of list, tuple, or Callable, "
+                    f"but got {type(ids)}"
+                )
+
+        step.parametrize = (argnames, argvalues, ids)
+
+    def __expand_one_parametrized_step(self, index: int):
+        """
+        Expand specific parametrized step.
+
+        :param index: get step by index and insert expanded steps into the index too
+        """
+        step = self.__teststeps[index]
+        self.__parse_validate_parametrized_step_parameters(step)
+
+        argnames, argvalues, ids = step.parametrize
+
+        # eliminate 'parametrize' to avoid expanding this step next time
+        step.parametrize = None
+
+        expanded_steps = []
+        for i, argvalue in enumerate(argvalues):
+            # convert arguments to step variables
+            if isinstance(argnames, list):
+                variables = dict(zip(argnames, argvalue))
+            else:
+                variables = {argnames: argvalue}
+
+            # deep copy step
+            expanded_step = step.copy(deep=True)
+
+            # parametrize variables > step.with_variables
+            expanded_step.variables.update(variables)
+
+            # append id to step name
+            id = ""
+            if ids:
+                if isinstance(ids, (list, tuple)):
+                    id = ids[i]
+                elif isinstance(ids, Callable):
+                    id = ids()
+            else:
+                id = json.dumps(variables, cls=AllureJSONAttachmentEncoder)
+
+            if id:
+                expanded_step.name += f" - {id}"
+
+            expanded_steps.append(expanded_step)
+
+        # pop original step
+        self.__teststeps.pop(index)
+
+        # insert expanded steps
+        self.__teststeps[index:index] = expanded_steps
+
+    def __expand_parametrized_steps(self) -> NoReturn:
+        """Expand steps marked with parametrize."""
+        while (index := self.__get_first_parametrized_step_index()) is not None:
+            self.__expand_one_parametrized_step(index)
+
     def run_testcase(self, testcase: TestCase) -> "HttpRunner":
         """run specified testcase
 
@@ -749,6 +869,9 @@ class HttpRunner(object):
             self.__config.path
         )
         self.__parse_config(self.__config)
+
+        # expand parametrized steps
+        self.__expand_parametrized_steps()
 
         self.__start_at = time.time()
         self.__step_datas: List[StepData] = []
