@@ -756,7 +756,7 @@ class HttpRunner(object):
         if not isinstance(argnames, str):
             raise TypeError(
                 f"type of argnames must be str, but got {type(argnames)}\n"
-                f"hint: use comma to split multiple arguments"
+                f"Hint: use comma to split multiple arguments"
             )
 
         argvalues = parse_data(
