@@ -769,6 +769,9 @@ class HttpRunner(object):
                 f"type of argvalues after parsing must be either list or tuple, but got {type(argvalues)}"
             )
 
+        if not argvalues:
+            raise ValueError("argvalues cannot be an empty list")
+
         if "," in argnames:
             argnames = [_.strip() for _ in argnames.split(",")]
 
