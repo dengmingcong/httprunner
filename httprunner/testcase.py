@@ -1,4 +1,14 @@
-from typing import Text, Any, Union, Callable, Literal, NoReturn
+from typing import (
+    Text,
+    Any,
+    Union,
+    Callable,
+    Literal,
+    NoReturn,
+    Iterable,
+    Sequence,
+    Optional,
+)
 
 from httprunner.builtin import update_dict_recursively
 from httprunner.models import (
@@ -104,7 +114,10 @@ class StepRequestValidation(object):
         return self
 
     def assert_greater_than(
-        self, jmes_path: Text, expected_value: Union[int, float, str], message: Text = ""
+        self,
+        jmes_path: Text,
+        expected_value: Union[int, float, str],
+        message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"greater_than": [jmes_path, expected_value, message]}
@@ -112,7 +125,10 @@ class StepRequestValidation(object):
         return self
 
     def assert_less_than(
-        self, jmes_path: Text, expected_value: Union[int, float, str], message: Text = ""
+        self,
+        jmes_path: Text,
+        expected_value: Union[int, float, str],
+        message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"less_than": [jmes_path, expected_value, message]}
@@ -120,7 +136,10 @@ class StepRequestValidation(object):
         return self
 
     def assert_greater_or_equals(
-        self, jmes_path: Text, expected_value: Union[int, float, str], message: Text = ""
+        self,
+        jmes_path: Text,
+        expected_value: Union[int, float, str],
+        message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"greater_or_equals": [jmes_path, expected_value, message]}
@@ -128,7 +147,10 @@ class StepRequestValidation(object):
         return self
 
     def assert_less_or_equals(
-        self, jmes_path: Text, expected_value: Union[int, float, str], message: Text = ""
+        self,
+        jmes_path: Text,
+        expected_value: Union[int, float, str],
+        message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
             {"less_or_equals": [jmes_path, expected_value, message]}
@@ -332,7 +354,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_is_close(
-            self, jmes_path: Text, expected_value: tuple[Number, Number], message: Text = ""
+        self, jmes_path: Text, expected_value: tuple[Number, Number], message: Text = ""
     ) -> "StepRequestValidation":
         """
         Return True if the valuse are close to each other and False otherwise.
@@ -456,9 +478,13 @@ class RequestWithOptionalArgs(object):
                 the argument of 'with_json()'. In particular, this method takes no effect.
         """
         # apply update if both are dict to avoid parsing error
-        if isinstance(self._step_context.request.req_json, dict) and isinstance(req_json_update, dict):
+        if isinstance(self._step_context.request.req_json, dict) and isinstance(
+            req_json_update, dict
+        ):
             if deep:
-                update_dict_recursively(self._step_context.request.req_json, req_json_update)
+                update_dict_recursively(
+                    self._step_context.request.req_json, req_json_update
+                )
             else:
                 self._step_context.request.req_json.update(req_json_update)
         else:
@@ -467,7 +493,9 @@ class RequestWithOptionalArgs(object):
 
         return self
 
-    def update_form_data(self, data_update: Union[dict, str], deep=True) -> "RequestWithOptionalArgs":
+    def update_form_data(
+        self, data_update: Union[dict, str], deep=True
+    ) -> "RequestWithOptionalArgs":
         """
         Update 'request.data' if 'request.data' is a JSON object.
 
@@ -481,7 +509,9 @@ class RequestWithOptionalArgs(object):
                 the argument of 'with_data()'. In particular, this method takes no effect.
         """
         # apply update if both are dict to avoid parsing error
-        if isinstance(self._step_context.request.data, dict) and isinstance(data_update, dict):
+        if isinstance(self._step_context.request.data, dict) and isinstance(
+            data_update, dict
+        ):
             if deep:
                 update_dict_recursively(self._step_context.request.data, data_update)
             else:
@@ -540,6 +570,24 @@ class RunRequestSetupMixin(object):
 
     def __init__(self, name: Text):
         self._step_context = TStep(name=name)
+
+    def parametrize(
+        self,
+        argnames: str,
+        argvalues: Union[str, Iterable[Union[Sequence[object], object]]],
+        ids: Optional[Union[str, Iterable, Callable]] = None,
+    ) -> "RunRequestSetupMixin":
+        """
+        Parametrize step.
+
+        :param argnames: A comma-separated string denoting one or more argument names
+        :param argvalues: If only one argname was specified argvalues is a list of values.
+            If N argnames were specified, argvalues must be a list of N-tuples, where each tuple-element
+            specifies a value for its respective argname.
+        :param ids: Sequence of ids for argvalues.
+        """
+        self._step_context.parametrize = (argnames, argvalues, ids)
+        return self
 
     def retry_on_failure(
         self, retry_times: int, retry_interval: Union[int, float]
@@ -654,14 +702,13 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
 
         # make sure TStep.request exist and is not None
         if not isinstance(
-                cls.request,
-                (RequestWithOptionalArgs, StepRequestValidation, StepRequestExtraction),
+            cls.request,
+            (RequestWithOptionalArgs, StepRequestValidation, StepRequestExtraction),
         ):
             raise ValueError(
                 "type of request must be one of "
                 "RequestWithOptionalArgs, StepRequestValidation, or StepRequestExtraction"
             )
-
 
     def __init__(self, name: Text = None):  # noqa
         # refer to the copy of class attribute 'request' as the default TStep
@@ -722,6 +769,24 @@ class StepRefCase(object):
 class RunTestCase(object):
     def __init__(self, name: Text):
         self._step_context = TStep(name=name)
+
+    def parametrize(
+        self,
+        argnames: str,
+        argvalues: Union[str, Iterable[Union[Sequence[object], object]]],
+        ids: Optional[Union[str, Iterable, Callable]] = None,
+    ) -> "RunTestCase":
+        """
+        Parametrize step.
+
+        :param argnames: A comma-separated string denoting one or more argument names
+        :param argvalues: If only one argname was specified argvalues is a list of values.
+            If N argnames were specified, argvalues must be a list of N-tuples, where each tuple-element
+            specifies a value for its respective argname.
+        :param ids: Sequence of ids for argvalues.
+        """
+        self._step_context.parametrize = (argnames, argvalues, ids)
+        return self
 
     def skip_if(self, condition: Any, reason: str = None) -> "RunTestCase":
         self._step_context.skip_on_condition = condition
