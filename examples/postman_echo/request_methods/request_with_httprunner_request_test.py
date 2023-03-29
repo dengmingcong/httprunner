@@ -16,9 +16,6 @@ class PostmanEchoPost(HttpRunnerRequest):
         RunRequest("")
         .with_variables(**{
             "foo": "builtin_request_foo",
-            "bar": "builtin_request_bar",
-            "baz": "builtin_request_baz",
-            "qux": "builtin_request_qux",
         })
         .post("/post")
         .with_headers(**{"User-Agent": "HttpRunner/3.0", "Content-Type": "text/plain"})
@@ -29,16 +26,17 @@ class PostmanEchoPost(HttpRunnerRequest):
 class TestVariablePriority(HttpRunner):
     """
     variables priority:
-        step.with_variables > extracted vars > testcase config vars > builtin request vars > builtin config vars
+        private vars > step.with_variables > extracted vars > testcase config vars > request config vars
     """
 
     config = (
-        Config("test variables priority: highest to lowest")
+        Config("test variables priority")
         .variables(
             **{
                 "foo": "testcase_config_foo",
                 "bar": "testcase_config_bar",
                 "baz": "testcase_config_baz",
+                "qux": "testcase_config_qux",
             }
         )
         .base_url("https://postman-echo.com")
@@ -54,12 +52,14 @@ class TestVariablePriority(HttpRunner):
                 **{
                     "foo": "extract_foo",
                     "bar": "extract_bar",
+                    "baz": "extract_baz",
                 }
             )
             .with_headers(**{"User-Agent": "HttpRunner/3.0"})
             .extract()
             .with_jmespath("body.args.foo", "foo")
             .with_jmespath("body.args.bar", "bar")
+            .with_jmespath("body.args.baz", "baz")
             .validate()
             .assert_equal("status_code", 200)
         ),
@@ -69,13 +69,14 @@ class TestVariablePriority(HttpRunner):
                 "> builtin request vars > builtin config vars"
             )
             .with_variables(**{
-                "foo": "step.with_variables_foo"
+                "foo": "step.with_variables_foo",
+                "bar": "step.with_variables_bar",
             })
             .with_data("$foo-$bar-$baz-$qux-$fred")
             .validate()
             .assert_equal(
                 "body.data",
-                "step.with_variables_foo-extract_bar-testcase_config_baz-builtin_request_qux-builtin_config_fred",
+                "builtin_request_foo-step.with_variables_bar-extract_baz-testcase_config_qux-builtin_config_fred",
             )
         ),
     ]
