@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v3.20.0 (2023-03-29)
+### Feature
+* Implement parametrizing one step ([`959c79e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/959c79e4df6eebf1bb17fbde55fc5e79c7b487f3))
+* Add method 'parametrize()' to enable parametrizing one step ([`3abf781`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/3abf781f58b4d39cdeb9d7634f9bbef3a834298f))
+
+### Fix
+* F-string is missing placeholders ([`b1abc35`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b1abc35540a96957f247eac05117edd57c0a3e92))
+* Ids can be an empty list ([`b999cbb`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b999cbbfca3935269289b9178b9e41826ee81cea))
+* Raise exception if argvalues is an empty list ([`e67b67e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/e67b67e834156d3d014ebc023cd37104561a5150))
+* == should be != ([`6b7ec0b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/6b7ec0b9a68538d284a0c8c48112e762ddec6076))
+* Recover variable priority to make private variables got the highest priority ([`f5bbd70`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/f5bbd70f2607c5db27c8d58d2ba676cd9ec8e688))
+
 ## v3.19.2 (2023-03-23)
 ### Fix
 * Adjust HttpRunnerRequest variable priority to comply with RunTestCase ([`a3b4246`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a3b4246e2f334306a7b26967d2eed51bbb159a8d))
