@@ -779,12 +779,12 @@ class HttpRunner(object):
             for argvalue in argvalues:
                 if not isinstance(argvalue, (tuple, list)):
                     raise TypeError(
-                        f"type of each argvalue-element must be tuple or list if argnames contain comma"
+                        "type of each argvalue-element must be tuple or list if argnames contain comma"
                     )
 
                 if len(argvalue) != len(argnames):
                     raise ValueError(
-                        f"length of each argvalue-element must be equal to argnames if argnames contain comma"
+                        "length of each argvalue-element must be equal to argnames if argnames contain comma"
                     )
 
         if ids is not None:
@@ -795,7 +795,7 @@ class HttpRunner(object):
 
             if len(ids) != len(argvalues):
                 raise ValueError(
-                    f"length of ids must be equal to parsed argvalues if ids is a list or tuple"
+                    "length of ids must be equal to parsed argvalues if ids is a list or tuple"
                 )
 
         step.parametrize = (argnames, argvalues, ids)
