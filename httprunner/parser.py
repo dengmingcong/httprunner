@@ -549,6 +549,9 @@ def parse_variables_mapping(
 ) -> VariablesMapping:
     """
     All variables specified in argument 'variables_mapping' must be parsed on variables_mapping and functions_mapping.
+
+    Note:
+        Variables whose name starting with '_r_' will be marked as parsed and the value will be kept as is.
     """
 
     parsed_variables: VariablesMapping = {}
@@ -570,24 +573,30 @@ def parse_variables_mapping(
                 f"\nvariables not found: {list(not_found_variables)}"
             )
 
-        for var_name in variables_mapping:
+        for outer_var_name in variables_mapping:
 
-            if var_name in parsed_variables:
+            if outer_var_name in parsed_variables:
                 continue
 
-            var_value = variables_mapping[var_name]
-            variables = extract_variables(var_value)
+            outer_var_value = variables_mapping[outer_var_name]
+
+            # mark variables whose name starting with '_r_' as parsed and keep the value as is
+            if outer_var_name.startswith("_r_"):
+                parsed_variables[outer_var_name] = outer_var_value
+                continue
+
+            inner_variables = extract_variables(outer_var_value)
 
             # check if reference variable itself
-            if var_name in variables:
+            if outer_var_name in inner_variables:
                 # e.g.
                 # variables_mapping = {"token": "abc$token"}
                 # variables_mapping = {"key": ["$key", 2]}
-                raise exceptions.VariableNotFound(var_name)
+                raise exceptions.VariableNotFound(outer_var_name)
 
             # check if reference variable not in variables_mapping
             not_defined_variables = [
-                v_name for v_name in variables if v_name not in variables_mapping
+                v_name for v_name in inner_variables if v_name not in variables_mapping
             ]
             if not_defined_variables:
                 # e.g. {"varA": "123$varB", "varB": "456$varC"}
@@ -595,8 +604,8 @@ def parse_variables_mapping(
                 raise exceptions.VariableNotFound(not_defined_variables)
 
             try:
-                parsed_value = parse_data(
-                    var_value, parsed_variables, functions_mapping
+                parsed_outer_var_value = parse_data(
+                    outer_var_value, parsed_variables, functions_mapping
                 )
             except exceptions.VariableNotFound as exc:
                 # get variables from exception arguments
@@ -604,7 +613,7 @@ def parse_variables_mapping(
                     not_found_variables.add(exc.args[1])
                 continue
 
-            parsed_variables[var_name] = parsed_value
+            parsed_variables[outer_var_name] = parsed_outer_var_value
 
     return parsed_variables
 

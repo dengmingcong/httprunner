@@ -19,13 +19,13 @@ class TestCaseExtractedValueContainDollar(HttpRunner):
             .post("/post")
             .with_json({"raw_data": {"name": "Get an air fryer for $$9"}})
             .extract()
-            .with_jmespath("body.json.raw_data", "raw_data")
+            .with_jmespath("body.json.raw_data", "_r_raw_data")
             .validate()
             .assert_equal("status_code", 200)
         ),
         Step(
             RunRequest("extracted value as function argument")
-            .with_variables(**{"name": "${get_raw_data_name($raw_data)}"})
+            .with_variables(**{"name": "${get_raw_data_name($_r_raw_data)}"})
             .post("/post")
             .with_json({"name": "$name"})
             .validate()
