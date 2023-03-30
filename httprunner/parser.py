@@ -551,7 +551,7 @@ def parse_variables_mapping(
     All variables specified in argument 'variables_mapping' must be parsed on variables_mapping and functions_mapping.
 
     Note:
-        Variables whose name starting with '_r_' will be marked as parsed as is.
+        Variables whose name starting with '_r_' will be marked as parsed and the value will be kept as is.
     """
 
     parsed_variables: VariablesMapping = {}
@@ -579,6 +579,12 @@ def parse_variables_mapping(
                 continue
 
             outer_var_value = variables_mapping[outer_var_name]
+
+            # mark variables whose name starting with '_r_' as parsed and keep the value as is
+            if outer_var_name.startswith("_r_"):
+                parsed_variables[outer_var_name] = outer_var_value
+                continue
+
             inner_variables = extract_variables(outer_var_value)
 
             # check if reference variable itself
@@ -598,7 +604,7 @@ def parse_variables_mapping(
                 raise exceptions.VariableNotFound(not_defined_variables)
 
             try:
-                parsed_value = parse_data(
+                parsed_outer_var_value = parse_data(
                     outer_var_value, parsed_variables, functions_mapping
                 )
             except exceptions.VariableNotFound as exc:
@@ -607,7 +613,7 @@ def parse_variables_mapping(
                     not_found_variables.add(exc.args[1])
                 continue
 
-            parsed_variables[outer_var_name] = parsed_value
+            parsed_variables[outer_var_name] = parsed_outer_var_value
 
     return parsed_variables
 
