@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.20.1 (2023-03-30)
+### Fix
+* Mark variables whose name starting with '_r_' as parsed and keep the value as is to avoid parsing extracted string containing dollar ([`373091e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/373091ea77ed95b77038bca037dafed2415edae3))
+
 ## v3.20.0 (2023-03-29)
 ### Feature
 * Implement parametrizing one step ([`959c79e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/959c79e4df6eebf1bb17fbde55fc5e79c7b487f3))
