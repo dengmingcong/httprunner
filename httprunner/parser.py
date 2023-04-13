@@ -562,7 +562,7 @@ def parse_variables_mapping(
     while len(parsed_variables) != len(variables_mapping):
 
         elapsed = time.time() - start
-        if elapsed > 3:
+        if elapsed > 15:
             not_parsed_variables = {
                 name: variables_mapping[name]
                 for name in set(variables_mapping.keys()) - set(parsed_variables.keys())
