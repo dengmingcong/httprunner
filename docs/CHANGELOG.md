@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.20.2 (2023-04-13)
+### Fix
+* Set parsing timeout to 15s ([`c108220`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c108220366ecd24901ece9647edc571659251793))
+
 ## v3.20.1 (2023-03-30)
 ### Fix
 * Mark variables whose name starting with '_r_' as parsed and keep the value as is to avoid parsing extracted string containing dollar ([`373091e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/373091ea77ed95b77038bca037dafed2415edae3))
