@@ -1090,8 +1090,18 @@ class HttpRunner(object):
             step_datas=self.__step_datas,
         )
 
-    def test_start(self, param: Dict = None) -> "HttpRunner":
-        """main entrance, discovered by pytest"""
+    def test_start(self, *args: dict, **_ignored) -> "HttpRunner":
+        """
+        main entrance, discovered by pytest.
+
+        Note:
+            The base method `HttpRunner.test_start` only takes account the first positional argument,
+            all other positional arguments and keyword arguments will be ignored.
+
+            Why defining the method parameters as `*args: dict, **_ignored` is just to skip this warning:
+                > Signature of method 'TestCaseRequestWithVariables.test_start()' does not match
+                > signature of the base method in class 'HttpRunner'
+        """
         self.__init_tests__()
         self.__continue_on_failure = self.__config.continue_on_failure
 
@@ -1109,8 +1119,8 @@ class HttpRunner(object):
 
         # parse config name
         config_variables = self.__config.variables
-        if param:
-            config_variables.update(param)
+        if args:
+            config_variables.update(args[0])
         config_variables.update(self.__session_variables)
         self.__config.name = parse_data(
             self.__config.name, config_variables, self.__project_meta.functions
