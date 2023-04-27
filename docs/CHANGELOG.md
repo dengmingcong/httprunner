@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.20.3 (2023-04-27)
+### Fix
+* Signature of method does not match signature of base method in class ([`1646fb7`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1646fb7616794f7e5776d65f1532d0c47ef411db))
+
 ## v3.20.2 (2023-04-13)
 ### Fix
 * Set parsing timeout to 15s ([`c108220`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c108220366ecd24901ece9647edc571659251793))
