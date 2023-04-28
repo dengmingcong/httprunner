@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.21.0 (2023-04-28)
+### Feature
+* Skip DotDict and return it as is when parsing ([`df7985a`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/df7985a72b0e43c528c16f3fcb429e33d6ea19b3))
+
 ## v3.20.3 (2023-04-27)
 ### Fix
 * Signature of method does not match signature of base method in class ([`1646fb7`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1646fb7616794f7e5776d65f1532d0c47ef411db))
