@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.22.0 (2023-04-28)
+### Feature
+* Substitute `DotDict` with lib `dotmap` ([`4b91a2f`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4b91a2f3a8ade5dfb9d29c5a2f2e32658ebfd4ac))
+
 ## v3.21.0 (2023-04-28)
 ### Feature
 * Skip DotDict and return it as is when parsing ([`df7985a`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/df7985a72b0e43c528c16f3fcb429e33d6ea19b3))
