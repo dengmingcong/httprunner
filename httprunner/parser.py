@@ -8,9 +8,10 @@ from urllib.parse import urlparse
 
 from loguru import logger
 from sentry_sdk import capture_exception
+from dotmap import DotMap
 
 from httprunner import loader, utils, exceptions
-from httprunner.models import VariablesMapping, FunctionsMapping, DotDict
+from httprunner.models import VariablesMapping, FunctionsMapping
 
 absolute_http_url_regexp = re.compile(r"^https?://", re.I)
 
@@ -185,9 +186,9 @@ def extract_variables(content: Any) -> Set:
             variables = variables | extract_variables(item)
         return variables
 
-    # ignore DotDict
-    # note: DotDict must be handled before `dict`
-    elif isinstance(content, DotDict):
+    # ignore DotMap
+    # note: DotMap must be handled before `dict` for DotMap subclassed `dict`
+    elif isinstance(content, DotMap):
         return set()
 
     elif isinstance(content, dict):
@@ -529,9 +530,9 @@ def parse_data(
             parse_data(item, variables_mapping, functions_mapping) for item in raw_data
         ]
 
-    # do not parse DotDict and return it as is
-    # note: DotDict must be handled before `dict`
-    elif isinstance(raw_data, DotDict):
+    # do not parse DotMap and return it as is
+    # note: DotMap must be handled before `dict` for it subclassed `dict`
+    elif isinstance(raw_data, DotMap):
         return raw_data
 
     elif isinstance(raw_data, dict):
