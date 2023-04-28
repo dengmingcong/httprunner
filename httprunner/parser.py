@@ -10,7 +10,7 @@ from loguru import logger
 from sentry_sdk import capture_exception
 
 from httprunner import loader, utils, exceptions
-from httprunner.models import VariablesMapping, FunctionsMapping
+from httprunner.models import VariablesMapping, FunctionsMapping, DotDict
 
 absolute_http_url_regexp = re.compile(r"^https?://", re.I)
 
@@ -184,6 +184,11 @@ def extract_variables(content: Any) -> Set:
         for item in content:
             variables = variables | extract_variables(item)
         return variables
+
+    # ignore DotDict
+    # note: DotDict must be handled before `dict`
+    elif isinstance(content, DotDict):
+        return set()
 
     elif isinstance(content, dict):
         variables = set()
@@ -523,6 +528,11 @@ def parse_data(
         return [
             parse_data(item, variables_mapping, functions_mapping) for item in raw_data
         ]
+
+    # do not parse DotDict and return it as is
+    # note: DotDict must be handled before `dict`
+    elif isinstance(raw_data, DotDict):
+        return raw_data
 
     elif isinstance(raw_data, dict):
         parsed_data = {}
