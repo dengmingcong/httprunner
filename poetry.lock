@@ -227,6 +227,14 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
+name = "dotmap"
+version = "1.3.30"
+description = "ordered, dynamically-expandable dot-access dictionary"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "dotty-dict"
 version = "1.3.0"
 description = "Dictionary wrapper for quick access to deeply nested keys."
@@ -1211,7 +1219,7 @@ upload = ["requests-toolbelt", "filetype"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "2c83948f80c7b59ca31f6b90d2dd067422356c7e56f4b53a73a39f8feb0748f5"
+content-hash = "a703d36ee32cc4da0a4aa0387fed8b8cb3485dedd41127ee26125f87c77e74b3"
 
 [metadata.files]
 allure-pytest = []
@@ -1234,6 +1242,7 @@ coverage = []
 cryptography = []
 distlib = []
 docutils = []
+dotmap = []
 dotty-dict = []
 fastapi = []
 filelock = []

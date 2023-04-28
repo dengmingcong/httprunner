@@ -248,21 +248,3 @@ class TestSuiteSummary(BaseModel):
     time: TestCaseTime = TestCaseTime()
     platform: PlatformInfo
     testcases: List[TestCaseSummary]
-
-
-class DotDict(dict):
-    """
-    Access dictionary attributes with dot notation.
-    """
-
-    def __getattr__(self, name: str):
-        # resolve problem with deepcopy
-        # reference: https://stackoverflow.com/a/49902096
-        try:
-            value = self[name]
-            return DotDict(value) if type(value) is dict else value
-        except KeyError as e:
-            raise AttributeError(f"`{self}` has no attribute `{name}`") from e
-
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
