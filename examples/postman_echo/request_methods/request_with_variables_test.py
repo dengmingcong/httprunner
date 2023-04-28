@@ -3,6 +3,7 @@
 
 
 from httprunner import HttpRunner, Config, Step, RunRequest
+from httprunner.models import DotDict
 
 
 class TestCaseRequestWithVariables(HttpRunner):
@@ -80,6 +81,22 @@ class TestCaseRequestWithVariables(HttpRunner):
             .assert_equal("body.data.foo1", "testcase_config_bar1")
             .assert_equal("body.data.foo2", "bar23")
             .assert_equal("body.data.foo3", "bar21")
+        ),
+        Step(
+            RunRequest("variable contains DotDict and accessing 'attribute' with dot")
+            .with_variables(
+                **{
+                    "foo": DotDict({"bar": 1}),
+                }
+            )
+            .post("/post")
+            .with_headers(
+                **{"User-Agent": "HttpRunner/3.0", "Content-Type": "application/json"}
+            )
+            .with_json({"foo": "$foo"})
+            .validate()
+            .assert_equal("status_code", 200)
+            .assert_equal("body.json.foo.bar", "${foo.bar}")
         ),
     ]
 
