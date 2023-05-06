@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.23.0 (2023-05-06)
+### Feature
+* Parameter 添加使用正交生成用例集 ([`a90f8a3`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a90f8a3d552ce6eb8f481771a2787429980054e4))
+
 ## v3.22.0 (2023-04-28)
 ### Feature
 * Substitute `DotDict` with lib `dotmap` ([`4b91a2f`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4b91a2f3a8ade5dfb9d29c5a2f2e32658ebfd4ac))
