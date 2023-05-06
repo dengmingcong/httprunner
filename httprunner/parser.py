@@ -631,6 +631,7 @@ def parse_variables_mapping(
 
 def parse_parameters(
     parameters: Dict,
+    is_allpairs: bool = False
 ) -> List[Dict]:
     """parse parameters and generate cartesian product.
 
@@ -640,9 +641,11 @@ def parse_parameters(
                 (1) data list, e.g. ["iOS/10.1", "iOS/10.2", "iOS/10.3"]
                 (2) call built-in parameterize function, "${parameterize(account.csv)}"
                 (3) call custom function in debugtalk.py, "${gen_app_version()}"
+        is_allpairs (bool) parameters: 是否使用正交实验法生成用例集，默认不使用
+
 
     Returns:
-        list: cartesian product list
+        list: cartesian product list or allpairs product list
 
     Examples:
         >>> _parameters = {
@@ -734,5 +737,7 @@ def parse_parameters(
             )
 
         parsed_parameters_list.append(parameter_content_list)
-
-    return utils.gen_cartesian_product(*parsed_parameters_list)
+    if is_allpairs:
+        return utils.gen_allpairs_product(parsed_parameters_list)
+    else:
+        return utils.gen_cartesian_product(*parsed_parameters_list)
