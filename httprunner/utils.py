@@ -7,8 +7,8 @@ import platform
 import uuid
 from multiprocessing import Queue
 from typing import Dict, List, Any
-
 import sentry_sdk
+from allpairspy import AllPairs
 from loguru import logger
 
 from httprunner import __version__
@@ -260,3 +260,40 @@ def gen_cartesian_product(*args: List[Dict]) -> List[Dict]:
         product_list.append(product_item_dict)
 
     return product_list
+
+
+def gen_allpairs_product(args: List) -> List[Dict]:
+    """ generate allpairs product for lists
+
+    Args:
+        args (list of list): lists to be generated with allpairs product
+
+    Returns:
+        list: allpairs product in list
+
+    Examples:
+
+        >>> args = [[{"a": 1}, {"a": 2}], [{"x": 111, "y": 112}, {"x": 121, "y": 122}]]
+        >>> gen_allpairs_product(args)
+        >>> # same as below
+            [
+                {'a': 1, 'x': 111, 'y': 112},
+                {'a': 2, 'x': 111, 'y': 112},
+                {'a': 2, 'x': 121, 'y': 122},
+                {'a': 1, 'x': 121, 'y': 122}
+            ]
+
+    """
+    if not args:
+        return []
+    elif len(args) == 1:
+        return args[0]
+
+    params = []
+    for pairs in AllPairs(args):
+        pr = {}
+        for p in pairs:
+            pr.update(**p)
+        params.append(pr)
+
+    return params
