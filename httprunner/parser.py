@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 
 from loguru import logger
 from sentry_sdk import capture_exception
-from dotmap import DotMap
+from dotwiz import DotWiz
 
 from httprunner import loader, utils, exceptions
 from httprunner.models import VariablesMapping, FunctionsMapping
@@ -188,7 +188,7 @@ def extract_variables(content: Any) -> Set:
 
     # ignore DotMap
     # note: DotMap must be handled before `dict` for DotMap subclassed `dict`
-    elif isinstance(content, DotMap):
+    elif isinstance(content, DotWiz):
         return set()
 
     elif isinstance(content, dict):
@@ -532,7 +532,7 @@ def parse_data(
 
     # do not parse DotMap and return it as is
     # note: DotMap must be handled before `dict` for it subclassed `dict`
-    elif isinstance(raw_data, DotMap):
+    elif isinstance(raw_data, DotWiz):
         return raw_data
 
     elif isinstance(raw_data, dict):
