@@ -17,6 +17,7 @@ class TestResponse(unittest.TestCase):
                     {"name": "Olympia", "state": "WA"},
                 ]
             },
+            verify=False
         )
         self.resp_obj = ResponseObject(resp)
 
