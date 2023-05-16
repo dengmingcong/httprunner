@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v3.23.1 (2023-05-16)
+### Fix
+* Replace DotMap with DotWiz to resolve `json.dumps()` bad results (empty dict) ([`c0f564d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c0f564d572835101ca39c6c7ba422137f490c4b6))
+
 ## v3.23.0 (2023-05-06)
 ### Feature
 * Parameter 添加使用正交生成用例集 ([`a90f8a3`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a90f8a3d552ce6eb8f481771a2787429980054e4))
