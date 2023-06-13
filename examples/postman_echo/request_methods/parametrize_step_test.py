@@ -80,4 +80,23 @@ class TestParametrizeStep(HttpRunner):
             .assert_equal("body.json.foo", "$foo")
             .assert_equal("body.json.bar", "$bar")
         ),
+        Step(
+            RunRequest("parametrize with exported variables - extract")
+            .post("/post")
+            .with_json({
+                "baz": "baz",
+            })
+            .extract()
+            .with_jmespath("body.json.baz", "baz")
+        ),
+        Step(
+            RunRequest("parametrize with exported variables - use export variables")
+            .parametrize("baz", ["$baz", "another_baz"])
+            .post("/post")
+            .with_json({
+                "baz": "$baz",
+            })
+            .validate()
+            .assert_equal("body.json.baz", "$baz")
+        )
     ]

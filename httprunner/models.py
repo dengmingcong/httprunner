@@ -91,6 +91,8 @@ class TStep(BaseModel):
     request: Union[TRequest, None] = None
     testcase: Union[Text, Callable, None] = None
     variables: VariablesMapping = {}
+    raw_variables: str = None
+    is_deep_parse_raw_variables: bool = None
     private_variables: VariablesMapping = (
         {}
     )  # variables set by HttRunnerRequest request

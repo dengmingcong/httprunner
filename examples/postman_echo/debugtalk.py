@@ -42,3 +42,11 @@ def get_raw_data_name(raw_data: dict) -> str:
 
 def get_json(foo, bar):
     return {"foo": foo, "bar": bar}
+
+
+def get_variables_from_string():
+    return {"foo": "foo", "config_model": "${sku.config_model}"}
+
+
+def get_variables_from_str():
+    return {"config_model": "${sku.config_model}"}
