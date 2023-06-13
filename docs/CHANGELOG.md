@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v3.24.0 (2023-06-13)
+### Feature
+* Add method `with_variables_raw` to support expanding variables with that parsing from string ([`be8e8d1`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/be8e8d184c6b957e7f05f70bc56faad8d7790db9))
+
+### Fix
+* Parametrize failed to parse variables extracted from previous steps ([`66dcd4e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/66dcd4e37467356f1b7b516c8a95817c850a99b7))
+
 ## v3.23.1 (2023-05-16)
 ### Fix
 * Replace DotMap with DotWiz to resolve `json.dumps()` bad results (empty dict) ([`c0f564d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c0f564d572835101ca39c6c7ba422137f490c4b6))
