@@ -1,10 +1,10 @@
+import inspect
 import json
 import os
 import time
 import uuid
-import inspect
 from datetime import datetime
-from typing import List, Dict, Text, NoReturn, Union, Optional, Callable
+from typing import List, Dict, Text, NoReturn, Union, Callable
 
 from httprunner.builtin import expand_nested_json, update_dict_recursively
 from httprunner.configs.emoji import emojis
@@ -740,15 +740,7 @@ class HttpRunner(object):
             config.base_url, config.variables, self.__project_meta.functions
         )
 
-    def __get_first_parametrized_step_index(self) -> Optional[int]:
-        """Get the index of the first parametrized step."""
-        for index, step in enumerate(self.__teststeps):
-            if step.parametrize:
-                return index
-
-        return None
-
-    def __parse_validate_parametrized_step_parameters(self, step: TStep) -> NoReturn:
+    def __parse_validate_parametrized_step_parameters(self, step: TStep, step_config_variables: dict) -> NoReturn:
         """Parse and validate parameters of specific parametrized step."""
         argnames, argvalues, ids = step.parametrize
 
@@ -760,9 +752,9 @@ class HttpRunner(object):
             )
 
         argvalues = parse_data(
-            argvalues, self.__config.variables, self.__project_meta.functions
+            argvalues, step_config_variables, self.__project_meta.functions
         )
-        ids = parse_data(ids, self.__config.variables, self.__project_meta.functions)
+        ids = parse_data(ids, step_config_variables, self.__project_meta.functions)
 
         if not isinstance(argvalues, (list, tuple)):
             raise TypeError(
@@ -800,19 +792,19 @@ class HttpRunner(object):
 
         step.parametrize = (argnames, argvalues, ids)
 
-    def __expand_one_parametrized_step(self, index: int):
+    def __expand_parametrized_step(self, origin_step: TStep, step_config_variables: dict) -> list[TStep]:
         """
-        Expand specific parametrized step.
+        Expand one parametrized step.
 
-        :param index: get step by index and insert expanded steps into the index too
+        :param origin_step: the original step to be expanded
+        :param step_config_variables: variables outside the current step
         """
-        step = self.__teststeps[index]
-        self.__parse_validate_parametrized_step_parameters(step)
+        self.__parse_validate_parametrized_step_parameters(origin_step, step_config_variables)
 
-        argnames, argvalues, ids = step.parametrize
+        argnames, argvalues, ids = origin_step.parametrize
 
-        # eliminate 'parametrize' to avoid expanding this step next time
-        step.parametrize = None
+        # eliminate 'parametrize' to avoid expanding this step again
+        origin_step.parametrize = None
 
         expanded_steps = []
         for i, argvalue in enumerate(argvalues):
@@ -823,7 +815,7 @@ class HttpRunner(object):
                 variables = {argnames: argvalue}
 
             # deep copy step
-            expanded_step = step.copy(deep=True)
+            expanded_step = origin_step.copy(deep=True)
 
             # parametrize variables > step.with_variables
             expanded_step.variables.update(variables)
@@ -843,16 +835,7 @@ class HttpRunner(object):
 
             expanded_steps.append(expanded_step)
 
-        # pop original step
-        self.__teststeps.pop(index)
-
-        # insert expanded steps
-        self.__teststeps[index:index] = expanded_steps
-
-    def __expand_parametrized_steps(self) -> NoReturn:
-        """Expand steps marked with parametrize."""
-        while (index := self.__get_first_parametrized_step_index()) is not None:
-            self.__expand_one_parametrized_step(index)
+        return expanded_steps
 
     def __run_steps(self, steps: list[TStep], extracted_variables: dict) -> NoReturn:
         """Iterate and run steps."""
@@ -862,6 +845,11 @@ class HttpRunner(object):
             step_config_variables = merge_variables(
                 extracted_variables, self.__config.variables
             )
+
+            if step.parametrize:
+                expanded_steps = self.__expand_parametrized_step(step, step_config_variables)
+                self.__run_steps(expanded_steps, extracted_variables)
+                continue
 
             # step variables set with HttpRunnerRequest.with_variables() > step outside variables
             step.variables = merge_variables(step.variables, step_config_variables)
@@ -945,9 +933,6 @@ class HttpRunner(object):
             self.__config.path
         )
         self.__parse_config(self.__config)
-
-        # expand parametrized steps
-        self.__expand_parametrized_steps()
 
         self.__start_at = time.time()
         self.__step_datas: List[StepData] = []
