@@ -854,33 +854,9 @@ class HttpRunner(object):
         while (index := self.__get_first_parametrized_step_index()) is not None:
             self.__expand_one_parametrized_step(index)
 
-    def run_testcase(self, testcase: TestCase) -> "HttpRunner":
-        """run specified testcase
-
-        Examples:
-            testcase_obj = TestCase(config=TConfig(...), teststeps=[TStep(...)])
-            HttpRunner().with_project_meta(...).run_testcase(testcase_obj)
-        """
-        self.__config = testcase.config
-        self.__teststeps = testcase.teststeps
-
-        # prepare
-        self.__project_meta = self.__project_meta or load_project_meta(
-            self.__config.path
-        )
-        self.__parse_config(self.__config)
-
-        # expand parametrized steps
-        self.__expand_parametrized_steps()
-
-        self.__start_at = time.time()
-        self.__step_datas: List[StepData] = []
-        self.__session = self.__session or HttpSession()
-        # save extracted variables of teststeps
-        extracted_variables: VariablesMapping = {}
-
-        # run teststeps
-        for step in self.__teststeps:
+    def __run_steps(self, steps: list[TStep], extracted_variables: dict) -> NoReturn:
+        """Iterate and run steps."""
+        for step in steps:
             # variables got from outside of step
             # extracted variables > testcase config variables
             step_config_variables = merge_variables(
@@ -953,6 +929,33 @@ class HttpRunner(object):
                     raise
 
             extracted_variables.update(extract_mapping)
+
+    def run_testcase(self, testcase: TestCase) -> "HttpRunner":
+        """run specified testcase
+
+        Examples:
+            testcase_obj = TestCase(config=TConfig(...), teststeps=[TStep(...)])
+            HttpRunner().with_project_meta(...).run_testcase(testcase_obj)
+        """
+        self.__config = testcase.config
+        self.__teststeps = testcase.teststeps
+
+        # prepare
+        self.__project_meta = self.__project_meta or load_project_meta(
+            self.__config.path
+        )
+        self.__parse_config(self.__config)
+
+        # expand parametrized steps
+        self.__expand_parametrized_steps()
+
+        self.__start_at = time.time()
+        self.__step_datas: List[StepData] = []
+        self.__session = self.__session or HttpSession()
+        # save extracted variables of teststeps
+        extracted_variables: VariablesMapping = {}
+
+        self.__run_steps(self.__teststeps, extracted_variables)
 
         # save extracted variables to session variables
         self.__session_variables.update(extracted_variables)
