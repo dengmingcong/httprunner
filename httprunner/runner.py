@@ -751,9 +751,7 @@ class HttpRunner(object):
                 f"Hint: use comma to split multiple arguments"
             )
 
-        argvalues = parse_data(
-            argvalues, step.variables, self.__project_meta.functions
-        )
+        argvalues = parse_data(argvalues, step.variables, self.__project_meta.functions)
         ids = parse_data(ids, step.variables, self.__project_meta.functions)
 
         if not isinstance(argvalues, (list, tuple)):
@@ -853,6 +851,19 @@ class HttpRunner(object):
             step.variables = parse_variables_mapping(
                 step.variables, self.__project_meta.functions
             )
+
+            # parse raw variables
+            if step.raw_variables:
+                parsed_raw_variables = parse_data(
+                    step.raw_variables, step.variables, self.__project_meta.functions
+                )
+                if step.is_deep_parse_raw_variables:
+                    parsed_raw_variables = parse_data(
+                        parsed_raw_variables,
+                        step.variables,
+                        self.__project_meta.functions,
+                    )
+                step.variables.update(parsed_raw_variables)
 
             if step.parametrize:
                 # step.variables have already been parsed

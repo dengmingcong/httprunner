@@ -617,6 +617,17 @@ class RunRequestSetupMixin(object):
         self._step_context.variables.update(variables)
         return self
 
+    def with_variables_raw(self, raw_variables: str, is_deep: bool = True) -> "RunRequestSetupMixin":
+        """
+        Update step variables with raw_variables.
+
+        :param raw_variables: the variables parsed from raw_variables will be updated to `step.variables`
+        :param is_deep: `raw_variables` will be parsed twice if True
+        """
+        self._step_context.raw_variables = raw_variables
+        self._step_context.is_deep_parse_raw_variables = is_deep
+        return self
+
     def setup_hook(
         self, hook: Text, assign_var_name: Text = None
     ) -> "RunRequestSetupMixin":
@@ -800,6 +811,17 @@ class RunTestCase(object):
 
     def with_variables(self, **variables) -> "RunTestCase":
         self._step_context.variables.update(variables)
+        return self
+
+    def with_variables_raw(self, raw_variables: str, is_deep: bool = True) -> "RunTestCase":
+        """
+        Update step variables with raw_variables.
+
+        :param raw_variables: the variables parsed from raw_variables will be updated to `step.variables`
+        :param is_deep: `raw_variables` will be parsed twice if True
+        """
+        self._step_context.raw_variables = raw_variables
+        self._step_context.is_deep_parse_raw_variables = is_deep
         return self
 
     def setup_hook(self, hook: Text, assign_var_name: Text = None) -> "RunTestCase":
