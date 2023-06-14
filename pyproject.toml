@@ -78,6 +78,6 @@ commit_version_number = true
 changelog_file = "docs/CHANGELOG.md"
 upload_to_repository = true
 repository = "name"
-repository_url = "http://34.234.176.173:8081/repository/pypi-internal/"
+repository_url = "http://10.40.9.73:8081/repository/pypi-internal/"
 build_command = "poetry build"
 hvcs = "gitlab"
