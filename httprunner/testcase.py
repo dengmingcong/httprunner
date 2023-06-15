@@ -461,7 +461,10 @@ class RequestWithOptionalArgs(object):
         return self
 
     def update_json_object(
-        self, req_json_update: Union[dict, str], is_deep: bool = True, is_update_before_parse: bool = True
+        self,
+        req_json_update: Union[dict, str],
+        is_deep: bool = True,
+        is_update_before_parse: bool = True,
     ) -> "RequestWithOptionalArgs":
         """
         Update request.req_json.
@@ -475,7 +478,9 @@ class RequestWithOptionalArgs(object):
             this argument only takes effect if both `req_json` and `req_json_update` are dict
         """
         if self._step_context.request.req_json is None:
-            raise ValueError(f"`req_json` is None, please call `with_json()` first before calling this method")
+            raise ValueError(
+                "`req_json` is None, please call `with_json()` first before calling this method"
+            )
 
         if is_update_before_parse:
             # apply update if both are dict to avoid parsing error
@@ -489,14 +494,21 @@ class RequestWithOptionalArgs(object):
                 else:
                     self._step_context.request.req_json.update(req_json_update)
             else:
-                self._step_context.request.req_json_update.append((req_json_update, is_deep))
+                self._step_context.request.req_json_update.append(
+                    (req_json_update, is_deep)
+                )
         else:
-            self._step_context.request.req_json_update.append((req_json_update, is_deep))
+            self._step_context.request.req_json_update.append(
+                (req_json_update, is_deep)
+            )
 
         return self
 
     def update_form_data(
-        self, data_update: Union[dict, str], is_deep: bool = True,  is_update_before_parse: bool = True
+        self,
+        data_update: Union[dict, str],
+        is_deep: bool = True,
+        is_update_before_parse: bool = True,
     ) -> "RequestWithOptionalArgs":
         """
         Update 'request.data' if 'request.data' is a JSON object.
@@ -510,7 +522,9 @@ class RequestWithOptionalArgs(object):
             this argument only takes effect if both `data` and `data_update` are dict
         """
         if self._step_context.request.data is None:
-            raise ValueError(f"`data` is None, please call `with_data()` first before calling this method")
+            raise ValueError(
+                "`data` is None, please call `with_data()` first before calling this method"
+            )
 
         if is_update_before_parse:
             # apply update if both are dict to avoid parsing error
@@ -518,7 +532,9 @@ class RequestWithOptionalArgs(object):
                 data_update, dict
             ):
                 if is_deep:
-                    update_dict_recursively(self._step_context.request.data, data_update)
+                    update_dict_recursively(
+                        self._step_context.request.data, data_update
+                    )
                 else:
                     self._step_context.request.data.update(data_update)
             else:
@@ -623,7 +639,9 @@ class RunRequestSetupMixin(object):
         self._step_context.variables.update(variables)
         return self
 
-    def with_variables_raw(self, raw_variables: str, is_deep: bool = True) -> "RunRequestSetupMixin":
+    def with_variables_raw(
+        self, raw_variables: str, is_deep: bool = True
+    ) -> "RunRequestSetupMixin":
         """
         Update step variables with raw_variables.
 
@@ -819,7 +837,9 @@ class RunTestCase(object):
         self._step_context.variables.update(variables)
         return self
 
-    def with_variables_raw(self, raw_variables: str, is_deep: bool = True) -> "RunTestCase":
+    def with_variables_raw(
+        self, raw_variables: str, is_deep: bool = True
+    ) -> "RunTestCase":
         """
         Update step variables with raw_variables.
 
