@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v3.24.1 (2023-06-15)
+
+### Fix
+
+* F-string is missing placeholders ([`8da8b55`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/8da8b556607ef69c281bb71d1afeca1d19b0ab9e))
+* Request got unexpected argument `req_json_update` ([`ba366d7`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ba366d700c42042b68b55465821b40ea8b00af22))
+* Calling `update_json_object()` again overwrites the value set by the first time ([`cbfa079`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/cbfa07961d1fd9afc26c3aa52594aac33288380c))
+
 ## v3.24.0 (2023-06-13)
 ### Feature
 * Add method `with_variables_raw` to support expanding variables with that parsing from string ([`be8e8d1`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/be8e8d184c6b957e7f05f70bc56faad8d7790db9))
