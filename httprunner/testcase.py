@@ -478,9 +478,7 @@ class RequestWithOptionalArgs(object):
             this argument only takes effect if both `req_json` and `req_json_update` are dict
         """
         if self._step_context.request.req_json is None:
-            raise ValueError(
-                "`req_json` is None, please call `with_json()` first before calling this method"
-            )
+            self._step_context.request.req_json = {}
 
         if is_update_before_parse:
             # apply update if both are dict to avoid parsing error
@@ -522,9 +520,7 @@ class RequestWithOptionalArgs(object):
             this argument only takes effect if both `data` and `data_update` are dict
         """
         if self._step_context.request.data is None:
-            raise ValueError(
-                "`data` is None, please call `with_data()` first before calling this method"
-            )
+            self._step_context.request.data = {}
 
         if is_update_before_parse:
             # apply update if both are dict to avoid parsing error
