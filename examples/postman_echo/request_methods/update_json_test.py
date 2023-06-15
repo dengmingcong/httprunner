@@ -16,31 +16,30 @@ class TestCaseUpdateJson(HttpRunner):
 
     teststeps = [
         Step(
-            RunRequest("with_json has not been called")
-            .post("/post")
-            .update_json_object({
-                "foo": "$foo",
-                "bar": "$bar"
-            })
-            .validate()
-            .assert_equal("body.json.foo", "$foo")
-            .assert_equal("body.json.bar", "$bar")
-        ),
-        Step(
-            RunRequest("with_json has been called")
+            RunRequest("call once && is_update_before_json = True && both dict")
             .post("/post")
             .with_json({
                 "foo": 3,
-                "baz": "$baz"
+                "baz": "$invalid_var"
             })
             .update_json_object({
                 "foo": "$foo",
-                "bar": "$bar"
+                "bar": "$bar",
+                "baz": "$baz"
             })
             .validate()
-            .assert_equal("body.json.foo", "$foo")
-            .assert_equal("body.json.bar", "$bar")
-            .assert_equal("body.json.baz", "$baz")
+            .assert_equal("body.json.foo", 1)
+            .assert_equal("body.json.bar", 2)
+            .assert_equal("body.json.baz", 3)
+        ),
+        Step(
+            RunRequest("call once && is_update_before_json = True && both str")
+            .post("/post")
+            .with_json("${get_json(1, 2)}")
+            .update_json_object("${get_json(3, 4)}", True)
+            .validate()
+            .assert_equal("body.json.foo", 3)
+            .assert_equal("body.json.bar", 4)
         ),
         Step(
             RunRequest("test deep is True")
@@ -58,9 +57,9 @@ class TestCaseUpdateJson(HttpRunner):
                 }
             })
             .validate()
-            .assert_equal("body.json.data.foo", "$foo")
-            .assert_equal("body.json.data.bar", "$bar")
-            .assert_equal("body.json.data.baz", "$baz")
+            .assert_equal("body.json.data.foo", 1)
+            .assert_equal("body.json.data.bar", 2)
+            .assert_equal("body.json.data.baz", 3)
         ),
         Step(
             RunRequest("test deep is False")
@@ -107,25 +106,27 @@ class TestCaseUpdateJson(HttpRunner):
             .assert_equal("body.json.data.baz", 3)
         ),
         Step(
-            RunRequest("set json and json_update with debugtalk")
-            .post("/post")
-            .with_json("${get_json(1, 2)}")
-            .update_json_object("${get_json(3, 4)}", True)
-            .validate()
-            .assert_equal("body.json.foo", 3)
-            .assert_equal("body.json.bar", 4)
-        ),
-        Step(
-            RunRequest("update_json_object should be applied if with_json is a dict")
+            RunRequest("call twice")
             .post("/post")
             .with_json({
-                "foo": "$FAKE_VAR"
+                "data": {
+                    "foo": "$foo"
+                }
             })
             .update_json_object({
-                "foo": 3
-            }, True)
+                "data": {
+                    "bar": "$bar"
+                }
+            })
+            .update_json_object({
+                "data": {
+                    "baz": "$baz"
+                }
+            })
             .validate()
-            .assert_equal("body.json.foo", 3)
+            .assert_equal("body.json.data.foo", 1)
+            .assert_equal("body.json.data.bar", 2)
+            .assert_equal("body.json.data.baz", 3)
         ),
     ]
 
