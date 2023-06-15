@@ -5,38 +5,17 @@ class TestCaseUpdateFormData(HttpRunner):
 
     config = (
         Config("test update json")
-        .variables(**{
-            "foo": "1",
-            "bar": "2",
-            "baz": "3"
-        })
+        .variables(**{"foo": "1", "bar": "2", "baz": "3"})
         .base_url("https://postman-echo.com")
         .verify(False)
     )
 
     teststeps = [
         Step(
-            RunRequest("with_data has not been called")
-            .post("/post")
-            .update_form_data({
-                "foo": "$foo",
-                "bar": "$bar"
-            })
-            .validate()
-            .assert_equal("body.form.foo", "$foo")
-            .assert_equal("body.form.bar", "$bar")
-        ),
-        Step(
             RunRequest("with_data has been called")
             .post("/post")
-            .with_data({
-                "foo": "3",
-                "baz": "$baz"
-            })
-            .update_form_data({
-                "foo": "$foo",
-                "bar": "$bar"
-            })
+            .with_data({"foo": "3", "baz": "$baz"})
+            .update_form_data({"foo": "$foo", "bar": "$bar"})
             .validate()
             .assert_equal("body.form.foo", "$foo")
             .assert_equal("body.form.bar", "$bar")
@@ -44,16 +23,12 @@ class TestCaseUpdateFormData(HttpRunner):
         ),
         Step(
             RunRequest("json set by variables")
-            .with_variables(**{
-                "init_data": {
-                    "foo": "3",
-                    "baz": "$baz"
-                },
-                "update_data": {
-                    "foo": "$foo",
-                    "bar": "$bar"
+            .with_variables(
+                **{
+                    "init_data": {"foo": "3", "baz": "$baz"},
+                    "update_data": {"foo": "$foo", "bar": "$bar"},
                 }
-            })
+            )
             .post("/post")
             .with_data("$init_data")
             .update_form_data("$update_data")

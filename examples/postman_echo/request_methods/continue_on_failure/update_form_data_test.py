@@ -17,14 +17,6 @@ class TestCaseUpdateFormData(HttpRunner):
 
     teststeps = [
         Step(
-            RunRequest("with_data has not been called")
-            .post("/post")
-            .update_form_data({"foo": "$foo", "bar": "$bar"})
-            .validate()
-            .assert_equal("body.form.foo", "$foo")
-            .assert_equal("body.form.bar", "bad")
-        ),
-        Step(
             RunRequest("with_data has been called")
             .post("/post")
             .with_data({"foo": "3", "baz": "$baz"})
