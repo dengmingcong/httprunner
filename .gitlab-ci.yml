@@ -31,12 +31,19 @@ stages:
 
 install tools:
   stage: pre-install
+  variables:
+    POETRY_VERSION: 1.4.2
   script:
     - |
-      if ! [[ -f ${POETRY} ]] 
-      then
-        curl -k -sSL "https://install.python-poetry.org" | python3.9 -
+      if ! poetry -V &> /dev/null; then
+        echo "command poetry not found, install..."
+        curl -k -sSL "https://install.python-poetry.org" | POETRY_VERSION=$POETRY_VERSION python3.9 -
         echo export PATH="${GITLAB_RUNNER_HOME}/.local/bin:$PATH" >> ${GITLAB_RUNNER_HOME}/.bash_profile
+        source ${GITLAB_RUNNER_HOME}/.bash_profile
+      elif [[ $(poetry -V | grep -oE \[0-9]+\.\[0-9]+\.[0-9]+) != $POETRY_VERSION ]]; then
+        echo "current poetry version is not the expected version: $POETRY_VERSION, updating..."
+        poetry -V
+        poetry self update $POETRY_VERSION
       fi
     - |
       if ! [[ -f ${ALLURE} ]]
