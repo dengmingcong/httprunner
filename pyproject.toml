@@ -49,6 +49,7 @@ pyyaml = "^5.1.2"
 requests = "^2.22.0"
 requests-toolbelt = {version = "^0.9.1", optional = true}
 sentry-sdk = "^0.14.4"
+urllib3 = "1.26.15"  # reference: https://github.com/ionrock/cachecontrol/issues/292
 
 [tool.poetry.extras]
 allure = ["allure-pytest"]                  # pip install "httprunner[allure]", poetry install -E allure
