@@ -42,7 +42,7 @@ pre-commit = "^2.19.0"
 pydantic = "1.8.2"
 pyinstrument = { version = "^4.4.0", optional = true}
 pytest = "^7"
-pytest-html = "^2.1.1"
+pytest-html = "^3"
 python = "^3.9"
 python-semantic-release = "^7.28.1"
 pyyaml = "^5.1.2"
