@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.24.2 (2023-06-15)
+
+### Fix
+
+* Set req_json/data to blank dict if current value is None ([`e296ceb`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/e296ceb68d1911356bb8f2d046dada3ad0f3931d))
+
 ## v3.24.1 (2023-06-15)
 
 ### Fix
