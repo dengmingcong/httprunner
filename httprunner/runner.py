@@ -339,7 +339,7 @@ class HttpRunner(object):
         Update request with data from update_json_object.
         """
         # skip if `req_json_update` is empty
-        if not (req_json_update := parsed_request_dict["req_json_update"]):
+        if not (req_json_update := parsed_request_dict.pop("req_json_update", None)):
             return
 
         req_json = parsed_request_dict["req_json"]
@@ -361,15 +361,12 @@ class HttpRunner(object):
             else:
                 req_json.update(update_data)
 
-        # pop keys redundant for requests
-        parsed_request_dict.pop("req_json_update", None)
-
     @staticmethod
     def __handle_update_form_data(parsed_request_dict: dict) -> NoReturn:
         """
         Update request with data from update_form_data.
         """
-        if not (data_update := parsed_request_dict["data_update"]):
+        if not (data_update := parsed_request_dict.pop("data_update", None)):
             return
 
         init_data = parsed_request_dict["data"]
@@ -390,9 +387,6 @@ class HttpRunner(object):
                 update_dict_recursively(init_data, data_)
             else:
                 init_data.update(data_)
-
-        # pop keys redundant for requests
-        parsed_request_dict.pop("data_update", None)
 
     def __run_step_request(self, step: TStep) -> StepData:
         """run teststep: request"""
