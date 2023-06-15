@@ -7,7 +7,7 @@ workflow:
 
 default:
   tags:
-    - qa-sit-simulator
+    - qa-sit-nacos
 
 variables:
   GITLAB_RUNNER_HOME: /home/gitlab-runner
