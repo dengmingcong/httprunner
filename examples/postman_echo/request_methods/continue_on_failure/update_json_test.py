@@ -17,14 +17,6 @@ class TestCaseUpdateJson(HttpRunner):
 
     teststeps = [
         Step(
-            RunRequest("with_json has not been called")
-            .post("/post")
-            .update_json_object({"foo": "$foo", "bar": "$bar"})
-            .validate()
-            .assert_equal("body.json.foo", "$foo")
-            .assert_equal("body.json.bar", "bad")
-        ),
-        Step(
             RunRequest("with_json has been called")
             .post("/post")
             .with_json({"foo": 3, "baz": "$baz"})

@@ -461,64 +461,86 @@ class RequestWithOptionalArgs(object):
         return self
 
     def update_json_object(
-        self, req_json_update: Union[dict, str], deep=True
+        self,
+        req_json_update: Union[dict, str],
+        is_deep: bool = True,
+        is_update_before_parse: bool = True,
     ) -> "RequestWithOptionalArgs":
         """
         Update request.req_json.
 
-        If 'deep' is True, update recursively.
-
         Note:
-            1. if 'with_json()' has not been called, calling this method will set 'request.req_json' directly
-                to the value of argument 'update_data'
-            2. if 'with_json()' was called before calling this method,
-                this method can only be used when json set by 'with_json()' is a json object,
-                and json set by 'with_json()' will be updated
-            3. if 'with_json()' was called after this method, 'request.req_json' will be overwritten by
-                the argument of 'with_json()'. In particular, this method takes no effect.
+            call `with_json()` first before calling this method, otherwise an exception will be raised
+
+        :param req_json_update: the data to update with
+        :param is_deep: update recursively if True
+        :param is_update_before_parse: update `req_json` with `req_json_update` and then parse the result if True,
+            this argument only takes effect if both `req_json` and `req_json_update` are dict
         """
-        # apply update if both are dict to avoid parsing error
-        if isinstance(self._step_context.request.req_json, dict) and isinstance(
-            req_json_update, dict
-        ):
-            if deep:
-                update_dict_recursively(
-                    self._step_context.request.req_json, req_json_update
-                )
+        if self._step_context.request.req_json is None:
+            raise ValueError(
+                "`req_json` is None, please call `with_json()` first before calling this method"
+            )
+
+        if is_update_before_parse:
+            # apply update if both are dict to avoid parsing error
+            if isinstance(self._step_context.request.req_json, dict) and isinstance(
+                req_json_update, dict
+            ):
+                if is_deep:
+                    update_dict_recursively(
+                        self._step_context.request.req_json, req_json_update
+                    )
+                else:
+                    self._step_context.request.req_json.update(req_json_update)
             else:
-                self._step_context.request.req_json.update(req_json_update)
+                self._step_context.request.req_json_update.append(
+                    (req_json_update, is_deep)
+                )
         else:
-            self._step_context.request.req_json_update = req_json_update
-            self._step_context.request.is_req_json_update_deep = deep
+            self._step_context.request.req_json_update.append(
+                (req_json_update, is_deep)
+            )
 
         return self
 
     def update_form_data(
-        self, data_update: Union[dict, str], deep=True
+        self,
+        data_update: Union[dict, str],
+        is_deep: bool = True,
+        is_update_before_parse: bool = True,
     ) -> "RequestWithOptionalArgs":
         """
         Update 'request.data' if 'request.data' is a JSON object.
 
         Note:
-            1. if 'with_data()' has not been called, calling this method will set 'request.data' directly
-                to the value of argument 'update_data'
-            2. if 'with_data()' was called before calling this method,
-                this method can only be used when data set by 'with_data()' is a json object,
-                and json set by 'with_data()' will be updated
-            3. if 'with_data()' was called after this method, 'request.data' will be overwritten by
-                the argument of 'with_data()'. In particular, this method takes no effect.
+            call `with_data()` first before calling this method, otherwise an exception will be raised
+
+        :param data_update: the data to update with
+        :param is_deep: update recursively if True
+        :param is_update_before_parse: update `data` with `data_update` and then parse the result if True,
+            this argument only takes effect if both `data` and `data_update` are dict
         """
-        # apply update if both are dict to avoid parsing error
-        if isinstance(self._step_context.request.data, dict) and isinstance(
-            data_update, dict
-        ):
-            if deep:
-                update_dict_recursively(self._step_context.request.data, data_update)
+        if self._step_context.request.data is None:
+            raise ValueError(
+                "`data` is None, please call `with_data()` first before calling this method"
+            )
+
+        if is_update_before_parse:
+            # apply update if both are dict to avoid parsing error
+            if isinstance(self._step_context.request.data, dict) and isinstance(
+                data_update, dict
+            ):
+                if is_deep:
+                    update_dict_recursively(
+                        self._step_context.request.data, data_update
+                    )
+                else:
+                    self._step_context.request.data.update(data_update)
             else:
-                self._step_context.request.data.update(data_update)
+                self._step_context.request.data_update.append((data_update, is_deep))
         else:
-            self._step_context.request.data_update = data_update
-            self._step_context.request.is_data_update_deep = deep
+            self._step_context.request.data_update.append((data_update, is_deep))
 
         return self
 
@@ -617,7 +639,9 @@ class RunRequestSetupMixin(object):
         self._step_context.variables.update(variables)
         return self
 
-    def with_variables_raw(self, raw_variables: str, is_deep: bool = True) -> "RunRequestSetupMixin":
+    def with_variables_raw(
+        self, raw_variables: str, is_deep: bool = True
+    ) -> "RunRequestSetupMixin":
         """
         Update step variables with raw_variables.
 
@@ -813,7 +837,9 @@ class RunTestCase(object):
         self._step_context.variables.update(variables)
         return self
 
-    def with_variables_raw(self, raw_variables: str, is_deep: bool = True) -> "RunTestCase":
+    def with_variables_raw(
+        self, raw_variables: str, is_deep: bool = True
+    ) -> "RunTestCase":
         """
         Update step variables with raw_variables.
 
