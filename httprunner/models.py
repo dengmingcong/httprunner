@@ -62,11 +62,9 @@ class TRequest(BaseModel):
     params: Dict[Text, Text] = {}
     headers: Headers = {}
     req_json: Union[Dict, List, Text] = Field(None, alias="json")
-    req_json_update: Union[Dict, Text] = None
-    is_req_json_update_deep: bool = None
+    req_json_update: list[tuple[Union[Dict, Text], bool]] = []
     data: Union[Text, Dict[Text, Any]] = None
-    data_update: Union[Text, Dict[Text, Any]] = None
-    is_data_update_deep: bool = None
+    data_update: list[tuple[Union[Dict, Text], bool]] = []
     cookies: Cookies = {}
     timeout: float = 120
     allow_redirects: bool = True

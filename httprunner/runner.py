@@ -338,48 +338,61 @@ class HttpRunner(object):
         """
         Update request with data from update_json_object.
         """
-        if req_json_update := parsed_request_dict["req_json_update"]:
-            req_json = parsed_request_dict["req_json"]
-            if req_json is None:
-                parsed_request_dict["req_json"] = req_json_update
+        # skip if `req_json_update` is empty
+        if not (req_json_update := parsed_request_dict["req_json_update"]):
+            return
+
+        req_json = parsed_request_dict["req_json"]
+
+        if not isinstance(req_json, dict):
+            raise ValueError(
+                f"method `update_json_object()` can only be used when `req_json` (after parsing) is a dict, "
+                f"but got: {type(req_json)}"
+            )
+
+        for update_data, is_deep in req_json_update:
+            if not isinstance(update_data, dict):
+                raise ValueError(
+                    f"the parsed value of argument `req_json_update` in method `update_json_object()` must a dict, "
+                    f"but got: {type(req_json)}"
+                )
+            if is_deep:
+                update_dict_recursively(req_json, update_data)
             else:
-                if not isinstance(req_json, dict):
-                    raise ValueError(
-                        f"method update_json_object() can only be used when req_json is a dict or None, "
-                        f"but got: {type(req_json)}"
-                    )
-                if parsed_request_dict["is_req_json_update_deep"]:
-                    update_dict_recursively(req_json, req_json_update)
-                else:
-                    req_json.update(req_json_update)
+                req_json.update(update_data)
 
         # pop keys redundant for requests
         parsed_request_dict.pop("req_json_update", None)
-        parsed_request_dict.pop("is_req_json_update_deep", None)
 
     @staticmethod
     def __handle_update_form_data(parsed_request_dict: dict) -> NoReturn:
         """
         Update request with data from update_form_data.
         """
-        if data_update := parsed_request_dict["data_update"]:
-            init_data = parsed_request_dict["data"]
-            if init_data is None:
-                parsed_request_dict["data"] = data_update
+        if not (data_update := parsed_request_dict["data_update"]):
+            return
+
+        init_data = parsed_request_dict["data"]
+
+        if not isinstance(init_data, dict):
+            raise ValueError(
+                f"method `update_form_data()` can only be used when `data` is a dict, "
+                f"but got: {type(init_data)}"
+            )
+
+        for data_, is_deep in data_update:
+            if not isinstance(data_, dict):
+                raise ValueError(
+                    f"the parsed value of argument `data_update` in method `update_json_object()` must a dict, "
+                    f"but got: {type(data_)}"
+                )
+            if is_deep:
+                update_dict_recursively(init_data, data_)
             else:
-                if not isinstance(init_data, dict):
-                    raise ValueError(
-                        f"method update_form_data() can only be used when data is a dict or None, "
-                        f"but got: {type(init_data)}"
-                    )
-                if parsed_request_dict["is_data_update_deep"]:
-                    update_dict_recursively(init_data, data_update)
-                else:
-                    init_data.update(data_update)
+                init_data.update(data_)
 
         # pop keys redundant for requests
         parsed_request_dict.pop("data_update", None)
-        parsed_request_dict.pop("is_data_update_deep", None)
 
     def __run_step_request(self, step: TStep) -> StepData:
         """run teststep: request"""
