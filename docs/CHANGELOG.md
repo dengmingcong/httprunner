@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.24.3 (2023-06-19)
+
+### Fix
+
+* Reformat allure failure message to make it more readable ([`6c37550`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/6c37550069349104ec19c34ef9cb82a1b0b9b116))
+
 ## v3.24.2 (2023-06-15)
 
 ### Fix
