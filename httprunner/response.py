@@ -260,26 +260,40 @@ class ResponseObject(object):
                 validate_pass = False
                 validator_dict["Result"] = emojis.failure
                 validate_msg += "\t==> fail"
-                validate_msg += (
-                    f"\n\n"
-                    f"Actual Value:\n"
-                    f"    {omitted_check_value}({type(check_value).__name__})\n"
-                    f"Comparator:\n"
-                    f"    {assert_method}\n"
-                    f"Expect Value:\n"
-                    f"    {omitted_expect_value}({type(expect_value).__name__})\n"
-                    f"\nJMESPath:\n"
-                    f"    {check_item}\n"
-                )
-                message = str(ex)
-                if message:
-                    validate_msg += f"\nHints:\n" f"{message}"
+                allure_failure_message = f"""\
+* JMESPath 及对比方法
+{check_item} -> {assert_method}
+
+* 预期值 ({type(expect_value).__name__})
+{omitted_expect_value}
+
+* 实际值 ({type(check_value).__name__})
+{omitted_check_value}
+
+* 错误信息
+{str(ex) if str(ex) else "NA"}
+                """
+                validate_msg += f"\n{allure_failure_message}"
 
                 logger.error(validate_msg)
-                failures.append(validate_msg)
+                failures.append(allure_failure_message)
 
             self.validation_results["validate_extractor"].append(validator_dict)
 
         if not validate_pass:
-            failures_string = "\n".join([failure for failure in failures])
+            # add headers for each element if more than 1 exist
+            if len(failures) > 1:
+                indexed_failures = []
+                for i, v in enumerate(failures, start=1):
+                    v = f"第 {i} 个失败的断言\n---------------\n" + v
+                    indexed_failures.append(v)
+            else:
+                indexed_failures = failures
+
+            # add new lines after header 'httprunner.exceptions.ValidationFailure'
+            indexed_failures[0] = "\n\n" + indexed_failures[0]
+
+            # separate each failure with three new lines
+            failures_string = "\n\n\n".join([failure for failure in indexed_failures])
+
             raise ValidationFailure(failures_string)
