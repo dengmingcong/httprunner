@@ -232,6 +232,23 @@ class TestParserBasic(unittest.TestCase):
         value = parser.parse_data("func1(${var_1}, ${var_3})", variables_mapping)
         self.assertEqual(value, "func1(abc, 123)")
 
+        value = parser.parse_data(
+            {
+                "foo": ["$var_1", "$var_2"],
+                "bar": {"$var_1", "$var_2"},
+                "baz": ("$var_1", "$var_2"),
+            },
+            variables_mapping,
+        )
+        self.assertEqual(
+            value,
+            {
+                "foo": ["abc", "def"],
+                "bar": {"abc", "def"},
+                "baz": ("abc", "def"),
+            },
+        )
+
     def test_parse_data_multiple_identical_variables(self):
         variables_mapping = {
             "var_1": "abc",
@@ -613,10 +630,7 @@ class TestParserBasic(unittest.TestCase):
         def get_raw_dict():
             return {"foo": "$bar"}
 
-        variables = {
-            "a": "${get_raw_dict()}",
-            "b": "${eval_var($a)}"
-        }
+        variables = {"a": "${get_raw_dict()}", "b": "${eval_var($a)}"}
         try:
             parse_variables_mapping(variables, {"get_raw_dict": get_raw_dict})
         except TimeoutError as exc:
