@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v3.24.4 (2023-06-20)
+
+### Fix
+
+* Type `set` and `tuple` will be converted to list after parsing ([`1d4dd51`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1d4dd513cea9573ca19efe42dea99040e0f466b0))
+
+### Documentation
+
+* How to pass in an tuple as expected value in JSONassert methods ([`0ca4e62`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/0ca4e620b62e5c4aa9b7a3bfc957050b7d66fc66))
+
 ## v3.24.3 (2023-06-19)
 
 ### Fix
