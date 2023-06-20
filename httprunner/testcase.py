@@ -283,7 +283,26 @@ class StepRequestValidation(object):
     def assert_json_contains(
         self, jmes_path: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
-        """Equivalent to the JSONassert non-strict mode."""
+        """
+        Equivalent to the JSONassert non-strict mode.
+
+        Note:
+            `expected_value` 支持以元组的形式向 DeepDiff 传入额外的参数，但需要满足如下规则:
+                1. 元组的第 1 个元素表示真正的预期值
+                2. 元组的第 2 个元素必须是一个字典。字典的键必须和 `DeepDiff` 的参数一致，当前只支持这些参数：
+                    * ignore_string_type_changes - 忽略字符串类型变更
+                    * ignore_numeric_type_changes - 忽略数字类型变更
+                    * ignore_type_in_groups - 忽略类型变更
+
+            >>> StepRequestValidation.assert_json_contains(
+            ...     "body.result", (
+            ...         {"foo", "foo", "bar": "bar"},
+            ...         {"ignore_string_type_changes": True, "ignore_numeric_type_changes": True}
+            ...     )
+            ... )
+
+            reference: https://zepworks.com/deepdiff/current/ignore_types_or_values.html
+        """
         self._step_context.validators.append(
             {"json_contains": [jmes_path, expected_value, message]}
         )
@@ -292,7 +311,26 @@ class StepRequestValidation(object):
     def assert_json_equal(
         self, jmes_path: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
-        """Equivalent to the JSONassert strict mode."""
+        """
+        Equivalent to the JSONassert strict mode.
+
+        Note:
+            `expected_value` 支持以元组的形式向 DeepDiff 传入额外的参数，但需要满足如下规则:
+                1. 元组的第 1 个元素表示真正的预期值
+                2. 元组的第 2 个元素必须是一个字典。字典的键必须和 `DeepDiff` 的参数一致，当前只支持这些参数：
+                    * ignore_string_type_changes - 忽略字符串类型变更
+                    * ignore_numeric_type_changes - 忽略数字类型变更
+                    * ignore_type_in_groups - 忽略类型变更
+
+            >>> StepRequestValidation.assert_json_equal(
+            ...     "body.result", (
+            ...         {"foo", "foo", "bar": "bar"},
+            ...         {"ignore_string_type_changes": True, "ignore_numeric_type_changes": True}
+            ...     )
+            ... )
+
+            reference: https://zepworks.com/deepdiff/current/ignore_types_or_values.html
+        """
         self._step_context.validators.append(
             {"json_equal": [jmes_path, expected_value, message]}
         )
