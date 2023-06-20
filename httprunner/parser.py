@@ -525,10 +525,23 @@ def parse_data(
         # raw_data = raw_data.strip(" \t")
         return parse_string(raw_data, variables_mapping, functions_mapping)
 
-    elif isinstance(raw_data, (list, set, tuple)):
+    elif isinstance(raw_data, list):
         return [
             parse_data(item, variables_mapping, functions_mapping) for item in raw_data
         ]
+
+    elif isinstance(raw_data, set):
+        return {
+            parse_data(item, variables_mapping, functions_mapping) for item in raw_data
+        }
+
+    elif isinstance(raw_data, tuple):
+        return tuple(
+            [
+                parse_data(item, variables_mapping, functions_mapping)
+                for item in raw_data
+            ]
+        )
 
     # do not parse DotMap and return it as is
     # note: DotMap must be handled before `dict` for it subclassed `dict`
@@ -629,10 +642,7 @@ def parse_variables_mapping(
     return parsed_variables
 
 
-def parse_parameters(
-    parameters: Dict,
-    is_allpairs: bool = False
-) -> List[Dict]:
+def parse_parameters(parameters: Dict, is_allpairs: bool = False) -> List[Dict]:
     """parse parameters and generate cartesian product.
 
     Args:
