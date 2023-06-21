@@ -825,18 +825,17 @@ class HttpRunner(object):
             # parametrize variables > step.with_variables
             expanded_step.variables.update(variables)
 
-            # append id to step name
-            id = ""
+            # determine id
+            id = i + 1
             if ids:
                 if isinstance(ids, (list, tuple)):
                     id = ids[i]
+                # Note: ids as Callable is not supported yet
                 elif isinstance(ids, Callable):
                     id = ids()
-            else:
-                id = json.dumps(variables, cls=AllureJSONAttachmentEncoder)
 
-            if id:
-                expanded_step.name += f" - {id}"
+            # append id to step name
+            expanded_step.name += f" - {id}"
 
             expanded_steps.append(expanded_step)
 
