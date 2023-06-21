@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.24.5 (2023-06-21)
+
+### Fix
+
+* Append variables dumped to step name cause VariableNotFound error ([`93e5897`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/93e58978d0f4dd6ed25922ed03fc50556e501fa4))
+
 ## v3.24.4 (2023-06-20)
 
 ### Fix
