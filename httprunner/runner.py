@@ -301,6 +301,7 @@ class HttpRunner(object):
         max_retry_times: int,
         remaining_retry_times: int,
         is_success: bool,
+        is_meet_stop_retry_condition: bool = False,
     ) -> NoReturn:
         """
         Save session data as allure raw data after validation completed.
@@ -324,6 +325,10 @@ class HttpRunner(object):
                 title = f"retry: {max_retry_times} - last retry {result}"
             else:
                 title = f"retry: {max_retry_times - remaining_retry_times} {result}"
+
+            if is_meet_stop_retry_condition:
+                title += " (the condition of stop retrying was met)"
+
             with allure.step(title):
                 self.__add_allure_attachments(
                     self.__session.data, validation_results, exported_vars
@@ -540,6 +545,24 @@ class HttpRunner(object):
                     self.__session.data.success,
                 )
         except ValidationFailure as vf:
+            # evaluate `stop_retry_if` before retrying
+            is_meet_stop_retry_condition = False
+            if step.stop_retry_if is not None:
+                parsed_stop_retry_if = parse_data(
+                    step.stop_retry_if, step.variables, self.__project_meta.functions
+                )
+                logger.debug(f"parsed `stop_retry_if`: {parsed_stop_retry_if}")
+
+                # call `eval()` if type is str
+                if isinstance(parsed_stop_retry_if, str):
+                    parsed_stop_retry_if = eval(parsed_stop_retry_if)
+
+                if parsed_stop_retry_if:
+                    is_meet_stop_retry_condition = True
+                    logger.info(
+                        "`stop_retry_if` condition was met, retrying was stopped"
+                    )
+
             if self.__use_allure:
                 self.__save_allure_data(
                     resp_obj.validation_results,
@@ -547,11 +570,12 @@ class HttpRunner(object):
                     step.max_retry_times,
                     step.retry_times,
                     self.__session.data.success,
+                    is_meet_stop_retry_condition,
                 )
             self.__session.data.validators = resp_obj.validation_results
 
             # check if retry is needed
-            if step.retry_times > 0:
+            if step.retry_times > 0 and not is_meet_stop_retry_condition:
                 logger.warning(
                     f"step '{step.name}' validation failed, wait {step.retry_interval} seconds and try again"
                 )
@@ -680,7 +704,7 @@ class HttpRunner(object):
                 f"parsed skip condition: {parsed_skip_condition} ({type(parsed_skip_condition)})"
             )
 
-            # eval again if type is str
+            # call `eval()` if type is str
             if isinstance(parsed_skip_condition, str):
                 parsed_skip_condition = eval(parsed_skip_condition)
 
