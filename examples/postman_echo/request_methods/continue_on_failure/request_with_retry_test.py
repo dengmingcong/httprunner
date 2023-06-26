@@ -66,6 +66,17 @@ class TestCaseRequestWithRetry(HttpRunner):
             .assert_equal("body.args.sum_v", "bad")
             .assert_equal("body.args.foo2", "bar21")
         ),
+        Step(
+            RunRequest("stop retry")
+            .retry_on_failure(10, 0.5, "$sum_v == 10")
+            .get("/get")
+            .with_params(**{"sum_v": "${sum_two($sum_v, 1)}"})
+            .extract()
+            .with_jmespath("body.args.sum_v", "sum_v")
+            .validate()
+            .assert_equal("status_code", 200)
+            .assert_equal("body.args.sum_v", "100")
+        ),
     ]
 
 
