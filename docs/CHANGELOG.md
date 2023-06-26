@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.25.0 (2023-06-26)
+
+### Feature
+
+* Add argument `stop_retry_if` to method `retry_on_failure` to support stopping retrying before max retries reached ([`431ae82`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/431ae8293838d63a1ba86ad2bdb4807abbd906a8))
+
 ## v3.24.5 (2023-06-21)
 
 ### Fix
