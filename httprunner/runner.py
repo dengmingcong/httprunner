@@ -327,7 +327,7 @@ class HttpRunner(object):
                 title = f"retry: {max_retry_times - remaining_retry_times} {result}"
 
             if is_meet_stop_retry_condition:
-                title += " (the condition of stop retrying was met)"
+                title += " (the condition to stop retrying was met)"
 
             with allure.step(title):
                 self.__add_allure_attachments(
