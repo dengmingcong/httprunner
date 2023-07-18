@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.25.1 (2023-07-18)
+
+### Fix
+
+* **build:** Bump pyyaml to 6.0.1 to resolve pep517 error ([`09f8f61`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/09f8f619b7e79de8974446988aa57e484c7848ee))
+
 ## v3.25.0 (2023-06-26)
 
 ### Feature
