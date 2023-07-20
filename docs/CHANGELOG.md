@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.25.2 (2023-07-20)
+
+### Fix
+
+* Add config env_prefix to avoid breaking allure report ([`6ee6f78`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/6ee6f785ecfee5a0b139a01ce3020f10d35e091e))
+
 ## v3.25.1 (2023-07-18)
 
 ### Fix
