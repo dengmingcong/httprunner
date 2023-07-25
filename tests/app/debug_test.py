@@ -39,7 +39,7 @@ class TestDebug(unittest.TestCase):
                             "allow_redirects": True,
                             "verify": False,
                         },
-                        "extract": {},
+                        "extract": [],
                         "validate": [],
                     }
                 ],
