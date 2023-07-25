@@ -19,6 +19,7 @@ from httprunner.models import (
     TestCase,
     StepExport,
     TRequestConfig,
+    JMESPathExtractor,
 )
 
 Number = Union[int, float]
@@ -440,11 +441,19 @@ class StepRequestExtraction(object):
 
     def clear(self) -> "StepRequestExtraction":
         """Clear extractors already added."""
-        self._step_context.extract = {}
+        self._step_context.extract = []
         return self
 
-    def with_jmespath(self, jmes_path: Text, var_name: Text) -> "StepRequestExtraction":
-        self._step_context.extract[var_name] = jmes_path
+    def with_jmespath(
+        self, jmespath_expression: Text, var_name: Text, sub_extractor: Callable = None
+    ) -> "StepRequestExtraction":
+        self._step_context.extract.append(
+            JMESPathExtractor(
+                variable_name=var_name,
+                expression=jmespath_expression,
+                sub_extractor=sub_extractor,
+            )
+        )
         return self
 
     # def with_regex(self):
