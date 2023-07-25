@@ -1,4 +1,4 @@
-from typing import Dict, Text, Any, NoReturn
+from typing import Dict, Text, Any, NoReturn, Union
 
 import jmespath
 import requests
@@ -9,7 +9,12 @@ from httprunner import exceptions
 from httprunner.configs.emoji import emojis
 from httprunner.configs.validation import validation_settings
 from httprunner.exceptions import ValidationFailure, ParamsError
-from httprunner.models import VariablesMapping, Validators, FunctionsMapping
+from httprunner.models import (
+    VariablesMapping,
+    Validators,
+    FunctionsMapping,
+    JMESPathExtractor,
+)
 from httprunner.parser import parse_data, parse_string_value, get_mapping_function
 from httprunner.utils import omit_long_data
 
@@ -166,14 +171,19 @@ class ResponseObject(object):
 
         return check_value
 
-    def extract(self, extractors: Dict[Text, Text]) -> Dict[Text, Any]:
+    def extract(self, extractors: list[Union[JMESPathExtractor]]) -> Dict[Text, Any]:
         if not extractors:
             return {}
 
         extract_mapping = {}
-        for key, field in extractors.items():
-            field_value = self._search_jmespath(field)
-            extract_mapping[key] = field_value
+        for extractor in extractors:  # type: Union[JMESPathExtractor]
+            if isinstance(extractor, JMESPathExtractor):
+                field_value = self._search_jmespath(extractor.expression)
+
+                if extractor.sub_extractor:
+                    field_value = extractor.sub_extractor(field_value)
+
+                extract_mapping[extractor.variable_name] = field_value
 
         logger.info(f"extract mapping: {extract_mapping}")
         return extract_mapping

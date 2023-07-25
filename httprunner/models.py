@@ -1,7 +1,7 @@
 import os
 import types
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 from typing import Dict, Text, Union, Callable
 from typing import List
 
@@ -77,6 +77,14 @@ class StepExport(BaseModel):
     var_alias_mapping: dict[str, str] = {}  # var will be renamed if in mapping
 
 
+class JMESPathExtractor(BaseModel):
+    """Used to extract value from JSON response using JMESPath query language."""
+
+    variable_name: str
+    expression: str
+    sub_extractor: Optional[Callable]
+
+
 class TStep(BaseModel):
     name: Name
     parametrize: tuple = None
@@ -98,7 +106,9 @@ class TStep(BaseModel):
     setup_hooks: Hooks = []
     teardown_hooks: Hooks = []
 
-    extract: VariablesMapping = {}  # used to extract request's response field
+    extract: list[
+        Union[JMESPathExtractor]
+    ] = []  # used to extract request's response field
 
     # used to export local step variables, steps next can use these variables then
     globalize: GlobalVars = []

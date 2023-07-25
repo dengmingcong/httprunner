@@ -48,6 +48,7 @@ from httprunner.models import (
     SessionData,
     StepExport,
     ConfigExport,
+    JMESPathExtractor,
 )
 
 
@@ -468,18 +469,21 @@ class HttpRunner(object):
             logger.error(err_msg)
 
         # extract
-        extractors: dict = step.extract
+        extractors: list = step.extract
 
         # parse JMESPath
         # note: do not change variable 'extractors' directly to reduce surprise
-        parsed_extractors = {}
-        for var_name, jmespath in extractors.items():
-            if "$" in jmespath:
-                parsed_extractors[var_name] = parse_data(
-                    jmespath, step.variables, self.__project_meta.functions
-                )
-            else:
-                parsed_extractors[var_name] = jmespath
+        parsed_extractors = []
+        for extractor in extractors:  # type: Union[JMESPathExtractor]
+            if isinstance(extractor, JMESPathExtractor):
+                if "$" in extractor.expression:
+                    extractor = extractor.copy(deep=True)
+                    extractor.expression = parse_data(
+                        extractor.expression,
+                        step.variables,
+                        self.__project_meta.functions,
+                    )
+                parsed_extractors.append(extractor)
 
         extract_mapping = resp_obj.extract(parsed_extractors)
         step_data.export_vars = extract_mapping
