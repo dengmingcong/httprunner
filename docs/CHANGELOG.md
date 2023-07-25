@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.26.0 (2023-07-25)
+
+### Feature
+
+* Add argument `sub_extractor` to enable extracting on the result of jmespath querying ([`8c9533a`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/8c9533a96b7a26073dd159bf210e115448c87606))
+
 ## v3.25.2 (2023-07-20)
 
 ### Fix
