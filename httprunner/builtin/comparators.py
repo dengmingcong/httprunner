@@ -203,7 +203,7 @@ def no_keys_duplicate(
     ), f"`check_value` should be a list, but got `{type(check_value)}`"
     assert not (
         duplicate_items := get_list_duplicate_items(check_value)
-    ), f"duplicate items found: {duplicate_items}"
+    ), f"{message}\nduplicate items found: {duplicate_items}"
 
 
 def list_sorted_in(
@@ -238,6 +238,7 @@ def list_sorted_in(
         sorted_value.sort(key=expect_value)
 
     assert check_value == sorted_value, (
+        f"{message}\n"
         f"the list is not sorted as expected: {expect_value}\n"
         f"actual value: {check_value}\n"
         f"expect value: {sorted_value}"
