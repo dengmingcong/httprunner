@@ -98,11 +98,25 @@ def contains(check_value: Any, expect_value: Any, message: Text = ""):
     assert expect_value in check_value, message
 
 
+def not_contain(check_value: Any, expect_value: Any, message: str = "") -> None:
+    assert isinstance(
+        check_value, (list, tuple, dict, str, bytes)
+    ), "check_value should be list/tuple/dict/str/bytes type"
+    assert expect_value not in check_value, message
+
+
 def contained_by(check_value: Any, expect_value: Any, message: Text = ""):
     assert isinstance(
         expect_value, (list, tuple, dict, str, bytes)
     ), "expect_value should be list/tuple/dict/str/bytes type"
     assert check_value in expect_value, message
+
+
+def not_contained_by(check_value: Any, expect_value: Any, message: str = "") -> None:
+    assert isinstance(
+        expect_value, (list, tuple, dict, str, bytes)
+    ), "expect_value should be list/tuple/dict/str/bytes type"
+    assert check_value not in expect_value, message
 
 
 def type_match(check_value: Any, expect_value: Any, message: Text = ""):
