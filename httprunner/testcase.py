@@ -403,7 +403,7 @@ class StepRequestValidation(object):
         reference list.sort() for more information.
         """
         self._step_context.validators.append(
-            {"sort_list": [jmespath_expression, expected_value, message]}
+            {"list_sorted_in": [jmespath_expression, expected_value, message]}
         )
         return self
 

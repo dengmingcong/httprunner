@@ -4,6 +4,7 @@ Built-in validate comparators.
 import math
 import re
 from collections import defaultdict
+from typing import Callable, Literal
 from typing import Text, Any, Union, NoReturn
 
 from httprunner.builtin.jsonassert import (  # noqa
@@ -203,3 +204,41 @@ def no_keys_duplicate(
     assert not (
         duplicate_items := get_list_duplicate_items(check_value)
     ), f"duplicate items found: {duplicate_items}"
+
+
+def list_sorted_in(
+    check_value: list,
+    expect_value: Union[Callable, Literal["ASC", "DSC"]],
+    message: str = "",
+):
+    """
+    Assert the list is sorted in some specific order.
+
+    Note:
+        1. if expected_value is string 'ASC', the list is expected to be sorted in ascending order
+        2. if expected_value is string 'DSC', the list is expected to be sorted in descending order
+        3. if expected_value is a function object, you must define and import the function, or use a lambda function,
+            reference list.sort() for more information.
+    """
+    assert isinstance(
+        check_value, list
+    ), f"type of check value must be list, but got: {type(check_value)}"
+    assert isinstance(expect_value, Callable) or expect_value in [
+        "ASC",
+        "DSC",
+    ], f"type of expected value should be Callable or the value is one of 'ASC', 'DSC', but got {type(expect_value)}"
+
+    sorted_value = check_value.copy()
+
+    if expect_value == "ASC":
+        sorted_value.sort()
+    elif expect_value == "DSC":
+        sorted_value.sort(reverse=True)
+    else:
+        sorted_value.sort(key=expect_value)
+
+    assert check_value == sorted_value, (
+        f"the list is not sorted as expected: {expect_value}\n"
+        f"actual value: {check_value}\n"
+        f"expect value: {sorted_value}"
+    )
