@@ -8,6 +8,7 @@ import json
 import random
 import string
 import time
+from collections import defaultdict
 from typing import Mapping, Any
 
 from httprunner.exceptions import ParamsError
@@ -103,3 +104,22 @@ def expand_nested_json(target: Any) -> Any:
         return decoded_target
     else:
         return target
+
+
+def get_list_duplicate_items(array: list) -> list[tuple]:
+    """
+    Get the duplicates and corresponding indexes from list.
+
+    >>> get_list_duplicate_items([55, 55, 56])
+    ... [(55, (0, 1))]
+    """
+    counter = defaultdict(list)
+
+    for index, item in enumerate(array):
+        counter[item].append(index)
+
+    return [
+        (list_item, indexes)
+        for list_item, indexes in counter.items()
+        if len(indexes) > 1
+    ]
