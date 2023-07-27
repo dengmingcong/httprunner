@@ -273,7 +273,7 @@ class StepRequestValidation(object):
         self, jmespath_expression: Text, message: Text = ""
     ) -> "StepRequestValidation":
         """
-        断言 list 中是否含有重复的元素
+        Assert no duplicates in the list specified by jmespath_expression.
         """
         self._step_context.validators.append(
             {"no_keys_duplicate": [jmespath_expression, None, message]}
