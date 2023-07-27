@@ -3,7 +3,8 @@ Built-in validate comparators.
 """
 import math
 import re
-from typing import Text, Any, Union
+from collections import defaultdict
+from typing import Text, Any, Union, NoReturn
 
 from httprunner.builtin.jsonassert import (  # noqa
     json_assert,
@@ -162,3 +163,43 @@ def is_close(
         message = f"difference ({abs(a - b)}) between {a} and {b} exceeded the minimum absolute tolerance ({abs_tol})"
 
     assert math.isclose(a, b, abs_tol=abs_tol), message
+
+
+def no_keys_duplicate(
+    check_value: list, expect_value: Any, message: str = ""  # noqa
+) -> NoReturn:
+    """
+    Assert no duplicates in the list specified by `check_value`.
+
+    Note:
+        If assertion fails, the error message will print the duplicates and corresponding indexes.
+        e.g. given list [55, 55, 56], the error message will contain [(55, [0, 1])]
+
+    :param check_value: the target list to check
+    :param expect_value: should be `None`
+    """
+
+    def get_list_duplicate_items(array: list) -> list[tuple]:
+        """
+        Get the duplicates and corresponding indexes from list.
+
+        >>> get_list_duplicate_items([55, 55, 56])
+        ... [(55, (0, 1))]
+        """
+        counter = defaultdict(list)
+
+        for index, item in enumerate(array):
+            counter[item].append(index)
+
+        return [
+            (list_item, indexes)
+            for list_item, indexes in counter.items()
+            if len(indexes) > 1
+        ]
+
+    assert isinstance(
+        check_value, list
+    ), f"`check_value` should be a list, but got `{type(check_value)}`"
+    assert not (
+        duplicate_items := get_list_duplicate_items(check_value)
+    ), f"duplicate items found: {duplicate_items}"
