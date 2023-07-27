@@ -42,7 +42,20 @@ def update_dict_recursively(d: dict, u: Mapping) -> dict:
     """
     Update a nested dict recursively.
 
+    Note:
+        The original dict object (argument d) will be changed and the returned object is the same with the original one.
+
     Reference: https://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth
+
+    >>> origin_dict = {"a": {"a1": 11, "a2": 12}, "b": 2, "c": 3}
+    >>> update_dict = {"a": {"a1": 1}, "b": 12 }
+    >>> return_obj = update_dict_recursively(origin_dict, update_dict)
+    >>> return_obj
+    {'a': {'a1': 1, 'a2': 12}, 'b': 12, 'c': 3}
+    >>> origin_dict
+    {'a': {'a1': 1, 'a2': 12}, 'b': 12, 'c': 3}
+    >>> return_obj is origin_dict
+    True
     """
     for k, v in u.items():
         if isinstance(v, collections.abc.Mapping):
