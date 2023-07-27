@@ -99,190 +99,205 @@ class StepRequestValidation(object):
         return self
 
     def assert_equal(
-        self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"equal": [jmes_path, expected_value, message]}
+            {"equal": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_not_equal(
-        self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"not_equal": [jmes_path, expected_value, message]}
+            {"not_equal": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_greater_than(
         self,
-        jmes_path: Text,
+        jmespath_expression: Text,
         expected_value: Union[int, float, str],
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"greater_than": [jmes_path, expected_value, message]}
+            {"greater_than": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_less_than(
         self,
-        jmes_path: Text,
+        jmespath_expression: Text,
         expected_value: Union[int, float, str],
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"less_than": [jmes_path, expected_value, message]}
+            {"less_than": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_greater_or_equals(
         self,
-        jmes_path: Text,
+        jmespath_expression: Text,
         expected_value: Union[int, float, str],
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"greater_or_equals": [jmes_path, expected_value, message]}
+            {"greater_or_equals": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_less_or_equals(
         self,
-        jmes_path: Text,
+        jmespath_expression: Text,
         expected_value: Union[int, float, str],
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"less_or_equals": [jmes_path, expected_value, message]}
+            {"less_or_equals": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_length_equal(
-        self, jmes_path: Text, expected_value: Union[int, str], message: Text = ""
+        self,
+        jmespath_expression: Text,
+        expected_value: Union[int, str],
+        message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"length_equal": [jmes_path, expected_value, message]}
+            {"length_equal": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_length_greater_than(
-        self, jmes_path: Text, expected_value: Union[int, str], message: Text = ""
+        self,
+        jmespath_expression: Text,
+        expected_value: Union[int, str],
+        message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"length_greater_than": [jmes_path, expected_value, message]}
+            {"length_greater_than": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_length_less_than(
-        self, jmes_path: Text, expected_value: Union[int, str], message: Text = ""
+        self,
+        jmespath_expression: Text,
+        expected_value: Union[int, str],
+        message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"length_less_than": [jmes_path, expected_value, message]}
+            {"length_less_than": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_length_greater_or_equals(
-        self, jmes_path: Text, expected_value: Union[int, str], message: Text = ""
+        self,
+        jmespath_expression: Text,
+        expected_value: Union[int, str],
+        message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"length_greater_or_equals": [jmes_path, expected_value, message]}
+            {"length_greater_or_equals": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_length_less_or_equals(
-        self, jmes_path: Text, expected_value: Union[int, str], message: Text = ""
+        self,
+        jmespath_expression: Text,
+        expected_value: Union[int, str],
+        message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"length_less_or_equals": [jmes_path, expected_value, message]}
+            {"length_less_or_equals": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_string_equals(
-        self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"string_equals": [jmes_path, expected_value, message]}
+            {"string_equals": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_startswith(
-        self, jmes_path: Text, expected_value: Text, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Text, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"startswith": [jmes_path, expected_value, message]}
+            {"startswith": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_endswith(
-        self, jmes_path: Text, expected_value: Text, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Text, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"endswith": [jmes_path, expected_value, message]}
+            {"endswith": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_regex_match(
-        self, jmes_path: Text, expected_value: Text, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Text, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"regex_match": [jmes_path, expected_value, message]}
+            {"regex_match": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_contains(
-        self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"contains": [jmes_path, expected_value, message]}
+            {"contains": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_not_contain(
-        self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"not_contain": [jmes_path, expected_value, message]}
+            {"not_contain": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_not_contained_by(
-        self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"not_contained_by": [jmes_path, expected_value, message]}
+            {"not_contained_by": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_no_keys_duplicate(
-        self, jmes_path: Text, message: Text = ""
+        self, jmespath_expression: Text, message: Text = ""
     ) -> "StepRequestValidation":
         """
         断言 list 中是否含有重复的元素
         """
         self._step_context.validators.append(
-            {"no_keys_duplicate": [jmes_path, None, message]}
+            {"no_keys_duplicate": [jmespath_expression, None, message]}
         )
         return self
 
     def assert_contained_by(
-        self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"contained_by": [jmes_path, expected_value, message]}
+            {"contained_by": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_type_match(
-        self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"type_match": [jmes_path, expected_value, message]}
+            {"type_match": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_json_contains(
-        self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         """
         Equivalent to the JSONassert non-strict mode.
@@ -305,12 +320,12 @@ class StepRequestValidation(object):
             reference: https://zepworks.com/deepdiff/current/ignore_types_or_values.html
         """
         self._step_context.validators.append(
-            {"json_contains": [jmes_path, expected_value, message]}
+            {"json_contains": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_json_equal(
-        self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         """
         Equivalent to the JSONassert strict mode.
@@ -333,48 +348,48 @@ class StepRequestValidation(object):
             reference: https://zepworks.com/deepdiff/current/ignore_types_or_values.html
         """
         self._step_context.validators.append(
-            {"json_equal": [jmes_path, expected_value, message]}
+            {"json_equal": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_json_contains_with_java(
         self,
-        jmes_path: Text,
+        jmespath_expression: Text,
         expected_value: Any,
         message: Text = "",
     ) -> "StepRequestValidation":
         """Equivalent to the JSONassert non-strict mode with java version."""
         self._step_context.validators.append(
-            {"json_contains_with_java": [jmes_path, expected_value, message]}
+            {"json_contains_with_java": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_json_equal_with_java(
         self,
-        jmes_path: Text,
+        jmespath_expression: Text,
         expected_value: Any,
         message: Text = "",
     ) -> "StepRequestValidation":
         """Equivalent to the JSONassert strict mode with java version."""
         self._step_context.validators.append(
-            {"json_equal_with_java": [jmes_path, expected_value, message]}
+            {"json_equal_with_java": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_reports_match(
-        self, jmes_path: Text, expected_value: Any, message: Text = ""
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         """
         This assertion method MUST be used in api 'getAccessLog', and param expected_value MUST be an event dict.
         """
         self._step_context.validators.append(
-            {"reports_match": [jmes_path, expected_value, message]}
+            {"reports_match": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_list_sorted_in(
         self,
-        jmes_path: Text,
+        jmespath_expression: Text,
         expected_value: Union[Callable, Literal["ASC", "DSC"]],
         message: Text = "",
     ) -> "StepRequestValidation":
@@ -388,12 +403,15 @@ class StepRequestValidation(object):
         reference list.sort() for more information.
         """
         self._step_context.validators.append(
-            {"sort_list": [jmes_path, expected_value, message]}
+            {"sort_list": [jmespath_expression, expected_value, message]}
         )
         return self
 
     def assert_is_close(
-        self, jmes_path: Text, expected_value: tuple[Number, Number], message: Text = ""
+        self,
+        jmespath_expression: Text,
+        expected_value: tuple[Number, Number],
+        message: Text = "",
     ) -> "StepRequestValidation":
         """
         Return True if the valuse are close to each other and False otherwise.
@@ -401,12 +419,12 @@ class StepRequestValidation(object):
         References:
             math.isclose() from https://docs.python.org/3/library/math.html
 
-        :param jmes_path: JMESPath search result must be int or float
+        :param jmespath_expression: JMESPath search result must be int or float
         :param expected_value: a tuple, the first element is the expected number, the second is the absolute tolerance
         :param message: error message
         """
         self._step_context.validators.append(
-            {"is_close": [jmes_path, expected_value, message]}
+            {"is_close": [jmespath_expression, expected_value, message]}
         )
         return self
 
