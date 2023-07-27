@@ -5,6 +5,11 @@ import math
 import re
 from typing import Text, Any, Union
 
+from httprunner.builtin.jsonassert import (  # noqa
+    json_assert,
+    json_contains,
+    json_equal,
+)
 
 Number = Union[int, float]
 
