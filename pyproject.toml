@@ -31,6 +31,7 @@ include = ["docs/CHANGELOG.md"]
 allpairspy = "^2.5.0"
 allure-pytest = "^2.8.16"
 black = "^22"
+deepdiff = "^6.3.1"
 dotwiz = "^0.4.0"
 filetype = {version = "^1.0.7", optional = true}
 flake8 = "^4.0.1"
@@ -82,3 +83,6 @@ repository = "name"
 repository_url = "http://10.40.9.73:8081/repository/pypi-internal/"
 build_command = "poetry build"
 hvcs = "gitlab"
+
+[tool.poetry.plugins."pytest11"]
+pytest_httprunner = "httprunner.pytestplugin"
