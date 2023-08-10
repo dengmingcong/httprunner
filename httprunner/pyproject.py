@@ -100,6 +100,8 @@ class HttpRunnerMeta(BaseModel):
 
 httprunner_meta = HttpRunnerMeta(
     http_headers=get_pyproject_toml_key_value(
-        load_pyproject_toml(), "tool.httprunner.http-headers"
+        load_pyproject_toml(),
+        "tool.httprunner.http-headers",
+        is_confirm_key_exists=False,
     )
 )
