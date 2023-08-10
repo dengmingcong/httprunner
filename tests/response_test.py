@@ -9,7 +9,7 @@ from httprunner.response import ResponseObject
 class TestResponse(unittest.TestCase):
     def setUp(self) -> None:
         resp = requests.post(
-            "https://httpbin.org/anything",
+            "https://www.postman-echo.com/post",
             json={
                 "locations": [
                     {"name": "Seattle", "state": "WA"},
