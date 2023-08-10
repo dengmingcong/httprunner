@@ -10,6 +10,7 @@ from httprunner.builtin import expand_nested_json, update_dict_recursively
 from httprunner.configs.emoji import emojis
 from httprunner.configs.validation import validation_settings
 from httprunner.json_encoders import AllureJSONAttachmentEncoder
+from httprunner.pyproject import httprunner_meta
 
 try:
     import allure
@@ -413,6 +414,11 @@ class HttpRunner(object):
             "HRUN-Request-ID",
             f"HRUN-{self.__case_id}-{str(int(time.time() * 1000))[-6:]}",
         )
+
+        # add http headers for every http request
+        if httprunner_meta.http_headers:
+            parsed_request_dict["headers"].update(httprunner_meta.http_headers)
+
         step.variables["request"] = parsed_request_dict
         step.variables["session"] = self.__session
 
