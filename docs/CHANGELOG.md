@@ -2,6 +2,24 @@
 
 <!--next-version-placeholder-->
 
+## v3.27.0 (2023-08-10)
+
+### Feature
+
+* Add http headers for every http request if `http-headers` configured in pyproject.toml ([`02b52b1`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/02b52b1744cc60e254df84421f12fdf268c8d3e7))
+* Add module `pyproject` to load and parse pyproject.toml ([`2514b0c`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/2514b0c58f16a7aaaf1452cf29c79b44fc196bcb))
+* Add module `dictionary` for nested dict ([`4c889f5`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4c889f59028d08aaf4917c5d8c5be1dc32d515d3))
+* Add plugin for pytest to support 'continue on failure' ([`e8d84b9`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/e8d84b91a5cc4d1047edb60babc4645d43eeb277))
+
+### Fix
+
+* Key error raised if first key exists but remaining keys do not exist ([`4ff3f4e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4ff3f4e3a24a030130957b3d3f01dc3048095685))
+
+### Documentation
+
+* Make docstring consistent ([`ef0ac24`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ef0ac249082a242fe90f9f8c40c78b1863145518))
+* Add examples ([`b2ec8fe`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b2ec8fe08dade37bb0eb7b526ede8787868951de))
+
 ## v3.26.0 (2023-07-25)
 
 ### Feature
