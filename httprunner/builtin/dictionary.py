@@ -3,6 +3,16 @@ from functools import reduce
 
 
 class Hasher(dict):
+    def __getitem__(self, key):
+        """
+        Convert to Hasher if result is dict.
+        """
+        value = super().__getitem__(key)
+        if isinstance(value, dict):
+            return Hasher(value)
+        else:
+            return value
+
     def __missing__(self, key):
         """
         Add key and set the corresponding value to new Hasher instance if key is missing.
