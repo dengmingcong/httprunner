@@ -83,3 +83,6 @@ repository = "name"
 repository_url = "http://10.40.9.73:8081/repository/pypi-internal/"
 build_command = "poetry build"
 hvcs = "gitlab"
+
+[tool.poetry.plugins."pytest11"]
+pytest_httprunner = "httprunner.pytestplugin"
