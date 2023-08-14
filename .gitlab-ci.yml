@@ -13,6 +13,10 @@ variables:
   GITLAB_RUNNER_HOME: /home/gitlab-runner
   POETRY: ${GITLAB_RUNNER_HOME}/.local/bin/poetry
   ALLURE: ${GITLAB_RUNNER_HOME}/allure-2.18.0/bin/allure
+  GITLAB_ACCESS_TOKEN: 8HVqdecizwsVL8mAgRsy
+  REPOSITORY_URL: http://10.40.9.73:8081/repository/pypi-internal/
+  REPOSITORY_USERNAME: admin
+  REPOSITORY_PASSWORD: 111111a?D
 
 cache:
   key:
@@ -87,5 +91,5 @@ semantic release:
     - git config --global user.email "semantic-release"
     - git config --global user.name "semantic-release"
     - git checkout master && git pull
-    - git remote set-url --push origin "https://gitlab-ci-token:$MY_ACCESS_TOKEN@$GIT_REPO_DOMAIN/$CI_PROJECT_PATH"
+    - git remote set-url --push origin "https://gitlab-ci-token:$GITLAB_ACCESS_TOKEN@$GIT_REPO_DOMAIN/$CI_PROJECT_PATH"
     - poetry run semantic-release publish -v DEBUG
