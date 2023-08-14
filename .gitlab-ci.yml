@@ -12,9 +12,7 @@ default:
 variables:
   FLAKE_COMMAND: poetry run flake8 examples/ httprunner/ tests/
   UNIT_TEST_COMMAND: poetry run coverage run --source=httprunner -m pytest tests
-  SMOKE_TEST_COMMAND: |
-    cd examples/postman_echo/request_methods
-    poetry run pytest .
+  SMOKE_TEST_COMMAND: poetry run pytest examples/postman_echo/request_methods
   IS_RUN_SMOKE_TEST: "true"
 
 cache:
@@ -80,7 +78,7 @@ smoke test:
   rules:
     - if: $IS_RUN_SMOKE_TEST == "true"
   script:
-    - echo $SMOKE_TEST_COMMAND
+    - $SMOKE_TEST_COMMAND
 
 semantic release:
   stage: publish
