@@ -13,7 +13,7 @@ variables:
   FLAKE_COMMAND: poetry run flake8 examples/ httprunner/ tests/
   UNIT_TEST_COMMAND: poetry run coverage run --source=httprunner -m pytest tests
   SMOKE_TEST_COMMAND: cd examples/postman_echo/request_methods && poetry run pytest .
-  IS_RUN_SMOKE_TEST: true
+  IS_RUN_SMOKE_TEST: "true"
 
 cache:
   key:
@@ -78,7 +78,7 @@ smoke test:
   rules:
     - if: $IS_RUN_SMOKE_TEST
   script:
-    - $SMOKE_TEST_COMMAND
+    - $SMOKE_TEST_COMMAND == "true"
 
 semantic release:
   stage: publish
@@ -87,7 +87,7 @@ semantic release:
   variables:
     GIT_REPO_DOMAIN: fangcun.vesync.cn
     GITLAB_ACCESS_TOKEN: 8HVqdecizwsVL8mAgRsy
-    REPOSITORY_URL: http://10.40.9.73:8081/repository/pypi-internal/
+    REPOSITORY_URL: "http://10.40.9.73:8081/repository/pypi-internal/"
     REPOSITORY_USERNAME: admin
     REPOSITORY_PASSWORD: 111111a?D
   script:
