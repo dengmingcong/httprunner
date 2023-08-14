@@ -65,11 +65,11 @@ def is_key_exists(pyproject_toml_: dict, toml_key: str) -> bool:
 
 
 def get_pyproject_toml_key_value(
-    pyproject_toml_data: dict, key: str, is_confirm_key_exists: bool = True
+    pyproject_toml_data: dict, key: str, is_key_required: bool = True
 ) -> Any:
     """Guess key value based on environment variables and `pyproject.toml`."""
     # make sure nested keys exist
-    if is_confirm_key_exists and not is_key_exists(pyproject_toml_data, key):
+    if is_key_required and not is_key_exists(pyproject_toml_data, key):
         raise KeyError(f"key `{key}` does not exist in pyproject.toml")
 
     key_parts = key.split(".")
@@ -102,6 +102,6 @@ httprunner_meta = HttpRunnerMeta(
     http_headers=get_pyproject_toml_key_value(
         load_pyproject_toml(),
         "tool.httprunner.http-headers",
-        is_confirm_key_exists=False,
+        is_key_required=False,
     )
 )
