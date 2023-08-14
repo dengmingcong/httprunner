@@ -76,9 +76,9 @@ unit test:
 smoke test:
   stage: test
   rules:
-    - if: $IS_RUN_SMOKE_TEST
+    - if: $IS_RUN_SMOKE_TEST == "true"
   script:
-    - $SMOKE_TEST_COMMAND == "true"
+    - $SMOKE_TEST_COMMAND
 
 semantic release:
   stage: publish
