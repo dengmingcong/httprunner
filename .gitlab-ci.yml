@@ -10,9 +10,9 @@ default:
     - qa-sit-nacos
 
 variables:
-  GITLAB_RUNNER_HOME: /home/gitlab-runner
-  POETRY: ${GITLAB_RUNNER_HOME}/.local/bin/poetry
-  ALLURE: ${GITLAB_RUNNER_HOME}/allure-2.18.0/bin/allure
+  FLAKE_COMMAND: poetry run flake8 examples/ httprunner/ tests/
+  UNIT_TEST_COMMAND: poetry run coverage run --source=httprunner -m pytest tests
+  IS_RUN_SMOKE_TEST: "true"
 
 cache:
   key:
@@ -25,7 +25,6 @@ stages:
   - pre-install
   - install
   - build
-  - lint
   - test
   - publish
 
@@ -33,6 +32,9 @@ install tools:
   stage: pre-install
   variables:
     POETRY_VERSION: 1.4.2
+    GITLAB_RUNNER_HOME: /home/gitlab-runner
+    POETRY: ${GITLAB_RUNNER_HOME}/.local/bin/poetry
+    ALLURE: ${GITLAB_RUNNER_HOME}/allure-2.18.0/bin/allure
   script:
     - |
       if ! poetry -V &> /dev/null; then
@@ -61,17 +63,19 @@ install dependencies:
     - poetry install
 
 flake8:
-  stage: lint
+  stage: test
   script:
-    - poetry run flake8 examples/ httprunner/ tests/
+    - $FLAKE_COMMAND
 
 unit test:
   stage: test
   script:
-    - poetry run coverage run --source=httprunner -m pytest tests
+    - $UNIT_TEST_COMMAND
 
 smoke test:
   stage: test
+  rules:
+    - if: $IS_RUN_SMOKE_TEST == "true"
   script:
     - |
       cd examples/postman_echo/request_methods
@@ -83,9 +87,13 @@ semantic release:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   variables:
     GIT_REPO_DOMAIN: fangcun.vesync.cn
+    GITLAB_ACCESS_TOKEN: 8HVqdecizwsVL8mAgRsy
+    REPOSITORY_URL: "http://10.40.9.73:8081/repository/pypi-internal/"
+    REPOSITORY_USERNAME: admin
+    REPOSITORY_PASSWORD: 111111a?D
   script:
     - git config --global user.email "semantic-release"
     - git config --global user.name "semantic-release"
     - git checkout master && git pull
-    - git remote set-url --push origin "https://gitlab-ci-token:$MY_ACCESS_TOKEN@$GIT_REPO_DOMAIN/$CI_PROJECT_PATH"
+    - git remote set-url --push origin "https://gitlab-ci-token:$GITLAB_ACCESS_TOKEN@$GIT_REPO_DOMAIN/$CI_PROJECT_PATH"
     - poetry run semantic-release publish -v DEBUG
