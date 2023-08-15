@@ -8,8 +8,6 @@ import sys
 from pathlib import Path
 from typing import Union, Any
 
-from pydantic import BaseModel
-
 from httprunner.builtin.dictionary import is_keys_exist, get_from_nested_dict
 
 
@@ -94,14 +92,31 @@ def get_pyproject_toml_key_value(
     )
 
 
-class HttpRunnerMeta(BaseModel):
-    http_headers: dict
+class PyProjectTomlKey:
+    def __init__(self, pyproject_toml_data: dict, key: str, is_required: bool):
+        self._pyproject_toml_data = pyproject_toml_data
+        self._key = key
+        self._is_required = is_required
+
+    def __get__(self, instance, instance_type):
+        """
+        Get value from pyproject.toml.
+        """
+        return get_pyproject_toml_key_value(
+            self._pyproject_toml_data, self._key, self._is_required
+        )
 
 
-httprunner_meta = HttpRunnerMeta(
-    http_headers=get_pyproject_toml_key_value(
-        load_pyproject_toml(),
-        "tool.httprunner.http-headers",
-        is_key_required=False,
+class HttpRunnerProjectMeta:
+    """
+    Project meta read from pyproject.toml.
+    """
+
+    pyproject_toml_data = load_pyproject_toml()
+
+    http_headers: PyProjectTomlKey = PyProjectTomlKey(
+        pyproject_toml_data, "tool.httprunner.http-headers", False
     )
-)
+
+
+httprunner_project_meta = HttpRunnerProjectMeta()
