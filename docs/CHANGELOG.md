@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.27.1 (2023-08-15)
+
+### Performance
+
+* Add descriptor to implement lazy-load meta ([`78eb4ca`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/78eb4ca2d5b0d6bb50ae16217479812749287ee8))
+
 ## v3.27.0 (2023-08-10)
 
 ### Feature
