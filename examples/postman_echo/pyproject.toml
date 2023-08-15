@@ -1,0 +1,2 @@
+[tool.httprunner.http-headers ]
+X-Global-Header = "FOO"
