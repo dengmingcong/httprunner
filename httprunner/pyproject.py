@@ -124,7 +124,7 @@ class HttpRunnerProjectMeta:
     Project meta read from pyproject.toml.
     """
 
-    http_headers: PyProjectTomlKey = PyProjectTomlKey(
+    http_headers: dict = PyProjectTomlKey(
         pyproject_toml_data, "tool.httprunner.http-headers", False
     )
 
