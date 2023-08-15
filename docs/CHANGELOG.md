@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.28.0 (2023-08-15)
+
+### Feature
+
+* Add validators to enable additional validation on toml key ([`8e11bdc`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/8e11bdc55ee9f36df835bc3205dd9786f4a97fea))
+
 ## v3.27.1 (2023-08-15)
 
 ### Performance
