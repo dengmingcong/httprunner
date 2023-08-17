@@ -136,7 +136,7 @@ def type_match(check_value: Any, expect_value: Any, message: Text = ""):
     if expect_value in ["None", "NoneType", None]:
         assert check_value is None, message
     else:
-        assert type(check_value) == get_type(expect_value), message
+        assert type(check_value) is get_type(expect_value), message
 
 
 def regex_match(check_value: Text, expect_value: Any, message: Text = ""):
