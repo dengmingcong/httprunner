@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v3.28.1 (2023-08-17)
+
+### Fix
+
+* Flake8 error while comparing types with "==" ([`b4a6ffc`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b4a6ffc84ecbf2c9c52e073f97259e2aeb913244))
+
+### Performance
+
+* Constraint packages narrowly to speed up dependency resolution process ([`0da75e1`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/0da75e115c16438ee3c8d5e3988fb3e3a4f59ff6))
+
 ## v3.28.0 (2023-08-15)
 
 ### Feature
