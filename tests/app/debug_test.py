@@ -1,5 +1,6 @@
 import unittest
 
+import pytest
 from starlette.testclient import TestClient
 
 from httprunner.app.main import app
@@ -7,6 +8,7 @@ from httprunner.app.main import app
 client = TestClient(app)
 
 
+@pytest.skip("需要安装 httpx，意义不大")
 class TestDebug(unittest.TestCase):
     def test_debug_single_testcase(self):
         json_data = {
