@@ -47,8 +47,6 @@ requests-toolbelt = "1.0.0"
 sentry-sdk = "1.29.2"
 urllib3 = "1.26.15"  # reference: https://github.com/ionrock/cachecontrol/issues/292
 
-[tool.poetry.extras]
-
 [tool.poetry.group.test]
 [tool.poetry.group.test.dependencies]
 coverage = "7.3.0"
@@ -59,8 +57,6 @@ flake8 = "6.1.0"
 python-semantic-release = "7.34.6"
 
 [tool.poetry.group.dev]
-optional = true
-
 [tool.poetry.group.dev.dependencies]
 fastapi = "0.101.1"
 locust = "2.16.1"
