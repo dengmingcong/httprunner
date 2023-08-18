@@ -32,7 +32,7 @@ stages:
 install tools:
   stage: pre-install
   variables:
-    POETRY_VERSION: 1.4.2
+    POETRY_VERSION: 1.5.1
     GITLAB_RUNNER_HOME: /home/gitlab-runner
     POETRY: ${GITLAB_RUNNER_HOME}/.local/bin/poetry
     ALLURE: ${GITLAB_RUNNER_HOME}/allure-2.18.0/bin/allure
