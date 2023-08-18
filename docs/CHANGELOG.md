@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.28.2 (2023-08-18)
+
+### Performance
+
+* Group dependencies to enable ignoring specific group ([`ee40681`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ee40681421cbcf977373fc9870d8b26559765964))
+
 ## v3.28.1 (2023-08-17)
 
 ### Fix
