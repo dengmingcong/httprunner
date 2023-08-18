@@ -60,7 +60,7 @@ install dependencies:
   stage: install
   script:
     - poetry config virtualenvs.in-project true
-    - poetry install --without dev
+    - poetry install
 
 flake8:
   stage: test

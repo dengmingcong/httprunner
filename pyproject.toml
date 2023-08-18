@@ -58,6 +58,8 @@ flake8 = "6.1.0"
 python-semantic-release = "7.34.6"
 
 [tool.poetry.group.dev]
+optional = true
+
 [tool.poetry.group.dev.dependencies]
 black = "23.7.0"
 fastapi = "0.101.1"
