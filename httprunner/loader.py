@@ -425,7 +425,7 @@ def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
         debugtalk_functions = {}
 
     # load functions from entry_points
-    for entry_point in entry_points().get("httprunner.debugtalk", {}):
+    for entry_point in entry_points().get("httprunner.debugtalk", ()):
         debugtalk_functions.update(load_module_functions(entry_point.load()))
 
     # locate project RootDir and load debugtalk.py functions
