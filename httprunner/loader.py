@@ -3,6 +3,7 @@ import importlib
 import json
 import os
 import sys
+from importlib.metadata import entry_points
 from typing import Tuple, Dict, Union, Text, List, Callable
 
 import yaml
@@ -364,7 +365,6 @@ def load_debugtalk_functions() -> Dict[Text, Callable]:
                 "func1_name": func1,
                 "func2_name": func2
             }
-
     """
     # load debugtalk.py module
     try:
@@ -379,7 +379,7 @@ def load_debugtalk_functions() -> Dict[Text, Callable]:
 
 
 def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
-    """load testcases, .env, debugtalk.py functions.
+    """load testcases, .env, debugtalk.py, entry point functions.
         testcases folder is relative to project_root_directory
         by default, project_meta will be loaded only once, unless set reload to true.
 
@@ -418,11 +418,15 @@ def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
         project_meta.env = dot_env
         project_meta.dot_env_path = dot_env_path
 
+    debugtalk_functions = {}
+
+    # load functions from entry_points
+    for entry_point in entry_points().get("httprunner.debugtalk", ()):
+        debugtalk_functions.update(load_module_functions(entry_point.load()))
+
+    # priority: debugtalk.py > entry_points
     if debugtalk_path:
-        # load debugtalk.py functions
-        debugtalk_functions = load_debugtalk_functions()
-    else:
-        debugtalk_functions = {}
+        debugtalk_functions.update(load_debugtalk_functions())
 
     # locate project RootDir and load debugtalk.py functions
     project_meta.RootDir = project_root_directory
