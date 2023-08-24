@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v3.29.0 (2023-08-24)
+
+### Feature
+
+* Add entry point `httprunner.debugtalk` to enable loading debugtalk functions from entry points ([`242ba2f`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/242ba2f27d0b9266fa4125400711dc718939287b))
+
+### Fix
+
+* KeyError if entry point not set ([`99a7759`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/99a775950db38ea34f9f3c7ec3ecf76fc30964bd))
+
 ## v3.28.2 (2023-08-18)
 
 ### Performance
