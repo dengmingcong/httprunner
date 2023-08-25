@@ -1,20 +1,15 @@
 import pytest
 
 from httprunner import HttpRunner, Config, Step, RunRequest
-from httprunner.builtin.dictionary import is_keys_exist
 from httprunner.pyproject import pyproject_toml_data
 
 
 @pytest.fixture(autouse=True)
 def set_http_headers():
-    if is_keys_exist(pyproject_toml_data, "tool", "httprunner", "http-headers"):
-        yield
-    else:
-        pyproject_toml_data["tool"]["httprunner"] = {
-            "http-headers": {"X-Global-Header": "FOO"}
-        }
-        yield
-        pyproject_toml_data["tool"]["httprunner"].pop("http-headers")
+    pyproject_toml_data["tool"]["httprunner"] = {
+        "http-headers": {"X-Global-Header": "FOO"}
+    }
+    yield
 
 
 class TestCaseRequestWithGlobalHeader(HttpRunner):
