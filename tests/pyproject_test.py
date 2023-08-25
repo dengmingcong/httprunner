@@ -18,14 +18,13 @@ class TestPyProjectToml:
 
         class CorrectProjectMeta:
             name = PyProjectTomlKey(
-                pyproject_toml_data, "tool.poetry.name", True, name_must_be_str
+                pyproject_toml_data, "tool.poetry.name", name_must_be_str
             )
 
         class IncorrectProjectMeta:
             name = PyProjectTomlKey(
                 pyproject_toml_data,
                 "tool.poetry.name",
-                True,
                 name_must_be_str,
                 name_must_be_int,
             )
