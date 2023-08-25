@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.29.1 (2023-08-25)
+
+### Fix
+
+* Raise exception when failed to get value from nested dict to avoid introducing new class Hasher ([`7ec3fb7`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/7ec3fb762f82b7ab952844eb8d6c805a1c0a71c4))
+
 ## v3.29.0 (2023-08-24)
 
 ### Feature
