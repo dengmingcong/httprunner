@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from typing import Union, Any, Callable
 
-from httprunner.builtin.dictionary import is_keys_exist, get_from_nested_dict
+from httprunner.builtin.dictionary import get_from_nested_dict
 
 
 def get_absolute_path(path: Union[Path, str]) -> Path:
@@ -52,26 +52,17 @@ def load_pyproject_toml() -> dict:
     return tomllib.loads(toml_text)
 
 
-def is_key_exists(pyproject_toml_: dict, toml_key: str) -> bool:
-    """
-    Check if specific key of `pyproject.toml` exists.
-
-    :param pyproject_toml_: data loaded from `pyproject.toml`
-    :param toml_key: key in toml, e.g. `tool.httprunner.foo`
-    """
-    return is_keys_exist(pyproject_toml_, *toml_key.split("."))
-
-
-def get_pyproject_toml_key_value(
-    pyproject_toml_data_: dict, key: str, is_key_required: bool = True
-) -> Any:
+def get_pyproject_toml_key_value(pyproject_toml_data_: dict, key: str) -> Any:
     """Guess key value based on environment variables and `pyproject.toml`."""
-    # make sure nested keys exist
-    if is_key_required and not is_key_exists(pyproject_toml_data_, key):
-        raise KeyError(f"key `{key}` does not exist in pyproject.toml")
-
     key_parts = key.split(".")
-    config_value = get_from_nested_dict(pyproject_toml_data_, *key_parts)
+
+    try:
+        config_value = get_from_nested_dict(pyproject_toml_data_, *key_parts)
+    # exception will be raised if some nested key not found or nested object is not subscriptable
+    except Exception as exc:
+        raise KeyError(
+            f"key `{key}` was not configured properly in pyproject.toml"
+        ) from exc
 
     # return value directly if configuration was not sourced from an environment variable
     if not (isinstance(config_value, dict) and "env" in config_value):
@@ -97,21 +88,17 @@ class PyProjectTomlKey:
         self,
         pyproject_toml_data_: dict,
         key: str,
-        is_required: bool,
         *validators: Callable,
     ):
         self._pyproject_toml_data = pyproject_toml_data_
         self._key = key
-        self._is_required = is_required
         self._validators = validators
 
     def __get__(self, instance, instance_type):
         """
         Get value from pyproject.toml.
         """
-        value = get_pyproject_toml_key_value(
-            self._pyproject_toml_data, self._key, self._is_required
-        )
+        value = get_pyproject_toml_key_value(self._pyproject_toml_data, self._key)
         [validator(value) for validator in self._validators]
         return value
 
@@ -125,7 +112,7 @@ class HttpRunnerProjectMeta:
     """
 
     http_headers: dict = PyProjectTomlKey(
-        pyproject_toml_data, "tool.httprunner.http-headers", False
+        pyproject_toml_data, "tool.httprunner.http-headers"
     )
 
 

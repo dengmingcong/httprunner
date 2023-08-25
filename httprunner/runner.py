@@ -416,8 +416,10 @@ class HttpRunner(object):
         )
 
         # add http headers for every http request
-        if httprunner_project_meta.http_headers:
+        try:
             parsed_request_dict["headers"].update(httprunner_project_meta.http_headers)
+        except KeyError:
+            logger.debug("no extra http headers in pyproject.toml")
 
         step.variables["request"] = parsed_request_dict
         step.variables["session"] = self.__session
