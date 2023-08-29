@@ -67,6 +67,8 @@ def pytest_sessionstart(session):
         load_project_meta(debugtalk_py_file.as_posix())
     else:
         # locate common ancestor directory of all test files and search recursively upwards to find debugtalk.py file
+        # WARNING: if operation `chdir` is called in test file, this method may not work as expected and
+        # need to call `load_project_meta` manually in test file and set `reload` to True.
         dirs = get_dirs_from_args(session.config.args)
         common_ancestor = get_common_ancestor(dirs)
         load_project_meta(common_ancestor.as_posix())
