@@ -2,10 +2,13 @@ import io
 import os
 import sys
 import unittest
+from pathlib import Path
 
 import pytest
 
 from httprunner.cli import main
+from httprunner.loader import load_project_meta
+from httprunner.pyproject import locate_pyproject_toml_dir
 
 
 class TestCli(unittest.TestCase):
@@ -41,11 +44,17 @@ class TestCli(unittest.TestCase):
         self.assertIn(__description__, self.captured_output.getvalue().strip())
 
     def test_debug_pytest(self):
-        cwd = os.getcwd()
+        cwd = locate_pyproject_toml_dir()
         try:
-            os.chdir(os.path.join(cwd, "examples", "postman_echo"))
+            postman_echo_dir = os.path.join(cwd, "examples", "postman_echo")
+            os.chdir(postman_echo_dir)
+            # call load_project_meta() to load debugtalk.py properly
+            load_project_meta(Path.cwd().as_posix(), True)
             exit_code = pytest.main(
-                ["-s", "request_methods/request_with_testcase_reference_test.py", ]
+                [
+                    "-s",
+                    "request_methods/request_with_testcase_reference_test.py",
+                ]
             )
             self.assertEqual(exit_code, 0)
         finally:
