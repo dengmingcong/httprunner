@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v3.29.2 (2023-08-29)
+
+### Fix
+
+* Functions imported into debugtalk.py will not be recognized as debugtalk functions in some conditions ([`8b1415d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/8b1415de0248246f20a82c1ce6f745e0c5bd2967))
+
+### Documentation
+
+* Add warning for operation `chdir` ([`beb8c67`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/beb8c67e8e70b726a57b9f0090ce5bea80b305ae))
+* Add warning for function `load_project_meta` ([`88f1728`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/88f172853d2948aef63c86b40ac4348be4ea480c))
+
 ## v3.29.1 (2023-08-25)
 
 ### Fix
