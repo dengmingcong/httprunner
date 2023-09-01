@@ -1,9 +1,7 @@
 import pytest
-from _pytest.config.findpaths import get_common_ancestor, get_dirs_from_args
-from _pytest.pathlib import absolutepath
 
 from httprunner import Config, HttpRunner
-from httprunner.loader import load_project_meta
+from httprunner.argparsing import arg_parser
 
 
 def pytest_addoption(parser):
@@ -53,22 +51,15 @@ def clean_session_variables(request, is_httprunner_test):
     request.instance.with_variables({})
 
 
-def pytest_sessionstart(session):
+def pytest_cmdline_main(config):
     """
-    Called after the Session object has been created and before performing collection and entering the run test loop.
+    Set test path on pytest config.
+
+    Notes for hook self:
+        Called for performing the main command line action.
+
+        The default implementation will invoke the configure hooks and runtest_mainloop.
+
+        Stops at first non-None result.
     """
-    # load debugtalk functions from `FILE` specified by option instead of trying to locate one debugtalk.py file
-    if debugtalk_py_file := session.config.getoption("--debugtalk-py-file"):
-        debugtalk_py_file = absolutepath(debugtalk_py_file)
-
-        if not debugtalk_py_file.is_file():
-            raise FileNotFoundError(f"debugtalk.py file not found: {debugtalk_py_file}")
-
-        load_project_meta(debugtalk_py_file.as_posix())
-    else:
-        # locate common ancestor directory of all test files and search recursively upwards to find debugtalk.py file
-        # WARNING: if operation `chdir` is called in test file, this method may not work as expected and
-        # need to call `load_project_meta` manually in test file and set `reload` to True.
-        dirs = get_dirs_from_args(session.config.args)
-        common_ancestor = get_common_ancestor(dirs)
-        load_project_meta(common_ancestor.as_posix())
+    arg_parser.pytest_config = config
