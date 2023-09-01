@@ -117,7 +117,6 @@ def load_dot_env_file(dot_env_path: Text) -> Dict:
 
     Raises:
         exceptions.FileFormatError: If .env file format is invalid.
-
     """
     if not os.path.isfile(dot_env_path):
         return {}
@@ -165,7 +164,6 @@ def load_csv_file(csv_file: Text) -> List[Dict]:
             {'username': 'test2', 'password': '222222'},
             {'username': 'test3', 'password': '333333'}
         ]
-
     """
     if not os.path.isabs(csv_file):
         global project_meta
@@ -243,7 +241,6 @@ def load_module_functions(module) -> Dict[Text, Callable]:
                 "func1_name": func1,
                 "func2_name": func2
             }
-
     """
     module_functions = {}
 
@@ -273,7 +270,6 @@ def locate_file(start_path: Text, file_name: Text) -> Text:
 
     Raises:
         exceptions.FileNotFound: If failed to locate file.
-
     """
     if os.path.isfile(start_path):
         start_dir_path = os.path.dirname(start_path)
@@ -307,7 +303,6 @@ def locate_debugtalk_py(start_path: Text) -> Text:
 
     Returns:
         str: debugtalk.py file path, None if not found
-
     """
     try:
         # locate debugtalk.py file.
@@ -326,7 +321,6 @@ def locate_project_root_directory(test_path: Text) -> Tuple[Text, Text]:
 
     Returns:
         (str, str): debugtalk.py path, project_root_directory
-
     """
 
     def prepare_path(path):
@@ -390,7 +384,6 @@ def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
     Returns:
         project loaded api/testcases definitions,
             environments and debugtalk.py functions.
-
     """
     global project_meta
     if project_meta and (not reload):
@@ -445,7 +438,6 @@ def convert_relative_project_root_dir(abs_path: Text) -> Text:
         abs_path: absolute path
 
     Returns: relative path based on project_meta.RootDir
-
     """
     _project_meta = load_project_meta(abs_path)
     if not abs_path.startswith(_project_meta.RootDir):
