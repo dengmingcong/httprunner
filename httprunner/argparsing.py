@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, NoReturn
+from typing import NoReturn
 
 from _pytest.config.findpaths import get_common_ancestor, get_dirs_from_args
 from _pytest.pathlib import absolutepath
@@ -8,7 +8,7 @@ from _pytest.pathlib import absolutepath
 class ArgParser:
     def __init__(self):
         self.__pytest_config = None
-        self.__test_path = None  # type: Optional[Path]
+        self.__test_path = None
 
     @property
     def pytest_config(self):
