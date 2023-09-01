@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.29.3 (2023-09-01)
+
+### Fix
+
+* Debugtalk functions not found when collecting fixtures from dependencies ([`1107119`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/11071191c2f36912088a30c02ab3b1affd3668ce))
+
 ## v3.29.2 (2023-08-29)
 
 ### Fix
