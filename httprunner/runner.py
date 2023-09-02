@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union, Callable
 
-from httprunner.argparsing import arg_parser
+from httprunner.argparser import arg_parser
 from httprunner.builtin import expand_nested_json, update_dict_recursively
 from httprunner.configs.emoji import emojis
 from httprunner.configs.validation import validation_settings

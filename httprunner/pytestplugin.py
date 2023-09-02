@@ -1,7 +1,7 @@
 import pytest
 
 from httprunner import Config, HttpRunner
-from httprunner.argparsing import arg_parser
+from httprunner.argparser import arg_parser
 
 
 def pytest_addoption(parser):
