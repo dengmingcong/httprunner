@@ -3,16 +3,20 @@ import importlib
 import json
 import os
 import sys
+from argparse import ArgumentParser
 from importlib.metadata import entry_points
-from typing import Tuple, Dict, Union, Text, List, Callable
+from pathlib import Path
+from typing import Tuple, Dict, Union, Text, List, Callable, Optional
 
 import yaml
+from _pytest.pathlib import absolutepath
 from loguru import logger
 from pydantic import ValidationError
 
 from httprunner import builtin, utils
 from httprunner import exceptions
 from httprunner.models import TestCase, ProjectMeta, TestSuite
+from httprunner.pyproject import project_root_path
 
 try:
     # PyYAML version >= 5.1
@@ -171,7 +175,7 @@ def load_csv_file(csv_file: Text) -> List[Dict]:
             raise exceptions.MyBaseFailure("load_project_meta() has not been called!")
 
         # make compatible with Windows/Linux
-        csv_file = os.path.join(project_meta.RootDir, *csv_file.split("/"))
+        csv_file = os.path.join(project_meta.httprunner_root_path, *csv_file.split("/"))
 
     if not os.path.isfile(csv_file):
         # file path not exist
@@ -294,6 +298,33 @@ def locate_file(start_path: Text, file_name: Text) -> Text:
     return locate_file(parent_dir, file_name)
 
 
+def locate_httprunner_root_path() -> Tuple[Optional[Text], Text]:
+    """locate debugtalk.py path as httprunner root path.
+
+    Returns:
+        (str, str): debugtalk.py path, httprunner root path
+    """
+    # try to locate debugtalk.py file from command line option
+    parser = ArgumentParser()
+    parser.add_argument("--debugtalk-py-file", action="store")
+    if debugtalk_py_file := parser.parse_known_args(sys.argv)[0].debugtalk_py_file:
+        debugtalk_py_file = absolutepath(debugtalk_py_file)
+
+        if not debugtalk_py_file.is_file():
+            raise FileNotFoundError(
+                f"debugtalk.py file not found: {debugtalk_py_file}"
+            )
+
+        return debugtalk_py_file.as_posix(), os.path.dirname(debugtalk_py_file)
+
+    # find debugtalk.py file from project root dir
+    if (project_root_path / "debugtalk.py").is_file():
+        return (project_root_path / "debugtalk.py").as_posix(), project_root_path.as_posix()
+
+    # current working directory as httprunner root path
+    return None, Path.cwd().as_posix()
+
+
 def locate_debugtalk_py(start_path: Text) -> Text:
     """locate debugtalk.py file
 
@@ -313,8 +344,8 @@ def locate_debugtalk_py(start_path: Text) -> Text:
     return debugtalk_path
 
 
-def locate_project_root_directory(test_path: Text) -> Tuple[Text, Text]:
-    """locate debugtalk.py path as project root directory
+def locate_httprunner_root_path_upward_recursively(test_path: Text) -> Tuple[Text, Text]:
+    """locate debugtalk.py path upward recursively from specific path.
 
     Args:
         test_path: specified testfile path
@@ -372,7 +403,7 @@ def load_debugtalk_functions() -> Dict[Text, Callable]:
     return load_module_functions(imported_module)
 
 
-def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
+def load_project_meta(test_path: Text = None, reload: bool = False) -> ProjectMeta:
     """load testcases, .env, debugtalk.py, entry point functions.
         testcases folder is relative to project_root_directory
         by default, project_meta will be loaded only once, unless set reload to true.
@@ -391,14 +422,14 @@ def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
 
     project_meta = ProjectMeta()
 
-    if not test_path:
-        return project_meta
-
     # search recursively upward until file debugtalk.py was found starting from test_path
     # project_root_directory was set to the parent directory of debugtalk.py
     # WARNING: functions imported into debugtalk.py may not be recognized as debugtalk functions
     #  and `FunctionNotFound` error will be raised if referenced HttpRunner subclasses found in dependencies
-    debugtalk_path, project_root_directory = locate_project_root_directory(test_path)
+    if test_path:
+        debugtalk_path, project_root_directory = locate_httprunner_root_path_upward_recursively(test_path)
+    else:
+        debugtalk_path, project_root_directory = locate_httprunner_root_path()
 
     # add project RootDir to sys.path
     sys.path.insert(0, project_root_directory)
@@ -424,7 +455,7 @@ def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
         debugtalk_functions.update(load_debugtalk_functions())
 
     # locate project RootDir and load debugtalk.py functions
-    project_meta.RootDir = project_root_directory
+    project_meta.httprunner_root_path = project_root_directory
     project_meta.functions = debugtalk_functions
     project_meta.debugtalk_path = debugtalk_path
 
@@ -440,11 +471,11 @@ def convert_relative_project_root_dir(abs_path: Text) -> Text:
     Returns: relative path based on project_meta.RootDir
     """
     _project_meta = load_project_meta(abs_path)
-    if not abs_path.startswith(_project_meta.RootDir):
+    if not abs_path.startswith(_project_meta.httprunner_root_path):
         raise exceptions.ParamsError(
             f"failed to convert absolute path to relative path based on project_meta.RootDir\n"
             f"abs_path: {abs_path}\n"
-            f"project_meta.RootDir: {_project_meta.RootDir}"
+            f"project_meta.RootDir: {_project_meta.httprunner_root_path}"
         )
 
-    return abs_path[len(_project_meta.RootDir) + 1 :]  # noqa
+    return abs_path[len(_project_meta.httprunner_root_path) + 1:]  # noqa
