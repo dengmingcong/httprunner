@@ -11,7 +11,7 @@ from httprunner.builtin import expand_nested_json, update_dict_recursively
 from httprunner.configs.emoji import emojis
 from httprunner.configs.validation import validation_settings
 from httprunner.json_encoders import AllureJSONAttachmentEncoder
-from httprunner.pyproject import httprunner_project_meta
+from httprunner.pyproject import PyProjectToml
 
 try:
     import allure
@@ -418,7 +418,7 @@ class HttpRunner(object):
 
         # add http headers for every http request
         try:
-            parsed_request_dict["headers"].update(httprunner_project_meta.http_headers)
+            parsed_request_dict["headers"].update(PyProjectToml().http_headers)
         except KeyError:
             logger.debug("no extra http headers in pyproject.toml")
 
