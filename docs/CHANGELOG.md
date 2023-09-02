@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.29.4 (2023-09-02)
+
+### Fix
+
+* Debugtalk functions not found even functions are imported into debugtalk.py ([`90e16f2`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/90e16f24529e693eb3a68a3d5d4cb1f237fe88d6))
+
 ## v3.29.3 (2023-09-01)
 
 ### Fix
