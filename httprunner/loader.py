@@ -348,7 +348,7 @@ def load_debugtalk_functions() -> Dict[Text, Callable]:
     return load_module_functions(imported_module)
 
 
-def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
+def load_project_meta(test_path: Text = None, reload: bool = False) -> ProjectMeta:
     """load testcases, .env, debugtalk.py, entry point functions.
         testcases folder is relative to project_root_directory
         by default, project_meta will be loaded only once, unless set reload to true.

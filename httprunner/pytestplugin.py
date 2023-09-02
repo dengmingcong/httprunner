@@ -1,7 +1,6 @@
 import pytest
 
 from httprunner import Config, HttpRunner
-from httprunner.argparser import arg_parser
 
 
 def pytest_addoption(parser):
@@ -49,17 +48,3 @@ def clean_session_variables(request, is_httprunner_test):
         return
 
     request.instance.with_variables({})
-
-
-def pytest_cmdline_main(config):
-    """
-    Set test path on pytest config.
-
-    Notes for hook self:
-        Called for performing the main command line action.
-
-        The default implementation will invoke the configure hooks and runtest_mainloop.
-
-        Stops at first non-None result.
-    """
-    arg_parser.pytest_config = config

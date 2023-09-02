@@ -6,7 +6,6 @@ import uuid
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union, Callable
 
-from httprunner.argparser import arg_parser
 from httprunner.builtin import expand_nested_json, update_dict_recursively
 from httprunner.configs.emoji import emojis
 from httprunner.configs.validation import validation_settings
@@ -984,9 +983,7 @@ class HttpRunner(object):
         self.__teststeps = testcase.teststeps
 
         # prepare
-        self.__project_meta = self.__project_meta or load_project_meta(
-            arg_parser.test_path
-        )
+        self.__project_meta = self.__project_meta or load_project_meta()
         self.__parse_config(self.__config)
 
         self.__start_at = time.time()
@@ -1150,12 +1147,12 @@ class HttpRunner(object):
 
         # the location of the first testcase decided the project meta
         # for project meta would usually be located once
-        self.__project_meta = self.__project_meta or load_project_meta(
-            arg_parser.test_path
-        )
+        self.__project_meta = self.__project_meta or load_project_meta()
         self.__case_id = self.__case_id or str(uuid.uuid4())
         self.__log_path = self.__log_path or os.path.join(
-            self.__project_meta.httprunner_root_path, "logs", f"{self.__case_id}.run.log"
+            self.__project_meta.httprunner_root_path,
+            "logs",
+            f"{self.__case_id}.run.log",
         )
         # do not save logging messages to log files to free disk space
         # log_handler = logger.add(self.__log_path, level="DEBUG")
