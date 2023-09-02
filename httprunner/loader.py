@@ -325,6 +325,61 @@ def locate_httprunner_root_path() -> Tuple[Optional[Text], Text]:
     return None, Path.cwd().as_posix()
 
 
+def locate_debugtalk_py(start_path: Text) -> Text:
+    """locate debugtalk.py file
+
+    Args:
+        start_path (str): start locating path,
+            maybe testcase file path or directory path
+
+    Returns:
+        str: debugtalk.py file path, None if not found
+    """
+    try:
+        # locate debugtalk.py file.
+        debugtalk_path = locate_file(start_path, "debugtalk.py")
+    except exceptions.FileNotFound:
+        debugtalk_path = None
+
+    return debugtalk_path
+
+
+def locate_httprunner_root_path_upward_recursively(test_path: Text) -> Tuple[Text, Text]:
+    """locate debugtalk.py path upward recursively from specific path.
+
+    Args:
+        test_path: specified testfile path
+
+    Returns:
+        (str, str): debugtalk.py path, project_root_directory
+    """
+
+    def prepare_path(path):
+        if not os.path.exists(path):
+            err_msg = f"path not exist: {path}"
+            logger.error(err_msg)
+            raise exceptions.FileNotFound(err_msg)
+
+        if not os.path.isabs(path):
+            path = os.path.join(os.getcwd(), path)
+
+        return path
+
+    test_path = prepare_path(test_path)
+
+    # locate debugtalk.py file
+    debugtalk_path = locate_debugtalk_py(test_path)
+
+    if debugtalk_path:
+        # The folder contains debugtalk.py will be treated as project RootDir.
+        project_root_directory = os.path.dirname(debugtalk_path)
+    else:
+        # debugtalk.py not found, use os.getcwd() as project RootDir.
+        project_root_directory = os.getcwd()
+
+    return debugtalk_path, project_root_directory
+
+
 def load_debugtalk_functions() -> Dict[Text, Callable]:
     """load project debugtalk.py module functions
         debugtalk.py should be located in project root directory.
@@ -367,14 +422,14 @@ def load_project_meta(test_path: Text = None, reload: bool = False) -> ProjectMe
 
     project_meta = ProjectMeta()
 
-    if not test_path:
-        return project_meta
-
     # search recursively upward until file debugtalk.py was found starting from test_path
     # project_root_directory was set to the parent directory of debugtalk.py
     # WARNING: functions imported into debugtalk.py may not be recognized as debugtalk functions
     #  and `FunctionNotFound` error will be raised if referenced HttpRunner subclasses found in dependencies
-    debugtalk_path, project_root_directory = locate_httprunner_root_path()
+    if test_path:
+        debugtalk_path, project_root_directory = locate_httprunner_root_path_upward_recursively(test_path)
+    else:
+        debugtalk_path, project_root_directory = locate_httprunner_root_path()
 
     # add project RootDir to sys.path
     sys.path.insert(0, project_root_directory)
