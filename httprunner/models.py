@@ -138,7 +138,6 @@ class ProjectMeta(BaseModel):
     functions: FunctionsMapping = {}  # functions defined in debugtalk.py
     env: Env = {}
     httprunner_root_path: Text = os.getcwd()  # the path debugtalk.py located
-    project_root_path: Path = locate_pyproject_toml_dir()  # the path pyproject.toml located
 
 
 class TestsMapping(BaseModel):
