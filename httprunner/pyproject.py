@@ -35,12 +35,15 @@ def locate_pyproject_toml_dir() -> Path:
     )
 
 
+project_root_path = locate_pyproject_toml_dir()
+
+
 def load_pyproject_toml() -> dict:
     """
     Load configurations from `pyproject.toml`.
     """
     # find pyproject.toml
-    pyproject_toml_file = locate_pyproject_toml_dir() / "pyproject.toml"
+    pyproject_toml_file = project_root_path / "pyproject.toml"
 
     if sys.version_info >= (3, 11):
         import tomllib  # noqa

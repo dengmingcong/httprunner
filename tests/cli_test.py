@@ -8,7 +8,7 @@ import pytest
 
 from httprunner.cli import main
 from httprunner.loader import load_project_meta
-from httprunner.pyproject import locate_pyproject_toml_dir
+from httprunner.pyproject import project_root_path
 
 
 class TestCli(unittest.TestCase):
@@ -44,7 +44,7 @@ class TestCli(unittest.TestCase):
         self.assertIn(__description__, self.captured_output.getvalue().strip())
 
     def test_debug_pytest(self):
-        cwd = locate_pyproject_toml_dir()
+        cwd = project_root_path
         try:
             postman_echo_dir = os.path.join(cwd, "examples", "postman_echo")
             os.chdir(postman_echo_dir)
