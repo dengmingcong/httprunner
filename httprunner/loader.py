@@ -3,16 +3,20 @@ import importlib
 import json
 import os
 import sys
+from argparse import ArgumentParser
 from importlib.metadata import entry_points
-from typing import Tuple, Dict, Union, Text, List, Callable
+from pathlib import Path
+from typing import Tuple, Dict, Union, Text, List, Callable, Optional
 
 import yaml
+from _pytest.pathlib import absolutepath
 from loguru import logger
 from pydantic import ValidationError
 
 from httprunner import builtin, utils
 from httprunner import exceptions
 from httprunner.models import TestCase, ProjectMeta, TestSuite
+from httprunner.pyproject import project_root_path
 
 try:
     # PyYAML version >= 5.1
@@ -294,59 +298,31 @@ def locate_file(start_path: Text, file_name: Text) -> Text:
     return locate_file(parent_dir, file_name)
 
 
-def locate_debugtalk_py(start_path: Text) -> Text:
-    """locate debugtalk.py file
-
-    Args:
-        start_path (str): start locating path,
-            maybe testcase file path or directory path
+def locate_httprunner_root_path() -> Tuple[Optional[Text], Text]:
+    """locate debugtalk.py path as httprunner root path.
 
     Returns:
-        str: debugtalk.py file path, None if not found
+        (str, str): debugtalk.py path, httprunner root path
     """
-    try:
-        # locate debugtalk.py file.
-        debugtalk_path = locate_file(start_path, "debugtalk.py")
-    except exceptions.FileNotFound:
-        debugtalk_path = None
+    # try to locate debugtalk.py file from command line option
+    parser = ArgumentParser()
+    parser.add_argument("--debugtalk-py-file", action="store")
+    if debugtalk_py_file := parser.parse_known_args(sys.argv)[0].debugtalk_py_file:
+        debugtalk_py_file = absolutepath(debugtalk_py_file)
 
-    return debugtalk_path
+        if not debugtalk_py_file.is_file():
+            raise FileNotFoundError(
+                f"debugtalk.py file not found: {debugtalk_py_file}"
+            )
 
+        return debugtalk_py_file.as_posix(), os.path.dirname(debugtalk_py_file)
 
-def locate_project_root_directory(test_path: Text) -> Tuple[Text, Text]:
-    """locate debugtalk.py path as project root directory
+    # find debugtalk.py file from project root dir
+    if (project_root_path / "debugtalk.py").is_file():
+        return (project_root_path / "debugtalk.py").as_posix(), project_root_path.as_posix()
 
-    Args:
-        test_path: specified testfile path
-
-    Returns:
-        (str, str): debugtalk.py path, project_root_directory
-    """
-
-    def prepare_path(path):
-        if not os.path.exists(path):
-            err_msg = f"path not exist: {path}"
-            logger.error(err_msg)
-            raise exceptions.FileNotFound(err_msg)
-
-        if not os.path.isabs(path):
-            path = os.path.join(os.getcwd(), path)
-
-        return path
-
-    test_path = prepare_path(test_path)
-
-    # locate debugtalk.py file
-    debugtalk_path = locate_debugtalk_py(test_path)
-
-    if debugtalk_path:
-        # The folder contains debugtalk.py will be treated as project RootDir.
-        project_root_directory = os.path.dirname(debugtalk_path)
-    else:
-        # debugtalk.py not found, use os.getcwd() as project RootDir.
-        project_root_directory = os.getcwd()
-
-    return debugtalk_path, project_root_directory
+    # current working directory as httprunner root path
+    return None, Path.cwd().as_posix()
 
 
 def load_debugtalk_functions() -> Dict[Text, Callable]:
@@ -398,7 +374,7 @@ def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
     # project_root_directory was set to the parent directory of debugtalk.py
     # WARNING: functions imported into debugtalk.py may not be recognized as debugtalk functions
     #  and `FunctionNotFound` error will be raised if referenced HttpRunner subclasses found in dependencies
-    debugtalk_path, project_root_directory = locate_project_root_directory(test_path)
+    debugtalk_path, project_root_directory = locate_httprunner_root_path()
 
     # add project RootDir to sys.path
     sys.path.insert(0, project_root_directory)
