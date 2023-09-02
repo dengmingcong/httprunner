@@ -91,7 +91,7 @@ def __ensure_absolute(path: Text) -> Text:
     if os.path.isabs(path):
         absolute_path = path
     else:
-        absolute_path = os.path.join(project_meta.RootDir, path)
+        absolute_path = os.path.join(project_meta.httprunner_root_path, path)
 
     if not os.path.isfile(absolute_path):
         logger.error(f"Invalid testcase file path: {absolute_path}")
@@ -136,7 +136,7 @@ def ensure_file_abs_path_valid(file_abs_path: Text) -> Text:
         path_names.append(name)
 
     new_file_path = os.path.join(
-        project_meta.RootDir, f"{os.sep.join(path_names)}{file_suffix}"
+        project_meta.httprunner_root_path, f"{os.sep.join(path_names)}{file_suffix}"
     )
     return new_file_path
 

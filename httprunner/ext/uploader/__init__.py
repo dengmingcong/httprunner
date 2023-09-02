@@ -171,10 +171,10 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
                 from httprunner.loader import load_project_meta
 
                 project_meta = load_project_meta("")
-                _file_path = os.path.join(project_meta.RootDir, value)
+                _file_path = os.path.join(project_meta.httprunner_root_path, value)
                 if not os.path.isfile(_file_path):
                     raise ValueError(
-                        f"no file '{value}' under '{project_meta.RootDir}' found"
+                        f"no file '{value}' under '{project_meta.httprunner_root_path}' found"
                     )
 
             # value is file path to upload
@@ -205,7 +205,7 @@ def multipart_encoder(**kwargs):
 
             project_meta = load_project_meta("")
 
-            _file_path = os.path.join(project_meta.RootDir, value)
+            _file_path = os.path.join(project_meta.httprunner_root_path, value)
             is_exists_file = os.path.isfile(_file_path)
 
         if is_exists_file:

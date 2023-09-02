@@ -354,7 +354,7 @@ def session_fixture(request):
 '''
 
     project_meta = load_project_meta(test_path)
-    project_root_dir = project_meta.RootDir
+    project_root_dir = project_meta.httprunner_root_path
     conftest_path = os.path.join(project_root_dir, "conftest.py")
 
     test_path = os.path.abspath(test_path)

@@ -171,7 +171,7 @@ def load_csv_file(csv_file: Text) -> List[Dict]:
             raise exceptions.MyBaseFailure("load_project_meta() has not been called!")
 
         # make compatible with Windows/Linux
-        csv_file = os.path.join(project_meta.RootDir, *csv_file.split("/"))
+        csv_file = os.path.join(project_meta.httprunner_root_path, *csv_file.split("/"))
 
     if not os.path.isfile(csv_file):
         # file path not exist
@@ -424,7 +424,7 @@ def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
         debugtalk_functions.update(load_debugtalk_functions())
 
     # locate project RootDir and load debugtalk.py functions
-    project_meta.RootDir = project_root_directory
+    project_meta.httprunner_root_path = project_root_directory
     project_meta.functions = debugtalk_functions
     project_meta.debugtalk_path = debugtalk_path
 
@@ -440,11 +440,11 @@ def convert_relative_project_root_dir(abs_path: Text) -> Text:
     Returns: relative path based on project_meta.RootDir
     """
     _project_meta = load_project_meta(abs_path)
-    if not abs_path.startswith(_project_meta.RootDir):
+    if not abs_path.startswith(_project_meta.httprunner_root_path):
         raise exceptions.ParamsError(
             f"failed to convert absolute path to relative path based on project_meta.RootDir\n"
             f"abs_path: {abs_path}\n"
-            f"project_meta.RootDir: {_project_meta.RootDir}"
+            f"project_meta.RootDir: {_project_meta.httprunner_root_path}"
         )
 
-    return abs_path[len(_project_meta.RootDir) + 1 :]  # noqa
+    return abs_path[len(_project_meta.httprunner_root_path) + 1:]  # noqa
