@@ -1,12 +1,15 @@
 import os
 import types
 from enum import Enum
+from pathlib import Path
 from typing import Any, Optional
 from typing import Dict, Text, Union, Callable
 from typing import List
 
 import requests
 from pydantic import BaseModel, Field, HttpUrl
+
+from httprunner.pyproject import locate_pyproject_toml_dir
 
 Name = Text
 Url = Text
@@ -135,6 +138,7 @@ class ProjectMeta(BaseModel):
     functions: FunctionsMapping = {}  # functions defined in debugtalk.py
     env: Env = {}
     httprunner_root_path: Text = os.getcwd()  # the path debugtalk.py located
+    project_root_path: Path = locate_pyproject_toml_dir()  # the path pyproject.toml located
 
 
 class TestsMapping(BaseModel):
