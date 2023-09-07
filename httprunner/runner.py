@@ -2,7 +2,6 @@ import inspect
 import json
 import os
 import time
-import uuid
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union, Callable
 
@@ -1147,7 +1146,8 @@ class HttpRunner(object):
         # the location of the first testcase decided the project meta
         # for project meta would usually be located once
         self.__project_meta = self.__project_meta or load_project_meta()
-        self.__case_id = self.__case_id or str(uuid.uuid4())
+        # no need to set case id
+        # self.__case_id = self.__case_id or str(uuid.uuid4())
         self.__log_path = self.__log_path or os.path.join(
             self.__project_meta.httprunner_root_path,
             "logs",
