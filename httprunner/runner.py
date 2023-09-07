@@ -1168,7 +1168,7 @@ class HttpRunner(object):
         if self.__use_allure:
             # update allure report meta
             allure.dynamic.title(self.__config.name)
-            allure.dynamic.description(f"TestCase ID: {self.__case_id}")
+            allure.dynamic.description(type(self).__doc__)
 
         logger.info(
             f"Start to run testcase: {self.__config.name}, TestCase ID: {self.__case_id}"
