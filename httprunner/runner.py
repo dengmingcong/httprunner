@@ -1132,15 +1132,14 @@ class HttpRunner(object):
 
     def test_start(self, *args: dict, **_ignored) -> "HttpRunner":
         """
-        main entrance, discovered by pytest.
+        Main entrance for pytest discovering.
 
-        Note:
-            The base method `HttpRunner.test_start` only takes account the first positional argument,
-            all other positional arguments and keyword arguments will be ignored.
-
-            Why defining the method parameters as `*args: dict, **_ignored` is just to skip this warning:
-                > Signature of method 'TestCaseRequestWithVariables.test_start()' does not match
-                > signature of the base method in class 'HttpRunner'
+        Only the first argument will be used, and it must be a dict.All other arguments will be ignored.
+        """
+        """
+        Why defining the method parameters as `*args: dict, **_ignored` is just to skip this warning:
+            > Signature of method 'TestCaseRequestWithVariables.test_start()' does not match
+            > signature of the base method in class 'HttpRunner'
         """
         self.__init_tests__()
         self.__continue_on_failure = self.__config.continue_on_failure
