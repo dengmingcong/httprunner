@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v3.29.5 (2023-09-07)
+
+### Fix
+
+* Display class docstring as `Description` in allure report ([`02fe084`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/02fe084c9024cde63cd0fbd69a97b7f38e1caba6))
+
+### Documentation
+
+* Simplify test_start docstring to make it look better in allure report ([`9bfc303`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9bfc3035354430c278dd410cb72b2f984a87903a))
+
 ## v3.29.4 (2023-09-02)
 
 ### Fix
