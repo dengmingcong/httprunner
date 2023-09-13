@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.31.0 (2023-09-13)
+
+### Feature
+
+* Enable validator `all` adding additional keyword arguments ([`f9be706`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/f9be7066ba407a79484bac4cab54a11eb11f020c))
+
 ## v3.30.0 (2023-09-13)
 
 ### Feature
