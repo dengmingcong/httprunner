@@ -431,13 +431,22 @@ class StepRequestValidation(object):
     def assert_all(
         self,
         jmespath_expression: Text,
-        expected_value: Optional[Callable] = None,
+        expected_value: Optional[Union[Callable, tuple[Callable, dict]]] = None,
         message: Text = "",
     ):
         """
         Pass `jmespath_expression` searching result to builtin function `all` and assert the result.
 
         If `expected_value` is callable, searching result will be passed to it first, then pass the result to `all`.
+        The callable accepts only one positional argument.
+        >>> StepRequestValidation().assert_all("body.result", lambda x: [v is not None for k, v in x.items()])
+
+        If `expected_value` is a tuple, the first element must be callable, the second element must a dict.
+        `jmespath_expression` searching result will be pass to the callable as the first positional argument,
+        the second dict element will be passed as keyword arguments to the callable.
+        >>> def iterable_to_bool(iterable: dict, ignored: list):
+        ...    return [v is not None for k, v in iterable.items() if v not in ignored]
+        >>> StepRequestValidation().assert_all("body.result", (iterable_to_bool, {"ignored": ["foo", "bar"]}))
 
         Reference: https://docs.python.org/3/library/functions.html#all
         """
