@@ -4,7 +4,7 @@ Built-in validate comparators.
 import math
 import re
 from collections import defaultdict
-from typing import Callable, Literal
+from typing import Callable, Literal, Iterable, Optional
 from typing import Text, Any, Union, NoReturn
 
 from httprunner.builtin.jsonassert import (  # noqa
@@ -12,6 +12,7 @@ from httprunner.builtin.jsonassert import (  # noqa
     json_contains,
     json_equal,
 )
+from httprunner.exceptions import ParamsError
 
 Number = Union[int, float]
 
@@ -243,3 +244,19 @@ def list_sorted_in(
         f"actual value: {check_value}\n"
         f"expect value: {sorted_value}"
     )
+
+
+def all_(check_value: Iterable, expect_value: Optional[Callable], message: Text = ""):
+    """Pass `check_value` to builtin function `all`.
+
+    If `expect_value` is callable, `check_value` will be passed to it first, then pass the result to `all`.
+    """
+    if expect_value is not None and not callable(expect_value):
+        raise ParamsError(
+            f"expect_value should be callable, but got {type(expect_value)}"
+        )
+
+    if callable(expect_value):
+        check_value = expect_value(check_value)
+
+    assert all(check_value), message

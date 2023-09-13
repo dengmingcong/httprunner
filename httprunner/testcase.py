@@ -414,7 +414,7 @@ class StepRequestValidation(object):
         message: Text = "",
     ) -> "StepRequestValidation":
         """
-        Return True if the valuse are close to each other and False otherwise.
+        Return True if the values are close to each other and False otherwise.
 
         References:
             math.isclose() from https://docs.python.org/3/library/math.html
@@ -425,6 +425,24 @@ class StepRequestValidation(object):
         """
         self._step_context.validators.append(
             {"is_close": [jmespath_expression, expected_value, message]}
+        )
+        return self
+
+    def assert_all(
+        self,
+        jmespath_expression: Text,
+        expected_value: Optional[Callable] = None,
+        message: Text = "",
+    ):
+        """
+        Pass `jmespath_expression` searching result to builtin function `all` and assert the result.
+
+        If `expected_value` is callable, searching result will be passed to it first, then pass the result to `all`.
+
+        Reference: https://docs.python.org/3/library/functions.html#all
+        """
+        self._step_context.validators.append(
+            {"all_": [jmespath_expression, expected_value, message]}
         )
         return self
 
