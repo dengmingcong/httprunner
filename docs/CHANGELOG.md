@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.30.0 (2023-09-13)
+
+### Feature
+
+* Add validator `assert_all` to assert all elements are true ([`d32fe6b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/d32fe6b2b4fc32b65481b495f4bc296f4d0231b2))
+
 ## v3.29.5 (2023-09-07)
 
 ### Fix
