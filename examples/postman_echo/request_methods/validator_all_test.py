@@ -27,6 +27,20 @@ class TestValidatorAll(HttpRunner):
             .assert_equal("status_code", 200)
             .assert_all("body.json", lambda x: [v is not None for k, v in x.items()])
         ),
+        Step(
+            RunRequest("validate with all and processor and kwargs")
+            .post("/post")
+            .with_json({"foo": 1, "bar": 2, "baz": None})
+            .validate()
+            .assert_equal("status_code", 200)
+            .assert_all(
+                "body.json",
+                (
+                    lambda x, keys: [v is not None for k, v in x.items() if v in keys],
+                    {"keys": ["foo", "bar"]},
+                ),
+            )
+        ),
     ]
 
 
