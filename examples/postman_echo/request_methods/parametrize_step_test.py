@@ -108,4 +108,14 @@ class TestParametrizeStep(HttpRunner):
             .assert_equal("body.json.foo", "$foo")
             .assert_equal("body.json.bar", "$bar")
         ),
+        Step(
+            RunRequest("value of variable is a dict")
+            .parametrize("foo,bar", [(1, 1), (2, 2)])
+            .with_variables(**{"baz": {"foo": "$foo"}})
+            .post("/post")
+            .with_json({"foo": "$baz", "bar": "$bar"})
+            .validate()
+            .assert_equal("body.json.foo.foo", "$foo")
+            .assert_equal("body.json.bar", "$bar")
+        ),
     ]
