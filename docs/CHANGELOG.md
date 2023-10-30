@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.31.1 (2023-10-30)
+
+### Fix
+
+* Do not parse step.variables before expanding parametrized step ([`2f92b80`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/2f92b8005b5f75981a3ba9a0201888ffaeba2d81))
+
 ## v3.31.0 (2023-09-13)
 
 ### Feature
