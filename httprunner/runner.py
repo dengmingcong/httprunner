@@ -782,7 +782,9 @@ class HttpRunner(object):
             config.base_url, config.variables, self.__project_meta.functions
         )
 
-    def __parse_validate_parametrized_step_parameters(self, step: TStep) -> NoReturn:
+    def __parse_validate_parametrized_step_parameters(
+        self, step: TStep, step_config_variables: dict
+    ) -> NoReturn:
         """Parse and validate parameters of specific parametrized step."""
         argnames, argvalues, ids = step.parametrize
 
@@ -793,8 +795,11 @@ class HttpRunner(object):
                 f"Hint: use comma to split multiple arguments"
             )
 
-        argvalues = parse_data(argvalues, step.variables, self.__project_meta.functions)
-        ids = parse_data(ids, step.variables, self.__project_meta.functions)
+        # cannot parse with step.variables for itself may contain variables that was not parsed yet
+        argvalues = parse_data(
+            argvalues, step_config_variables, self.__project_meta.functions
+        )
+        ids = parse_data(ids, step_config_variables, self.__project_meta.functions)
 
         if not isinstance(argvalues, (list, tuple)):
             raise TypeError(
@@ -832,13 +837,18 @@ class HttpRunner(object):
 
         step.parametrize = (argnames, argvalues, ids)
 
-    def __expand_parametrized_step(self, origin_step: TStep) -> list[TStep]:
+    def __expand_parametrized_step(
+        self, origin_step: TStep, step_config_variables: dict
+    ) -> list[TStep]:
         """
         Expand one parametrized step.
 
         :param origin_step: the original step to be expanded
+        :param step_config_variables: variables outside of this step
         """
-        self.__parse_validate_parametrized_step_parameters(origin_step)
+        self.__parse_validate_parametrized_step_parameters(
+            origin_step, step_config_variables
+        )
 
         # argnames, argvalues, and ids have already been parsed
         argnames, argvalues, ids = origin_step.parametrize
@@ -885,6 +895,16 @@ class HttpRunner(object):
                 extracted_variables, self.__config.variables
             )
 
+            if step.parametrize:
+                # step.variables have already been parsed
+                expanded_steps = self.__expand_parametrized_step(
+                    step, step_config_variables
+                )
+                self.__run_steps(expanded_steps, extracted_variables)
+
+                # parametrized step is a step wrapper, codes later was not needed for itself
+                continue
+
             # step variables set with HttpRunnerRequest.with_variables() > step outside variables
             step.variables = merge_variables(step.variables, step_config_variables)
 
@@ -905,12 +925,6 @@ class HttpRunner(object):
                         self.__project_meta.functions,
                     )
                 step.variables.update(parsed_raw_variables)
-
-            if step.parametrize:
-                # step.variables have already been parsed
-                expanded_steps = self.__expand_parametrized_step(step)
-                self.__run_steps(expanded_steps, extracted_variables)
-                continue
 
             # for HttpRunnerRequest step
             if step.request_config:
