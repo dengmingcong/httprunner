@@ -2,6 +2,20 @@
 
 <!--next-version-placeholder-->
 
+## v3.32.0 (2023-10-31)
+
+### Feature
+
+* Add parameter `is_skip_empty_parameter` (default: True) to enable skipping steps when argvalues are empty ([`d69207a`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/d69207a0421793611a8bc57610bfc4151a037c9f))
+
+### Fix
+
+* Clear step's variables if the step was supposed to be skipped ([`8e8bbf6`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/8e8bbf60fca86a28b54c59971691390e50ecb63e))
+
+### Documentation
+
+* Change the description of why step was skipped ([`b71c3de`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b71c3de69b7108ad6bc1afba81f827d6b6092cb6))
+
 ## v3.31.1 (2023-10-30)
 
 ### Fix
