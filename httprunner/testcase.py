@@ -410,7 +410,7 @@ class StepRequestValidation(object):
     def assert_is_close(
         self,
         jmespath_expression: Text,
-        expected_value: tuple[Number, Number],
+        expected_value: Union[tuple[Number, Number], str],
         message: Text = "",
     ) -> "StepRequestValidation":
         """
@@ -431,7 +431,7 @@ class StepRequestValidation(object):
     def assert_all(
         self,
         jmespath_expression: Text,
-        expected_value: Optional[Union[Callable, tuple[Callable, dict]]] = None,
+        expected_value: Optional[Union[Callable, tuple[Callable, dict], str]] = None,
         message: Text = "",
     ):
         """
