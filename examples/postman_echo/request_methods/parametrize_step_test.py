@@ -118,4 +118,14 @@ class TestParametrizeStep(HttpRunner):
             .assert_equal("body.json.foo.foo", "$foo")
             .assert_equal("body.json.bar", "$bar")
         ),
+        Step(
+            RunRequest("is_skip_empty_parameter is True")
+            .parametrize("foo,bar", [])
+            .with_variables(**{"baz": {"foo": "$foo"}})
+            .post("/post")
+            .with_json({"foo": "$baz", "bar": "$bar"})
+            .validate()
+            .assert_equal("body.json.foo.foo", "$foo")
+            .assert_equal("body.json.bar", "$bar")
+        ),
     ]
