@@ -784,9 +784,9 @@ class HttpRunner(object):
 
     def __parse_validate_parametrized_step_parameters(
         self, step: TStep, step_config_variables: dict
-    ) -> NoReturn:
+    ) -> tuple:
         """Parse and validate parameters of specific parametrized step."""
-        argnames, argvalues, ids = step.parametrize
+        argnames, argvalues, ids, is_skip_empty_parameter = step.parametrize
 
         # make sure argnames is a str
         if not isinstance(argnames, str):
@@ -795,47 +795,63 @@ class HttpRunner(object):
                 f"Hint: use comma to split multiple arguments"
             )
 
-        # cannot parse with step.variables for itself may contain variables that was not parsed yet
-        argvalues = parse_data(
+        parsed_argnames = argnames
+
+        # parse data with step_config_variables instead of with step.variables.
+        # cannot parse with step.variables for itself may contain variables that was not parsed yet.
+        parsed_argvalues = parse_data(
             argvalues, step_config_variables, self.__project_meta.functions
         )
-        ids = parse_data(ids, step_config_variables, self.__project_meta.functions)
+        parsed_ids = parse_data(
+            ids, step_config_variables, self.__project_meta.functions
+        )
 
-        if not isinstance(argvalues, (list, tuple)):
-            raise TypeError(
-                f"type of argvalues after parsing must be either list or tuple, but got {type(argvalues)}"
+        # empty argvalues are also accepted if `is_skip_empty_parameter` is True
+        if is_skip_empty_parameter and not parsed_argvalues:
+            return (
+                parsed_argnames,
+                parsed_argvalues,
+                parsed_ids,
+                is_skip_empty_parameter,
             )
 
-        if not argvalues:
-            raise ValueError("argvalues cannot be an empty list")
+        if not isinstance(parsed_argvalues, (list, tuple)):
+            raise TypeError(
+                f"type of argvalues after parsing must be either list or tuple, but got {type(parsed_argvalues)}"
+            )
+
+        if not parsed_argvalues:
+            raise ValueError(
+                "argvalues cannot be an empty list if `is_skip_empty_parameter` was set to False"
+            )
 
         if "," in argnames:
-            argnames = [_.strip() for _ in argnames.split(",")]
+            parsed_argnames = [_.strip() for _ in argnames.split(",")]
 
             # each element should be a tuple
-            for argvalue in argvalues:
+            for argvalue in parsed_argvalues:
                 if not isinstance(argvalue, (tuple, list)):
                     raise TypeError(
                         "type of each argvalue-element must be tuple or list if argnames contain comma"
                     )
 
-                if len(argvalue) != len(argnames):
+                if len(argvalue) != len(parsed_argnames):
                     raise ValueError(
                         "length of each argvalue-element must be equal to argnames if argnames contain comma"
                     )
 
-        if ids is not None:
-            if not isinstance(ids, (list, tuple)):
+        if parsed_ids is not None:
+            if not isinstance(parsed_ids, (list, tuple)):
                 raise TypeError(
-                    f"if ids was specified, it's type must be list or tuple, but got {type(ids)}"
+                    f"if ids was specified, it's type must be list or tuple, but got {type(parsed_ids)}"
                 )
 
-            if len(ids) != len(argvalues):
+            if len(parsed_ids) != len(parsed_argvalues):
                 raise ValueError(
                     "length of ids must be equal to parsed argvalues if ids is a list or tuple"
                 )
 
-        step.parametrize = (argnames, argvalues, ids)
+        return parsed_argnames, parsed_argvalues, parsed_ids, is_skip_empty_parameter
 
     def __expand_parametrized_step(
         self, origin_step: TStep, step_config_variables: dict
@@ -846,15 +862,27 @@ class HttpRunner(object):
         :param origin_step: the original step to be expanded
         :param step_config_variables: variables outside of this step
         """
-        self.__parse_validate_parametrized_step_parameters(
+        # argnames, argvalues, and ids have already been parsed
+        (
+            argnames,
+            argvalues,
+            ids,
+            is_skip_empty_parameter,
+        ) = self.__parse_validate_parametrized_step_parameters(
             origin_step, step_config_variables
         )
 
-        # argnames, argvalues, and ids have already been parsed
-        argnames, argvalues, ids = origin_step.parametrize
-
         # eliminate 'parametrize' to avoid expanding this step again
         origin_step.parametrize = None
+
+        # skip step if `is_skip_empty_parameter` is True and parsed `argvalues` is empty
+        if is_skip_empty_parameter and not argvalues:
+            origin_step.skip_on_condition = True
+            origin_step.name = f"{origin_step.name} ◀︎此参数化步骤被跳过，因为 is_skip_empty_parameter 为 true 且解析后 argvalues 为空"
+
+            # clear step.variables for they may reference variables defined by `parametrize`
+            origin_step.variables = {}
+            return [origin_step]
 
         expanded_steps = []
         for i, argvalue in enumerate(argvalues):
