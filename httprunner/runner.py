@@ -879,6 +879,9 @@ class HttpRunner(object):
         if is_skip_empty_parameter and not argvalues:
             origin_step.skip_on_condition = True
             origin_step.name = f"{origin_step.name}（跳过步骤，因为 is_skip_empty_parameter=True 且解析后 argvalues 为空）"
+
+            # clear step.variables for they may reference variables defined by `parametrize`
+            origin_step.variables = {}
             return [origin_step]
 
         expanded_steps = []
