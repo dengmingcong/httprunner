@@ -686,6 +686,8 @@ class RunRequestSetupMixin(object):
         argnames: str,
         argvalues: Union[str, Iterable[Union[Sequence[object], object]]],
         ids: Optional[Union[str, Iterable]] = None,
+        *,
+        is_skip_empty_parameter: bool = True
     ) -> "RunRequestSetupMixin":
         """
         Parametrize step.
@@ -695,8 +697,14 @@ class RunRequestSetupMixin(object):
             If N argnames were specified, argvalues must be a list of N-tuples, where each tuple-element
             specifies a value for its respective argname.
         :param ids: Sequence of ids for argvalues.
+        :param is_skip_empty_parameter: skip steps with an empty parameter set
         """
-        self._step_context.parametrize = (argnames, argvalues, ids)
+        self._step_context.parametrize = (
+            argnames,
+            argvalues,
+            ids,
+            is_skip_empty_parameter,
+        )
         return self
 
     def retry_on_failure(
@@ -903,6 +911,8 @@ class RunTestCase(object):
         argnames: str,
         argvalues: Union[str, Iterable[Union[Sequence[object], object]]],
         ids: Optional[Union[str, Iterable]] = None,
+        *,
+        is_skip_empty_parameter: bool = True
     ) -> "RunTestCase":
         """
         Parametrize step.
@@ -912,8 +922,14 @@ class RunTestCase(object):
             If N argnames were specified, argvalues must be a list of N-tuples, where each tuple-element
             specifies a value for its respective argname.
         :param ids: Sequence of ids for argvalues.
+        :param is_skip_empty_parameter: skip steps with an empty parameter set
         """
-        self._step_context.parametrize = (argnames, argvalues, ids)
+        self._step_context.parametrize = (
+            argnames,
+            argvalues,
+            ids,
+            is_skip_empty_parameter,
+        )
         return self
 
     def skip_if(self, condition: Any, reason: str = None) -> "RunTestCase":
