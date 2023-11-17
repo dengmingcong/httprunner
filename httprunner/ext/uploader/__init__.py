@@ -115,13 +115,6 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
     # convert keys to lowercase for keys of http headers are case-sensitive
     headers = {k.lower(): v for k, v in step.request.headers.items()}
 
-    # print warning if header content-type detected
-    if "content-type" in step.request.headers:
-        logger.warning(
-            f"The header 'Content-Type: {headers.get('content-type')}' you provided will be overwritten "
-            f"with that guessed by lib filetype. You don't need to specify Content-Type header when uploading files."
-        )
-
     # upload file as multipart/form by default
     upload_file_type = "multipart"
 
@@ -147,7 +140,12 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
         # parse variables
         step.variables = parse_variables_mapping(step.variables, functions)
 
-        step.request.headers["Content-Type"] = "${multipart_content_type($m_encoder)}"
+        # priority: custom content-type > guessed content-type
+        if "content-type" not in step.request.headers:
+            step.request.headers[
+                "Content-Type"
+            ] = "${multipart_content_type($m_encoder)}"
+
         step.request.data = "$m_encoder"
     else:
         # discrete
@@ -177,11 +175,13 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
                         f"no file '{value}' under '{project_meta.httprunner_root_path}' found"
                     )
 
-            # value is file path to upload
-            mime_type = get_filetype(_file_path)
-            file_handler = open(_file_path, "rb")
+            # priority: custom content-type > guessed content-type
+            if "content-type" not in step.request.headers:
+                mime_type = get_filetype(_file_path)
+                step.request.headers["Content-Type"] = mime_type
 
-            step.request.headers["Content-Type"] = mime_type
+            # value is file path to upload
+            file_handler = open(_file_path, "rb")
             step.request.data = file_handler
 
 
