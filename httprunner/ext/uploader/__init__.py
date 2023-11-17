@@ -113,14 +113,14 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
     ensure_upload_ready()
 
     # convert keys to lowercase for keys of http headers are case-sensitive
-    headers = {k.lower(): v for k, v in step.request.headers.items()}
+    lowercase_headers = {k.lower(): v for k, v in step.request.headers.items()}
 
     # upload file as multipart/form by default
     upload_file_type = "multipart"
 
     # set upload_file_type with value extracted from header
-    if "x-upload-file-as" in headers:
-        upload_file_type = headers.get("x-upload-file-as")
+    if "x-upload-file-as" in lowercase_headers:
+        upload_file_type = lowercase_headers.get("x-upload-file-as")
         if upload_file_type not in ["multipart", "discrete"]:
             raise ValueError(
                 f"Value for header 'X-Upload-File-As' can only be 'multipart' or 'discrete', "
@@ -141,7 +141,7 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
         step.variables = parse_variables_mapping(step.variables, functions)
 
         # priority: custom content-type > guessed content-type
-        if "content-type" not in step.request.headers:
+        if "content-type" not in lowercase_headers:
             step.request.headers[
                 "Content-Type"
             ] = "${multipart_content_type($m_encoder)}"
@@ -176,7 +176,7 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
                     )
 
             # priority: custom content-type > guessed content-type
-            if "content-type" not in step.request.headers:
+            if "content-type" not in lowercase_headers:
                 mime_type = get_filetype(_file_path)
                 step.request.headers["Content-Type"] = mime_type
 
