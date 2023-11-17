@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v3.32.1 (2023-11-17)
+
+### Fix
+
+* Bad reference ([`6776f26`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/6776f26912e460ebd1af11bbba0c74b88cd3b26d))
+* Make priority of custom content-type higher than that guess via file content ([`7d93675`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/7d93675c107184aa9e352f97e0e8b09a9fee202e))
+
 ## v3.32.0 (2023-10-31)
 
 ### Feature
