@@ -41,6 +41,16 @@ class TestCaseUpload(HttpRunner):
             .validate()
             .assert_equal("status_code", 200)
         ),
+        Step(
+            RunRequest("upload file with discrete mime type and custom content-type")
+            .post("/post")
+            .upload(**{"email": "foo.eml"})
+            .with_headers(
+                **{"X-Upload-File-As": "discrete", "Content-Type": "message/rfc822"}
+            )
+            .validate()
+            .assert_equal("status_code", 200)
+        ),
     ]
 
 

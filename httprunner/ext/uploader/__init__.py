@@ -113,21 +113,14 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
     ensure_upload_ready()
 
     # convert keys to lowercase for keys of http headers are case-sensitive
-    headers = {k.lower(): v for k, v in step.request.headers.items()}
-
-    # print warning if header content-type detected
-    if "content-type" in step.request.headers:
-        logger.warning(
-            f"The header 'Content-Type: {headers.get('content-type')}' you provided will be overwritten "
-            f"with that guessed by lib filetype. You don't need to specify Content-Type header when uploading files."
-        )
+    lowercase_headers = {k.lower(): v for k, v in step.request.headers.items()}
 
     # upload file as multipart/form by default
     upload_file_type = "multipart"
 
     # set upload_file_type with value extracted from header
-    if "x-upload-file-as" in headers:
-        upload_file_type = headers.get("x-upload-file-as")
+    if "x-upload-file-as" in lowercase_headers:
+        upload_file_type = lowercase_headers.get("x-upload-file-as")
         if upload_file_type not in ["multipart", "discrete"]:
             raise ValueError(
                 f"Value for header 'X-Upload-File-As' can only be 'multipart' or 'discrete', "
@@ -147,7 +140,12 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
         # parse variables
         step.variables = parse_variables_mapping(step.variables, functions)
 
-        step.request.headers["Content-Type"] = "${multipart_content_type($m_encoder)}"
+        # priority: custom content-type > guessed content-type
+        if "content-type" not in lowercase_headers:
+            step.request.headers[
+                "Content-Type"
+            ] = "${multipart_content_type($m_encoder)}"
+
         step.request.data = "$m_encoder"
     else:
         # discrete
@@ -177,11 +175,13 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
                         f"no file '{value}' under '{project_meta.httprunner_root_path}' found"
                     )
 
-            # value is file path to upload
-            mime_type = get_filetype(_file_path)
-            file_handler = open(_file_path, "rb")
+            # priority: custom content-type > guessed content-type
+            if "content-type" not in lowercase_headers:
+                mime_type = get_filetype(_file_path)
+                step.request.headers["Content-Type"] = mime_type
 
-            step.request.headers["Content-Type"] = mime_type
+            # value is file path to upload
+            file_handler = open(_file_path, "rb")
             step.request.data = file_handler
 
 

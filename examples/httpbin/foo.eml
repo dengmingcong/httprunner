@@ -1,0 +1,99 @@
+Received: from DM6PR14MB3945.namprd14.prod.outlook.com (2603:10b6:5:215::15)
+ by MW5PR14MB5410.namprd14.prod.outlook.com with HTTPS; Mon, 13 Nov 2023
+ 07:27:24 +0000
+Received: from MW5PR14MB5410.namprd14.prod.outlook.com (2603:10b6:303:194::11)
+ by DM6PR14MB3945.namprd14.prod.outlook.com (2603:10b6:5:215::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6977.31; Mon, 13 Nov
+ 2023 07:27:22 +0000
+Received: from MW5PR14MB5410.namprd14.prod.outlook.com
+ ([fe80::fa8e:c947:4ea:25a4]) by MW5PR14MB5410.namprd14.prod.outlook.com
+ ([fe80::fa8e:c947:4ea:25a4%3]) with mapi id 15.20.6954.029; Mon, 13 Nov 2023
+ 07:27:21 +0000
+From: Raigor.Deng 邓明聪 <raigor.deng@vesync.com>
+To: Raigor.Deng 邓明聪 <raigor.deng@vesync.com>
+Subject: test
+Thread-Topic: test
+Thread-Index: AQHaFgK5v+1yU6DSNkKmRhq/aWmagA==
+Date: Mon, 13 Nov 2023 07:27:02 +0000
+Message-ID:
+	<MW5PR14MB54101F054082AA533397540187B3A@MW5PR14MB5410.namprd14.prod.outlook.com>
+Accept-Language: zh-CN, en-US
+Content-Language: en-US
+X-MS-Exchange-Organization-AuthAs: Internal
+X-MS-Exchange-Organization-AuthMechanism: 04
+X-MS-Exchange-Organization-AuthSource: MW5PR14MB5410.namprd14.prod.outlook.com
+X-MS-Has-Attach:
+X-MS-Exchange-Organization-Network-Message-Id:
+	18a4d055-e703-4f3f-d3f0-08dbe419f9ca
+X-MS-Exchange-Organization-SCL: 1
+X-MS-TNEF-Correlator:
+X-MS-Exchange-Organization-RecordReviewCfmType: 0
+x-ms-publictraffictype: Email
+X-Microsoft-Antispam-Mailbox-Delivery:
+	ucf:0;jmr:0;auth:0;dest:I;ENG:(910001)(944506478)(944626604)(920097)(425001)(930097)(140003);
+X-Microsoft-Antispam-Message-Info:
+	manJd1XdJx1hZ27Mm4Pzi7+sgG16SVRsCDTAXMuBQePpsyVzSHat/3TENCUnKrya5oQ/SdBSGmfJ2OxSKOe3M2YY15+KmMmNzpv/9+gSOW97fdJEvcOZqd9Wumx81b3njqi0DIIXKMVwbiz3SyLyXbr9UNllgSZaktLoHRLFf/Nn3YYFboftkJVXMOFDGpMK6fga3ddnlo2obe+ytrmMasmgHfTC4YBZYMKGq1smSxQGu5NrqUljjaWq4k1zVuSPxetwov2RGHKK8ruNsz5/F7LiymR6eEzxiGNj/plHi5wKDWp46aNsiatSByG1Bz2RKDsgfAaUM4YhECcLhaaZlYMS3xPPId+Qq8qZqy3Q8/6LzNvAbh7mwrYl7EsjlN0XTadYotrkc7ojlY8zq4kZTSgMvFd1XSlsa9pT+ADI4uj1Yy7lIzG9q6L3DRF+Nn/I
+Content-Type: multipart/alternative;
+	boundary="_000_MW5PR14MB54101F054082AA533397540187B3AMW5PR14MB5410namp_"
+MIME-Version: 1.0
+
+--_000_MW5PR14MB54101F054082AA533397540187B3AMW5PR14MB5410namp_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+
+dGVzdA0K
+
+--_000_MW5PR14MB54101F054082AA533397540187B3AMW5PR14MB5410namp_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns:m=3D"http://schemas.microsoft.com/of=
+fice/2004/12/omml" xmlns=3D"http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dgb2312">
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:DengXian;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"\@DengXian";
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;
+	mso-ligatures:standardcontextual;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style>
+</head>
+<body lang=3D"en-CN" link=3D"#0563C1" vlink=3D"#954F72" style=3D"word-wrap:=
+break-word">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal"><span lang=3D"EN-US">test<o:p></o:p></span></p>
+</div>
+</body>
+</html>
+
+--_000_MW5PR14MB54101F054082AA533397540187B3AMW5PR14MB5410namp_--
