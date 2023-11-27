@@ -476,13 +476,10 @@ def parse_string(
         # search variable like ${var} or $var
         var_match = variable_regex_compile.match(raw_string, match_start_position)
         if var_match:
-            name_not_found = var_match.group(1) or var_match.group(2)
-            var_value = get_mapping_variable(name_not_found, variables_mapping)
+            var_name = var_match.group(1) or var_match.group(2)
+            var_value = get_mapping_variable(var_name, variables_mapping)
 
-            if (
-                f"${name_not_found}" == raw_string
-                or "${" + name_not_found + "}" == raw_string
-            ):
+            if f"${var_name}" == raw_string or "${" + var_name + "}" == raw_string:
                 # raw_string is a variable, $var or ${var}, return its value directly
                 return var_value
 
