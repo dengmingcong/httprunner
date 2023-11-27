@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.32.2 (2023-11-27)
+
+### Fix
+
+* Retry parsing on NameError when parsing expression `pyexp` ([`fee0eac`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/fee0eac3516d55765e5b688662089631b458c922))
+
 ## v3.32.1 (2023-11-17)
 
 ### Fix
