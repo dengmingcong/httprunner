@@ -6,11 +6,12 @@ import time
 from typing import Any, Set, Text, Callable, List, Dict
 from urllib.parse import urlparse
 
+from dotwiz import DotWiz
 from loguru import logger
 from sentry_sdk import capture_exception
-from dotwiz import DotWiz
 
 from httprunner import loader, utils, exceptions
+from httprunner.exceptions import VariableNotFound
 from httprunner.models import VariablesMapping, FunctionsMapping
 
 absolute_http_url_regexp = re.compile(r"^https?://", re.I)
@@ -358,7 +359,14 @@ def parse_string(
             globals_ = {}
             globals_.update(variables_mapping)
             globals_.update(functions_mapping)
-            return eval(pyexp_full_match.group(1), globals_)
+            try:
+                return eval(pyexp_full_match.group(1), globals_)
+            except NameError as ne:
+                # get the name not defined from exception, e.g. name 'baz' is not defined
+                name_not_found = str(ne).split("'")[1]
+                raise VariableNotFound(
+                    f"{name_not_found} not found in {variables_mapping}", name_not_found
+                ) from ne
 
     try:
         match_start_position = raw_string.index("$", 0)
@@ -632,7 +640,7 @@ def parse_variables_mapping(
                     outer_var_value, parsed_variables, functions_mapping
                 )
             except exceptions.VariableNotFound as exc:
-                # get variables from exception arguments
+                # get variables from exception arguments, e.g. ("baz not found in {'foo': 1, 'bar': 2}", "baz")
                 if len(exc.args) >= 2:
                     not_found_variables.add(exc.args[1])
                 continue
