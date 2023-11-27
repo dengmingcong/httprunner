@@ -9,12 +9,7 @@ class TestPyexp(HttpRunner):
 
     config = (
         Config("test pyexp")
-        .variables(
-            **{
-                "foo": 1,
-                "bar": 2
-            }
-        )
+        .variables(**{"foo": 1, "bar": 2})
         .base_url("https://postman-echo.com")
         .verify(False)
     )
@@ -23,13 +18,24 @@ class TestPyexp(HttpRunner):
         Step(
             RunRequest("request with pyexp")
             .post("/post")
-            .with_json({
-                "sum": "${pyexp(foo + bar)}",
-                "app_version": "${pyexp(get_app_version()[0])}"
-            })
+            .with_json(
+                {
+                    "sum": "${pyexp(foo + bar)}",
+                    "app_version": "${pyexp(get_app_version()[0])}",
+                }
+            )
             .validate()
             .assert_equal("status_code", 200)
             .assert_equal("body.json.sum", 3)
             .assert_equal("body.json.app_version", 3.1)
+        ),
+        Step(
+            RunRequest("pyexp retry on variable not found")
+            .with_variables(**{"sum": "${pyexp(foo + bar + baz)}", "baz": 3})
+            .post("/post")
+            .with_json({"sum": "$sum"})
+            .validate()
+            .assert_equal("status_code", 200)
+            .assert_equal("body.json.sum", 6)
         ),
     ]
