@@ -37,7 +37,7 @@ filetype = "1.2.0"
 jinja2 = "3.1.2"
 jmespath = "1.0.1"
 loguru = "0.7.0"
-pydantic = "1.8.2"  # reference: https://github.com/httprunner/httprunner/issues/1141
+pydantic = "^2.5.0"
 pytest = "7.4.0"
 pytest-html = "3.2.0"
 python = "^3.9"
@@ -63,6 +63,7 @@ locust = "2.16.1"
 pre-commit = "3.3.3"
 pyinstrument = "4.5.1"
 uvicorn = "0.23.2"
+bump-pydantic = "^0.7.0"
 
 [tool.poetry.scripts]
 har2case = "httprunner.cli:main_har2case_alias"
