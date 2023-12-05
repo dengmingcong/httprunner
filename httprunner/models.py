@@ -27,20 +27,27 @@ GlobalVars = List[Union[Text, Dict[Text, Text]]]  # added by @deng at 2022.2.9
 ConfigExport = List[Text]
 Validators = List[Dict]
 Env = Dict[Text, Any]
-JSONSerializableBytes = Annotated[
-    bytes, PlainSerializer(lambda x: repr(x), return_type=str, when_used="json")
-]
-JSONSerializableException = Annotated[
-    Exception, PlainSerializer(lambda x: repr(x), return_type=str, when_used="json")
-]
-JSONSerializableDict = Annotated[
-    dict,
-    PlainSerializer(
-        lambda x: json.dumps(x, cls=AllureJSONAttachmentEncoder),
-        return_type=str,
-        when_used="json",
-    ),
-]
+
+
+def get_json_serializable_type(t: type):
+    """Gen json serializable type."""
+    return Annotated[
+        t,
+        PlainSerializer(
+            lambda x: json.dumps(
+                x, ensure_ascii=False, cls=AllureJSONAttachmentEncoder
+            ),
+            return_type=str,
+            when_used="json",
+        ),
+    ]
+
+
+JSONSerializableBytes = get_json_serializable_type(bytes)
+JSONSerializableStr = get_json_serializable_type(str)
+JSONSerializableException = get_json_serializable_type(Exception)
+JSONSerializableDict = get_json_serializable_type(dict)
+JSONSerializableList = get_json_serializable_type(list)
 
 
 class MethodEnum(Text, Enum):
@@ -191,7 +198,13 @@ class RequestData(BaseModel):
     url: Url
     headers: Headers = {}
     cookies: Cookies = {}
-    body: Union[Text, JSONSerializableBytes, Dict, List, None] = {}
+    body: Union[
+        JSONSerializableStr,
+        JSONSerializableBytes,
+        JSONSerializableDict,
+        JSONSerializableList,
+        None,
+    ] = {}
 
 
 class ResponseData(BaseModel):
@@ -200,7 +213,12 @@ class ResponseData(BaseModel):
     cookies: Cookies
     encoding: Union[Text, None] = None
     content_type: Text
-    body: Union[Text, JSONSerializableBytes, Dict, List]
+    body: Union[
+        JSONSerializableStr,
+        JSONSerializableBytes,
+        JSONSerializableDict,
+        JSONSerializableList,
+    ]
 
 
 class ReqRespData(BaseModel):
