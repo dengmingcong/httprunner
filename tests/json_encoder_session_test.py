@@ -8,7 +8,7 @@ from httprunner.models import StepData
 
 def test_step_data():
     step_data = StepData(export_vars={"session": HttpSession()})
-    print(step_data.json())
+    print(step_data.model_dump_json())
 
 
 def test_bytes_encoder():
