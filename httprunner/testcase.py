@@ -851,7 +851,7 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
         # note: copy() is required for class attribute are shared among instances
         step = self.request.perform().copy(deep=True)  # type: TStep
 
-        # move variables from step.variables to step.builtin_variables
+        # move variables from step.variables to step.private_variables
         step.private_variables = step.variables
         step.variables = {}
         self._step_context = step
