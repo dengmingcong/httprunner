@@ -46,6 +46,7 @@ requests = "2.30.0"  # reference: https://github.com/ionrock/cachecontrol/issues
 requests-toolbelt = "1.0.0"
 sentry-sdk = "1.29.2"
 urllib3 = "1.26.15"  # reference: https://github.com/ionrock/cachecontrol/issues/292
+pydantic-settings = "^2.1.0"
 
 [tool.poetry.group.test]
 [tool.poetry.group.test.dependencies]
