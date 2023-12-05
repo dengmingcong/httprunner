@@ -297,7 +297,7 @@ class HttpRunner(object):
 
     def __save_allure_data(
         self,
-        validation_results: dict,
+        response_obj: ResponseObject,
         exported_vars: dict,
         max_retry_times: int,
         remaining_retry_times: int,
@@ -332,11 +332,11 @@ class HttpRunner(object):
 
             with allure.step(title):
                 self.__add_allure_attachments(
-                    self.__session.data, validation_results, exported_vars
+                    self.__session.data, response_obj.validation_results, exported_vars
                 )
         else:
             self.__add_allure_attachments(
-                self.__session.data, validation_results, exported_vars
+                self.__session.data, response_obj.validation_results, exported_vars
             )
 
     @staticmethod
@@ -549,7 +549,7 @@ class HttpRunner(object):
 
             if self.__use_allure:
                 self.__save_allure_data(
-                    resp_obj.validation_results,
+                    resp_obj,
                     step_data.export_vars,
                     step.max_retry_times,
                     step.retry_times,
@@ -576,7 +576,7 @@ class HttpRunner(object):
 
             if self.__use_allure:
                 self.__save_allure_data(
-                    resp_obj.validation_results,
+                    resp_obj,
                     step_data.export_vars,
                     step.max_retry_times,
                     step.retry_times,
@@ -608,7 +608,7 @@ class HttpRunner(object):
         except Exception:
             if self.__use_allure:
                 self.__save_allure_data(
-                    resp_obj.validation_results,
+                    resp_obj,
                     step_data.export_vars,
                     step.max_retry_times,
                     step.retry_times,
