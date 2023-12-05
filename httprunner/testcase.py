@@ -999,4 +999,4 @@ class Step(object):
 
     def perform(self) -> TStep:
         # fix: parametrized testcase always use the first parameter
-        return self._step_context.copy(deep=True)
+        return self._step_context.model_copy(deep=True)
