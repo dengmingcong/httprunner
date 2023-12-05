@@ -10,6 +10,7 @@ from pydantic import (
     Field,
     HttpUrl,
     PlainSerializer,
+    ConfigDict,
 )
 
 from httprunner.json_encoders import AllureJSONAttachmentEncoder
@@ -237,6 +238,7 @@ class SessionData(BaseModel):
     address: AddressData = AddressData()
     validators: JSONSerializableDict = {}
     exception: JSONSerializableException = None
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class StepData(BaseModel):
