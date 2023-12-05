@@ -214,14 +214,14 @@ class HttpRunner(object):
             else:
                 request_attachment_name = "request"
             allure.attach(
-                request_data.json(indent=4, ensure_ascii=False),
+                request_data.model_dump_json(indent=4),
                 request_attachment_name,
                 allure.attachment_type.JSON,
             )
 
             # save response data
             allure.attach(
-                response_data.json(indent=4, ensure_ascii=False),
+                response_data.model_dump_json(indent=4),
                 "response",
                 allure.attachment_type.JSON,
             )
@@ -272,7 +272,7 @@ class HttpRunner(object):
 
             # save stat
             allure.attach(
-                session_data.stat.json(indent=4, ensure_ascii=False),
+                session_data.stat.model_dump_json(indent=4),
                 "statistics",
                 allure.attachment_type.JSON,
             )
@@ -404,20 +404,20 @@ class HttpRunner(object):
 
     def __run_step_request(self, step: TStep) -> StepData:
         """run teststep: request"""
-        step_data = StepData(name=step.name)
+        step_data = StepData(name=step.name)  # noqa
 
         # parse
         prepare_upload_step(step, self.__project_meta.functions)
-        request_dict = step.request.dict()
+        request_dict = step.request.model_dump()
         request_dict.pop("upload", None)
         parsed_request_dict = parse_data(
             request_dict, step.variables, self.__project_meta.functions
         )
 
         self.__handle_update_json_object(parsed_request_dict)
-        self.__handle_update_form_data(parsed_request_dict)
+        self.__handle_update_form_data(parsed_request_dict)  # noqa
 
-        parsed_request_dict["headers"].setdefault(
+        parsed_request_dict["headers"].setdefault(  # noqa
             "HRUN-Request-ID",
             f"HRUN-{self.__case_id}-{str(int(time.time() * 1000))[-6:]}",
         )
@@ -492,7 +492,7 @@ class HttpRunner(object):
         for extractor in extractors:  # type: Union[JMESPathExtractor]
             if isinstance(extractor, JMESPathExtractor):
                 if "$" in extractor.expression:
-                    extractor = extractor.copy(deep=True)
+                    extractor = extractor.model_copy(deep=True)
                     extractor.expression = parse_data(
                         extractor.expression,
                         step.variables,
@@ -682,7 +682,7 @@ class HttpRunner(object):
 
         else:
             raise exceptions.ParamsError(
-                f"Invalid teststep referenced testcase: {step.dict()}"
+                f"Invalid teststep referenced testcase: {step.model_dump()}"
             )
 
         # teardown hooks
@@ -771,7 +771,7 @@ class HttpRunner(object):
                 step_data = self.__run_step_testcase(step)
             else:
                 raise ParamsError(
-                    f"teststep is neither a request nor a referenced testcase: {step.dict()}"
+                    f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
                 )
 
         self.__step_datas.append(step_data)
@@ -901,7 +901,7 @@ class HttpRunner(object):
                 variables = {argnames: argvalue}
 
             # deep copy step
-            expanded_step = origin_step.copy(deep=True)
+            expanded_step = origin_step.model_copy(deep=True)
 
             # parametrize variables > step.with_variables
             expanded_step.variables.update(variables)
@@ -939,7 +939,7 @@ class HttpRunner(object):
                 self.__run_steps(expanded_steps, extracted_variables)
 
                 # parametrized step is a step wrapper, codes later was not needed for itself
-                continue
+                continue  # noqa
 
             # step variables set with HttpRunnerRequest.with_variables() > step outside variables
             step.variables = merge_variables(step.variables, step_config_variables)
@@ -1035,7 +1035,7 @@ class HttpRunner(object):
         self.__project_meta = self.__project_meta or load_project_meta()
         self.__parse_config(self.__config)
 
-        self.__start_at = time.time()
+        self.__start_at = time.time()  # noqa
         self.__step_datas: List[StepData] = []
         self.__session = self.__session or HttpSession()
         # save extracted variables of teststeps
@@ -1044,7 +1044,7 @@ class HttpRunner(object):
         self.__run_steps(self.__teststeps, extracted_variables)
 
         # save extracted variables to session variables
-        self.__session_variables.update(extracted_variables)
+        self.__session_variables.update(extracted_variables)  # noqa
         self.__duration = time.time() - self.__start_at
         return self
 
@@ -1062,7 +1062,9 @@ class HttpRunner(object):
             TestCaseRequestWithFunctions().run()
         """
         self.__init_tests__()
-        testcase_obj = TestCase(config=self.__config, teststeps=self.__teststeps)
+        testcase_obj = TestCase(
+            config=self.__config, teststeps=self.__teststeps
+        )  # noqa
         return self.run_testcase(testcase_obj)
 
     def get_step_datas(self) -> List[StepData]:
@@ -1125,7 +1127,7 @@ class HttpRunner(object):
         self.__export = self.__export or self.__config.export
         self.validate_testcase_export()
 
-        export_vars_mapping = {}
+        export_vars_mapping = {}  # noqa
 
         if isinstance(self.__export, StepExport):
             var_names_set = set(self.__export.var_names)
@@ -1191,7 +1193,7 @@ class HttpRunner(object):
             > signature of the base method in class 'HttpRunner'
         """
         self.__init_tests__()
-        self.__continue_on_failure = self.__config.continue_on_failure
+        self.__continue_on_failure = self.__config.continue_on_failure  # noqa
 
         # the location of the first testcase decided the project meta
         # for project meta would usually be located once
