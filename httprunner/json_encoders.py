@@ -24,5 +24,5 @@ class AllureJSONAttachmentEncoder(json.JSONEncoder):
 
         try:
             return json.JSONEncoder.default(self, o)
-        except (PydanticSerializationError, json.JSONDecodeError):
+        except (PydanticSerializationError, json.JSONDecodeError, TypeError):
             return repr(o)
