@@ -330,6 +330,14 @@ class HttpRunner(object):
             if is_meet_stop_retry_condition:
                 title += " (the condition to stop retrying was met)"
 
+            # display Content-Length of response in title
+            try:
+                title += f'  • Content-Length: {response_obj.resp_obj.headers["Content-Length"]}'
+            except Exception as e:
+                logger.warning(
+                    f"error occurred while extracting content-length from response, exception: {repr(e)}"
+                )
+
             with allure.step(title):
                 self.__add_allure_attachments(
                     self.__session.data, response_obj.validation_results, exported_vars
