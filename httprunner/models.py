@@ -1,12 +1,18 @@
+import json
 import os
-import types
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, Annotated
 from typing import Dict, Text, Union, Callable
 from typing import List
 
-import requests
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import (
+    BaseModel,
+    Field,
+    HttpUrl,
+    PlainSerializer,
+)
+
+from httprunner.json_encoders import AllureJSONAttachmentEncoder
 
 Name = Text
 Url = Text
@@ -21,6 +27,20 @@ GlobalVars = List[Union[Text, Dict[Text, Text]]]  # added by @deng at 2022.2.9
 ConfigExport = List[Text]
 Validators = List[Dict]
 Env = Dict[Text, Any]
+JSONSerializableBytes = Annotated[
+    bytes, PlainSerializer(lambda x: repr(x), return_type=str, when_used="json")
+]
+JSONSerializableException = Annotated[
+    Exception, PlainSerializer(lambda x: repr(x), return_type=str, when_used="json")
+]
+JSONSerializableDict = Annotated[
+    dict,
+    PlainSerializer(
+        lambda x: json.dumps(x, cls=AllureJSONAttachmentEncoder),
+        return_type=str,
+        when_used="json",
+    ),
+]
 
 
 class MethodEnum(Text, Enum):
@@ -82,7 +102,7 @@ class JMESPathExtractor(BaseModel):
 
     variable_name: str
     expression: str
-    sub_extractor: Optional[Callable]
+    sub_extractor: Optional[Callable] = None
 
 
 class TStep(BaseModel):
@@ -171,7 +191,7 @@ class RequestData(BaseModel):
     url: Url
     headers: Headers = {}
     cookies: Cookies = {}
-    body: Union[Text, bytes, Dict, List, None] = {}
+    body: Union[Text, JSONSerializableBytes, Dict, List, None] = {}
 
 
 class ResponseData(BaseModel):
@@ -180,7 +200,7 @@ class ResponseData(BaseModel):
     cookies: Cookies
     encoding: Union[Text, None] = None
     content_type: Text
-    body: Union[Text, bytes, Dict, List]
+    body: Union[Text, JSONSerializableBytes, Dict, List]
 
 
 class ReqRespData(BaseModel):
@@ -197,12 +217,8 @@ class SessionData(BaseModel):
     req_resps: List[ReqRespData] = []
     stat: RequestStat = RequestStat()
     address: AddressData = AddressData()
-    validators: Dict = {}
-    exception: Exception = None
-
-    class Config:
-        json_encoders = {types.FunctionType: repr, type: repr, requests.Session: repr}
-        arbitrary_types_allowed = True
+    validators: JSONSerializableDict = {}
+    exception: JSONSerializableException = None
 
 
 class StepData(BaseModel):
@@ -211,10 +227,7 @@ class StepData(BaseModel):
     success: bool = False
     name: Text = ""  # teststep name
     data: Union[SessionData, List["StepData"]] = None
-    export_vars: VariablesMapping = {}
-
-    class Config:
-        json_encoders = {types.FunctionType: repr, type: repr, requests.Session: repr}
+    export_vars: JSONSerializableDict = {}
 
 
 class TestCaseSummary(BaseModel):
