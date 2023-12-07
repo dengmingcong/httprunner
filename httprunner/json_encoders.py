@@ -1,7 +1,5 @@
 import json
 
-from pydantic_core import PydanticSerializationError
-
 
 class AllureJSONAttachmentEncoder(json.JSONEncoder):
     """
@@ -15,14 +13,4 @@ class AllureJSONAttachmentEncoder(json.JSONEncoder):
 
     def default(self, o):
         # bytes
-        if isinstance(o, bytes):
-            return repr(o)
-
-        # functions
-        if callable(o):
-            return repr(o)
-
-        try:
-            return json.JSONEncoder.default(self, o)
-        except (PydanticSerializationError, json.JSONDecodeError, TypeError):
-            return repr(o)
+        return repr(o)
