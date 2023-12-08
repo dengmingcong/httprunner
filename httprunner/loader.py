@@ -407,7 +407,7 @@ def load_debugtalk_functions() -> Dict[Text, Callable]:
 
 def load_project_meta(test_path: Text = None, reload: bool = False) -> ProjectMeta:
     """load testcases, .env, debugtalk.py, entry point functions.
-        testcases folder is relative to project_root_directory
+        testcases folder is relative to project_root_directory.
         by default, project_meta will be loaded only once, unless set reload to true.
 
     Args:
@@ -424,8 +424,8 @@ def load_project_meta(test_path: Text = None, reload: bool = False) -> ProjectMe
 
     project_meta = ProjectMeta()
 
-    # search recursively upward until file debugtalk.py was found starting from test_path
-    # project_root_directory was set to the parent directory of debugtalk.py
+    # search recursively upward until file debugtalk.py was found starting from test_path and
+    # project_root_directory was set to the parent directory of debugtalk.py.
     # WARNING: functions imported into debugtalk.py may not be recognized as debugtalk functions
     #  and `FunctionNotFound` error will be raised if referenced HttpRunner subclasses found in dependencies
     if test_path:
