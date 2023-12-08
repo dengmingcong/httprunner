@@ -420,10 +420,11 @@ class HttpRunner(object):
         self.__handle_update_json_object(parsed_request_dict)
         self.__handle_update_form_data(parsed_request_dict)  # noqa
 
-        parsed_request_dict["headers"].setdefault(  # noqa
-            "HRUN-Request-ID",
-            f"HRUN-{self.__case_id}-{str(int(time.time() * 1000))[-6:]}",
-        )
+        # header `HRUN-Request-ID` is not useful
+        # parsed_request_dict["headers"].setdefault(
+        #     "HRUN-Request-ID",
+        #     f"HRUN-{self.__case_id}-{str(int(time.time() * 1000))[-6:]}",
+        # )
 
         # add http headers for every http request
         try:
@@ -454,7 +455,8 @@ class HttpRunner(object):
         resp = self.__session.request(method, url, **parsed_request_dict)
         resp_obj = ResponseObject(resp)
 
-        # expand nested json if headers contain 'X-Json-Control' and its value is 'expand'
+        # expand nested json if headers contain 'X-Json-Control' and its value is 'expand'.
+        # Note: The header is case-sensitive.
         if parsed_request_dict["headers"].get("X-Json-Control") == "expand":
             expand_nested_json(resp_obj.body)
 
