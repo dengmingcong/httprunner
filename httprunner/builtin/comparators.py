@@ -295,4 +295,10 @@ def match_pydantic_model(
     message: Text = "",
 ):
     """Assert value matches the pydantic model."""
-    assert expect_value.model_validate(check_value, strict=True), message
+    try:
+        expect_value.model_validate(check_value, strict=True)
+        validate_error_message = None
+    except Exception as e:
+        validate_error_message = e
+
+    assert not validate_error_message, f"{message}\n{validate_error_message}"
