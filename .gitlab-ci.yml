@@ -88,6 +88,9 @@ smoke test:
     - |
       cd examples/postman_echo/request_methods
       poetry run pytest .
+    - |
+      cd examples/httpbin
+      poetry run pytest .
 
 semantic release:
   stage: publish
