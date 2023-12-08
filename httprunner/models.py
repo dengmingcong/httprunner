@@ -1,12 +1,15 @@
 import os
-import types
 from enum import Enum
 from typing import Any, Optional
 from typing import Dict, Text, Union, Callable
 from typing import List
 
-import requests
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import (
+    BaseModel,
+    Field,
+    HttpUrl,
+    ConfigDict,
+)
 
 Name = Text
 Url = Text
@@ -82,7 +85,7 @@ class JMESPathExtractor(BaseModel):
 
     variable_name: str
     expression: str
-    sub_extractor: Optional[Callable]
+    sub_extractor: Optional[Callable] = None
 
 
 class TStep(BaseModel):
@@ -192,17 +195,14 @@ class SessionData(BaseModel):
     """request session data, including request, response, validators and stat data"""
 
     success: bool = False  # represent the status (success or failure) of the latest HTTP request, default to False
-    # in most cases, req_resps only contains one request & response
+    # in most cases, req_resps only contains one request & response,
     # while when 30X redirect occurs, req_resps will contain multiple request & response
     req_resps: List[ReqRespData] = []
     stat: RequestStat = RequestStat()
     address: AddressData = AddressData()
     validators: Dict = {}
     exception: Exception = None
-
-    class Config:
-        json_encoders = {types.FunctionType: repr, type: repr, requests.Session: repr}
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class StepData(BaseModel):
@@ -212,9 +212,6 @@ class StepData(BaseModel):
     name: Text = ""  # teststep name
     data: Union[SessionData, List["StepData"]] = None
     export_vars: VariablesMapping = {}
-
-    class Config:
-        json_encoders = {types.FunctionType: repr, type: repr, requests.Session: repr}
 
 
 class TestCaseSummary(BaseModel):

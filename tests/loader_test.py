@@ -100,7 +100,11 @@ class TestLoader(unittest.TestCase):
         )
 
     def test_load_env_path_not_exist(self):
-        dot_env_path = os.path.join(os.getcwd(), "tests", "data",)
+        dot_env_path = os.path.join(
+            os.getcwd(),
+            "tests",
+            "data",
+        )
         env_variables_mapping = loader.load_dot_env_file(dot_env_path)
         self.assertEqual(env_variables_mapping, {})
 
@@ -111,16 +115,16 @@ class TestLoader(unittest.TestCase):
         with self.assertRaises(exceptions.FileNotFound):
             loader.locate_file("", "debugtalk.py")
 
-        start_path = os.path.join(os.getcwd(), "examples", "httpbin")
+        start_path = os.path.join(os.getcwd(), "examples", "postman_echo")
         self.assertEqual(
             loader.locate_file(start_path, "debugtalk.py"),
-            os.path.join(os.getcwd(), "examples", "httpbin", "debugtalk.py"),
+            os.path.join(os.getcwd(), "examples", "debugtalk.py"),
         )
         self.assertEqual(
-            loader.locate_file("examples/httpbin/", "debugtalk.py"),
-            os.path.join(os.getcwd(), "examples", "httpbin", "debugtalk.py"),
+            loader.locate_file("examples/postman_echo/", "debugtalk.py"),
+            os.path.join(os.getcwd(), "examples", "debugtalk.py"),
         )
         self.assertEqual(
-            loader.locate_file("examples/httpbin/", "debugtalk.py"),
-            os.path.join(os.getcwd(), "examples", "httpbin", "debugtalk.py"),
+            loader.locate_file("examples/postman_echo/", "debugtalk.py"),
+            os.path.join(os.getcwd(), "examples", "debugtalk.py"),
         )

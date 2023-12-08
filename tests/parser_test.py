@@ -504,7 +504,7 @@ class TestParserBasic(unittest.TestCase):
     def test_parse_parameters_testcase(self):
         parameters = {
             "user_agent": ["iOS/10.1", "iOS/10.2"],
-            "username-password": "${parameterize(request_methods/account.csv)}",
+            "username-password": "${parameterize(account.csv)}",
             "sum": "${calculate_two_nums(1, 2)}",
         }
         load_project_meta(

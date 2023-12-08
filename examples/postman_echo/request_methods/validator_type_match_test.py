@@ -1,17 +1,17 @@
 from httprunner import HttpRunner, Config, Step, RunRequest
 
 
-class TestValidatorContainFunction(HttpRunner):
+class TestValidatorTypeMatch(HttpRunner):
 
     config = (
-        Config("test validator contains function")
+        Config("test validator assert_type_match")
         .base_url("https://postman-echo.com")
         .verify(False)
     )
 
     teststeps = [
         Step(
-            RunRequest("expected value is a function")
+            RunRequest("expected value is a type")
             .post("/post")
             .with_headers(
                 **{
@@ -21,10 +21,6 @@ class TestValidatorContainFunction(HttpRunner):
             .with_data("foo=bar")
             .validate()
             .assert_equal("status_code", 200)
-            .assert_not_equal("body.form.foo", getattr)
+            .assert_type_match("body.form.foo", str)
         ),
     ]
-
-
-if __name__ == "__main__":
-    TestValidatorContainFunction().test_start()

@@ -8,7 +8,10 @@ from typing import (
     Iterable,
     Sequence,
     Optional,
+    Type,
 )
+
+from pydantic import BaseModel
 
 from httprunner.builtin import update_dict_recursively
 from httprunner.models import (
@@ -376,17 +379,6 @@ class StepRequestValidation(object):
         )
         return self
 
-    def assert_reports_match(
-        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
-    ) -> "StepRequestValidation":
-        """
-        This assertion method MUST be used in api 'getAccessLog', and param expected_value MUST be an event dict.
-        """
-        self._step_context.validators.append(
-            {"reports_match": [jmespath_expression, expected_value, message]}
-        )
-        return self
-
     def assert_list_sorted_in(
         self,
         jmespath_expression: Text,
@@ -452,6 +444,56 @@ class StepRequestValidation(object):
         """
         self._step_context.validators.append(
             {"all_": [jmespath_expression, expected_value, message]}
+        )
+        return self
+
+    def assert_match_json_schema(
+        self,
+        jmespath_expression: Text,
+        expected_value: Union[dict, str],
+        message: Text = "",
+    ) -> "StepRequestValidation":
+        """
+        Assert part of response matches the JSON schema.
+
+        >>> schema = {
+        ...     "type" : "object",
+        ...     "properties" : {
+        ...         "price" : {"type" : "number"},
+        ...         "name" : {"type" : "string"},
+        ...     },
+        ... }
+        >>> StepRequestValidation().assert_match_json_schema("body.result", schema)
+        """
+        self._step_context.validators.append(
+            {"match_json_schema": [jmespath_expression, expected_value, message]}
+        )
+        return self
+
+    def assert_match_pydantic_model(
+        self,
+        jmespath_expression: Text,
+        expected_value: Union[Type[BaseModel], str],
+        message: Text = "",
+    ) -> "StepRequestValidation":
+        """
+        Assert part of response matches the pydantic model.
+
+        Note:
+            By default extra attributes will be ignored, you can change the behaviour via config `extra`.
+            reference: https://docs.pydantic.dev/2.5/api/config/#pydantic.config.ConfigDict.extra
+
+        >>> class Teacher(BaseModel)
+        ...     name: str
+        ...     age: int
+        >>> class Student(BaseModel)
+        ...     name: str
+        ...     age: int
+        ...     teacher: Teacher
+        >>> StepRequestValidation().assert_match_pydantic_model("body.result", Student)
+        """
+        self._step_context.validators.append(
+            {"match_pydantic_model": [jmespath_expression, expected_value, message]}
         )
         return self
 
@@ -848,10 +890,10 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
 
     def __init__(self, name: Text = None):  # noqa
         # refer to the copy of class attribute 'request' as the default TStep
-        # note: copy() is required for class attribute are shared among instances
-        step = self.request.perform().copy(deep=True)  # type: TStep
+        # note: copy() is required for class attribute are shared among instances and code below will change the `step`
+        step = self.request.perform().model_copy(deep=True)  # type: TStep
 
-        # move variables from step.variables to step.builtin_variables
+        # move variables from step.variables to step.private_variables
         step.private_variables = step.variables
         step.variables = {}
         self._step_context = step
@@ -999,4 +1041,5 @@ class Step(object):
         return self._step_context.testcase  # noqa
 
     def perform(self) -> TStep:
-        return self._step_context
+        # fix: parametrized testcase always use the first parameter
+        return self._step_context.model_copy(deep=True)

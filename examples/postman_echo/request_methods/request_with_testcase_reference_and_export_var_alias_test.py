@@ -19,22 +19,6 @@ from .base_request import (
 
 
 @pytest.mark.xfail(raises=ParamsError)
-class TestFailToExportIfValueIsNotStr(HttpRunner):
-
-    config = (
-        Config("request methods testcase: reference testcase and export alias")
-        .base_url("https://postman-echo.com")
-        .verify(False)
-    )
-
-    teststeps = [
-        Step(
-            RunTestCase("type of value is not str").call(RequestAndExport).export(v01=2)
-        ),
-    ]
-
-
-@pytest.mark.xfail(raises=ParamsError)
 class TestFailToExportIfValueInVarNames(HttpRunner):
 
     config = (

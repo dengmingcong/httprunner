@@ -33,7 +33,7 @@ def get_req_resp_record(resp_obj: Response, **kwargs) -> ReqRespData:
 
     def log_print(req_or_resp, r_type):
         msg = f"\n================== {r_type} details ==================\n"
-        for key, value in req_or_resp.dict().items():
+        for key, value in req_or_resp.model_dump().items():
             if isinstance(value, dict):
                 value = json.dumps(value, indent=4)
 
@@ -183,9 +183,7 @@ class HttpSession(requests.Session):
 
         # set header 'Date' to represent request timestamp
         now = datetime.now(timezone(timedelta(hours=8)))
-        kwargs["headers"].update({
-            "Date": now.strftime("%Y-%m-%d %H:%M:%S %Z")
-        })
+        kwargs["headers"].update({"Date": now.strftime("%Y-%m-%d %H:%M:%S %Z")})
 
         response = self._send_request_safe_mode(method, url, **kwargs)
         response_time_ms = round((time.time() - start_timestamp) * 1000, 2)

@@ -2,13 +2,16 @@ import json
 from dataclasses import dataclass
 
 from httprunner.client import HttpSession
-from httprunner.json_encoders import AllureJSONAttachmentEncoder
+from httprunner.json_encoders import (
+    AllureJSONAttachmentEncoder,
+    pydantic_model_dump_json,
+)
 from httprunner.models import StepData
 
 
 def test_step_data():
     step_data = StepData(export_vars={"session": HttpSession()})
-    print(step_data.json())
+    print(pydantic_model_dump_json(step_data))
 
 
 def test_bytes_encoder():

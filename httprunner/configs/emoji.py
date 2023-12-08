@@ -1,12 +1,10 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Emojis(BaseSettings):
     success: str = "✔️"
     failure: str = "❌"
-
-    class Config:
-        env_prefix = "httprunner_emoji_"
+    model_config = SettingsConfigDict(env_prefix="httprunner_emoji_")
 
 
 emojis = Emojis()

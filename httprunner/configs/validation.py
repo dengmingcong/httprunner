@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class ContentKeys(BaseSettings):
@@ -12,25 +12,19 @@ class ContentKeys(BaseSettings):
     message: str = "Message"
     jmespath_: str = "JMESPath"
     raw_expect_value: str = "RawExpectValue"
-
-    class Config:
-        env_prefix = "httprunner_validation_"
+    model_config = SettingsConfigDict(env_prefix="httprunner_validation_")
 
 
 class Content(BaseSettings):
     keys: ContentKeys = ContentKeys()
-
-    class Config:
-        env_prefix = "httprunner_validation_"
+    model_config = SettingsConfigDict(env_prefix="httprunner_validation_")
 
 
 class ValidationSettings(BaseSettings):
     """Settings for validation."""
 
     content: Content = Content()
-
-    class Config:
-        env_prefix = "httprunner_validation_"
+    model_config = SettingsConfigDict(env_prefix="httprunner_validation_")
 
 
 validation_settings = ValidationSettings()

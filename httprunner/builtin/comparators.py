@@ -7,6 +7,9 @@ from collections import defaultdict
 from typing import Callable, Literal, Iterable, Optional
 from typing import Text, Any, Union, NoReturn
 
+import jsonschema
+from pydantic import BaseModel
+
 from httprunner.builtin.jsonassert import (  # noqa
     json_assert,
     json_contains,
@@ -269,3 +272,33 @@ def all_(
         check_value = function(check_value, **kwargs)
 
     assert all(check_value), message
+
+
+def match_json_schema(
+    check_value: dict,
+    expect_value: dict,
+    message: Text = "",
+):
+    """Assert value matches the JSON schema."""
+    try:
+        jsonschema.validate(check_value, expect_value)
+        jsonschema_error_message = None
+    except Exception as e:
+        jsonschema_error_message = e
+
+    assert not jsonschema_error_message, f"{message}\n{jsonschema_error_message}"
+
+
+def match_pydantic_model(
+    check_value: dict,
+    expect_value: BaseModel,
+    message: Text = "",
+):
+    """Assert value matches the pydantic model."""
+    try:
+        expect_value.model_validate(check_value, strict=True)
+        validate_error_message = None
+    except Exception as e:
+        validate_error_message = e
+
+    assert not validate_error_message, f"{message}\n{validate_error_message}"

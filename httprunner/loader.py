@@ -76,7 +76,7 @@ def load_test_file(test_file: Text) -> Dict:
 def load_testcase(testcase: Dict) -> TestCase:
     try:
         # validate with pydantic TestCase model
-        testcase_obj = TestCase.parse_obj(testcase)
+        testcase_obj = TestCase.model_validate(testcase)
     except ValidationError as ex:
         err_msg = f"TestCase ValidationError:\nerror: {ex}\ncontent: {testcase}"
         raise exceptions.TestCaseFormatError(err_msg)
@@ -96,7 +96,7 @@ def load_testsuite(testsuite: Dict) -> TestSuite:
     path = testsuite["config"]["path"]
     try:
         # validate with pydantic TestCase model
-        testsuite_obj = TestSuite.parse_obj(testsuite)
+        testsuite_obj = TestSuite.model_validate(testsuite)
     except ValidationError as ex:
         err_msg = f"TestSuite ValidationError:\nfile: {path}\nerror: {ex}"
         raise exceptions.TestSuiteFormatError(err_msg)
@@ -311,15 +311,15 @@ def locate_httprunner_root_path() -> Tuple[Optional[Text], Text]:
         debugtalk_py_file = absolutepath(debugtalk_py_file)
 
         if not debugtalk_py_file.is_file():
-            raise FileNotFoundError(
-                f"debugtalk.py file not found: {debugtalk_py_file}"
-            )
+            raise FileNotFoundError(f"debugtalk.py file not found: {debugtalk_py_file}")
 
         return debugtalk_py_file.as_posix(), os.path.dirname(debugtalk_py_file)
 
     # find debugtalk.py file from project root dir
     if (project_root_path / "debugtalk.py").is_file():
-        return (project_root_path / "debugtalk.py").as_posix(), project_root_path.as_posix()
+        return (
+            project_root_path / "debugtalk.py"
+        ).as_posix(), project_root_path.as_posix()
 
     # current working directory as httprunner root path
     return None, Path.cwd().as_posix()
@@ -344,7 +344,9 @@ def locate_debugtalk_py(start_path: Text) -> Text:
     return debugtalk_path
 
 
-def locate_httprunner_root_path_upward_recursively(test_path: Text) -> Tuple[Text, Text]:
+def locate_httprunner_root_path_upward_recursively(
+    test_path: Text,
+) -> Tuple[Text, Text]:
     """locate debugtalk.py path upward recursively from specific path.
 
     Args:
@@ -405,7 +407,7 @@ def load_debugtalk_functions() -> Dict[Text, Callable]:
 
 def load_project_meta(test_path: Text = None, reload: bool = False) -> ProjectMeta:
     """load testcases, .env, debugtalk.py, entry point functions.
-        testcases folder is relative to project_root_directory
+        testcases folder is relative to project_root_directory.
         by default, project_meta will be loaded only once, unless set reload to true.
 
     Args:
@@ -422,12 +424,15 @@ def load_project_meta(test_path: Text = None, reload: bool = False) -> ProjectMe
 
     project_meta = ProjectMeta()
 
-    # search recursively upward until file debugtalk.py was found starting from test_path
-    # project_root_directory was set to the parent directory of debugtalk.py
+    # search recursively upward until file debugtalk.py was found starting from test_path and
+    # project_root_directory was set to the parent directory of debugtalk.py.
     # WARNING: functions imported into debugtalk.py may not be recognized as debugtalk functions
     #  and `FunctionNotFound` error will be raised if referenced HttpRunner subclasses found in dependencies
     if test_path:
-        debugtalk_path, project_root_directory = locate_httprunner_root_path_upward_recursively(test_path)
+        (
+            debugtalk_path,
+            project_root_directory,
+        ) = locate_httprunner_root_path_upward_recursively(test_path)
     else:
         debugtalk_path, project_root_directory = locate_httprunner_root_path()
 
@@ -478,4 +483,4 @@ def convert_relative_project_root_dir(abs_path: Text) -> Text:
             f"project_meta.RootDir: {_project_meta.httprunner_root_path}"
         )
 
-    return abs_path[len(_project_meta.httprunner_root_path) + 1:]  # noqa
+    return abs_path[len(_project_meta.httprunner_root_path) + 1 :]  # noqa

@@ -8,7 +8,10 @@ from typing import List, Dict, Text, NoReturn, Union, Callable
 from httprunner.builtin import expand_nested_json, update_dict_recursively
 from httprunner.configs.emoji import emojis
 from httprunner.configs.validation import validation_settings
-from httprunner.json_encoders import AllureJSONAttachmentEncoder
+from httprunner.json_encoders import (
+    AllureJSONAttachmentEncoder,
+    pydantic_model_dump_json,
+)
 from httprunner.pyproject import PyProjectToml
 
 try:
@@ -214,14 +217,14 @@ class HttpRunner(object):
             else:
                 request_attachment_name = "request"
             allure.attach(
-                request_data.json(indent=4, ensure_ascii=False),
+                pydantic_model_dump_json(request_data, indent=4),
                 request_attachment_name,
                 allure.attachment_type.JSON,
             )
 
             # save response data
             allure.attach(
-                response_data.json(indent=4, ensure_ascii=False),
+                pydantic_model_dump_json(response_data, indent=4),
                 "response",
                 allure.attachment_type.JSON,
             )
@@ -272,14 +275,14 @@ class HttpRunner(object):
 
             # save stat
             allure.attach(
-                session_data.stat.json(indent=4, ensure_ascii=False),
+                pydantic_model_dump_json(session_data.stat, indent=4),
                 "statistics",
                 allure.attachment_type.JSON,
             )
         else:
             # put request, response, and validation results in one attachment
             allure.attach(
-                self.__session.data.json(indent=4, ensure_ascii=False),
+                pydantic_model_dump_json(self.__session.data, indent=4),
                 "session data",
                 allure.attachment_type.JSON,
             )
@@ -297,7 +300,7 @@ class HttpRunner(object):
 
     def __save_allure_data(
         self,
-        validation_results: dict,
+        response_obj: ResponseObject,
         exported_vars: dict,
         max_retry_times: int,
         remaining_retry_times: int,
@@ -330,13 +333,21 @@ class HttpRunner(object):
             if is_meet_stop_retry_condition:
                 title += " (the condition to stop retrying was met)"
 
+            # display Content-Length of response in title
+            try:
+                title += f'  • Content-Length: {response_obj.resp_obj.headers["Content-Length"]}'
+            except Exception as e:
+                logger.warning(
+                    f"error occurred while extracting content-length from response, exception: {repr(e)}"
+                )
+
             with allure.step(title):
                 self.__add_allure_attachments(
-                    self.__session.data, validation_results, exported_vars
+                    self.__session.data, response_obj.validation_results, exported_vars
                 )
         else:
             self.__add_allure_attachments(
-                self.__session.data, validation_results, exported_vars
+                self.__session.data, response_obj.validation_results, exported_vars
             )
 
     @staticmethod
@@ -396,23 +407,24 @@ class HttpRunner(object):
 
     def __run_step_request(self, step: TStep) -> StepData:
         """run teststep: request"""
-        step_data = StepData(name=step.name)
+        step_data = StepData(name=step.name)  # noqa
 
         # parse
         prepare_upload_step(step, self.__project_meta.functions)
-        request_dict = step.request.dict()
+        request_dict = step.request.model_dump()
         request_dict.pop("upload", None)
         parsed_request_dict = parse_data(
             request_dict, step.variables, self.__project_meta.functions
         )
 
         self.__handle_update_json_object(parsed_request_dict)
-        self.__handle_update_form_data(parsed_request_dict)
+        self.__handle_update_form_data(parsed_request_dict)  # noqa
 
-        parsed_request_dict["headers"].setdefault(
-            "HRUN-Request-ID",
-            f"HRUN-{self.__case_id}-{str(int(time.time() * 1000))[-6:]}",
-        )
+        # header `HRUN-Request-ID` is not useful
+        # parsed_request_dict["headers"].setdefault(
+        #     "HRUN-Request-ID",
+        #     f"HRUN-{self.__case_id}-{str(int(time.time() * 1000))[-6:]}",
+        # )
 
         # add http headers for every http request
         try:
@@ -443,7 +455,8 @@ class HttpRunner(object):
         resp = self.__session.request(method, url, **parsed_request_dict)
         resp_obj = ResponseObject(resp)
 
-        # expand nested json if headers contain 'X-Json-Control' and its value is 'expand'
+        # expand nested json if headers contain 'X-Json-Control' and its value is 'expand'.
+        # Note: The header is case-sensitive.
         if parsed_request_dict["headers"].get("X-Json-Control") == "expand":
             expand_nested_json(resp_obj.body)
 
@@ -484,7 +497,7 @@ class HttpRunner(object):
         for extractor in extractors:  # type: Union[JMESPathExtractor]
             if isinstance(extractor, JMESPathExtractor):
                 if "$" in extractor.expression:
-                    extractor = extractor.copy(deep=True)
+                    extractor = extractor.model_copy(deep=True)
                     extractor.expression = parse_data(
                         extractor.expression,
                         step.variables,
@@ -549,7 +562,7 @@ class HttpRunner(object):
 
             if self.__use_allure:
                 self.__save_allure_data(
-                    resp_obj.validation_results,
+                    resp_obj,
                     step_data.export_vars,
                     step.max_retry_times,
                     step.retry_times,
@@ -576,7 +589,7 @@ class HttpRunner(object):
 
             if self.__use_allure:
                 self.__save_allure_data(
-                    resp_obj.validation_results,
+                    resp_obj,
                     step_data.export_vars,
                     step.max_retry_times,
                     step.retry_times,
@@ -608,7 +621,7 @@ class HttpRunner(object):
         except Exception:
             if self.__use_allure:
                 self.__save_allure_data(
-                    resp_obj.validation_results,
+                    resp_obj,
                     step_data.export_vars,
                     step.max_retry_times,
                     step.retry_times,
@@ -674,7 +687,7 @@ class HttpRunner(object):
 
         else:
             raise exceptions.ParamsError(
-                f"Invalid teststep referenced testcase: {step.dict()}"
+                f"Invalid teststep referenced testcase: {step.model_dump()}"
             )
 
         # teardown hooks
@@ -763,7 +776,7 @@ class HttpRunner(object):
                 step_data = self.__run_step_testcase(step)
             else:
                 raise ParamsError(
-                    f"teststep is neither a request nor a referenced testcase: {step.dict()}"
+                    f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
                 )
 
         self.__step_datas.append(step_data)
@@ -893,7 +906,7 @@ class HttpRunner(object):
                 variables = {argnames: argvalue}
 
             # deep copy step
-            expanded_step = origin_step.copy(deep=True)
+            expanded_step = origin_step.model_copy(deep=True)
 
             # parametrize variables > step.with_variables
             expanded_step.variables.update(variables)
@@ -931,7 +944,7 @@ class HttpRunner(object):
                 self.__run_steps(expanded_steps, extracted_variables)
 
                 # parametrized step is a step wrapper, codes later was not needed for itself
-                continue
+                continue  # noqa
 
             # step variables set with HttpRunnerRequest.with_variables() > step outside variables
             step.variables = merge_variables(step.variables, step_config_variables)
@@ -1027,7 +1040,7 @@ class HttpRunner(object):
         self.__project_meta = self.__project_meta or load_project_meta()
         self.__parse_config(self.__config)
 
-        self.__start_at = time.time()
+        self.__start_at = time.time()  # noqa
         self.__step_datas: List[StepData] = []
         self.__session = self.__session or HttpSession()
         # save extracted variables of teststeps
@@ -1036,7 +1049,7 @@ class HttpRunner(object):
         self.__run_steps(self.__teststeps, extracted_variables)
 
         # save extracted variables to session variables
-        self.__session_variables.update(extracted_variables)
+        self.__session_variables.update(extracted_variables)  # noqa
         self.__duration = time.time() - self.__start_at
         return self
 
@@ -1054,7 +1067,9 @@ class HttpRunner(object):
             TestCaseRequestWithFunctions().run()
         """
         self.__init_tests__()
-        testcase_obj = TestCase(config=self.__config, teststeps=self.__teststeps)
+        testcase_obj = TestCase(
+            config=self.__config, teststeps=self.__teststeps
+        )  # noqa
         return self.run_testcase(testcase_obj)
 
     def get_step_datas(self) -> List[StepData]:
@@ -1117,7 +1132,7 @@ class HttpRunner(object):
         self.__export = self.__export or self.__config.export
         self.validate_testcase_export()
 
-        export_vars_mapping = {}
+        export_vars_mapping = {}  # noqa
 
         if isinstance(self.__export, StepExport):
             var_names_set = set(self.__export.var_names)
@@ -1183,7 +1198,7 @@ class HttpRunner(object):
             > signature of the base method in class 'HttpRunner'
         """
         self.__init_tests__()
-        self.__continue_on_failure = self.__config.continue_on_failure
+        self.__continue_on_failure = self.__config.continue_on_failure  # noqa
 
         # the location of the first testcase decided the project meta
         # for project meta would usually be located once
