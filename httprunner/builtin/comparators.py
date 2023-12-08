@@ -280,7 +280,13 @@ def match_json_schema(
     message: Text = "",
 ):
     """Assert value matches the JSON schema."""
-    assert jsonschema.validate(check_value, expect_value), message
+    try:
+        jsonschema.validate(check_value, expect_value)
+        jsonschema_error_message = None
+    except Exception as e:
+        jsonschema_error_message = e
+
+    assert not jsonschema_error_message, f"{message}\n{jsonschema_error_message}"
 
 
 def match_pydantic_model(
