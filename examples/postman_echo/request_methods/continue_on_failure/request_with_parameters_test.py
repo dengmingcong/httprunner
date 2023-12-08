@@ -16,7 +16,7 @@ class TestCaseRequestWithParameters(HttpRunner):
         Parameters(
             {
                 "user_agent": ["iOS/10.1", "iOS/10.2"],
-                "username-password": "${parameterize(request_methods/account.csv)}",
+                "username-password": "${parameterize(account.csv)}",
                 "app_version": "${get_app_version()}",
             }
         ),
