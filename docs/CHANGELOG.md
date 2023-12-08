@@ -2,6 +2,36 @@
 
 <!--next-version-placeholder-->
 
+## v3.33.0 (2023-12-08)
+
+### Feature
+
+* Add comparators for schema validators ([`5b11076`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5b1107664c6e08c719c073baa84e2e69e942aa53))
+* Add two assert method for validating data schema ([`c9d54fc`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c9d54fc3ca8107bcc976175618084530cf0ddeba))
+* Remove deprecated assertion ([`9381049`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9381049fdd8bcb7e1f1b2cc5f4eed6e4e474cd9f))
+* Add fallback for BaseModel.model_dump_json() ([`4f3a4b0`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4f3a4b026c287534cbe78825d3b662e3280af32b))
+* Display response content-length at the end of title when retrying is required ([`a66b7fc`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a66b7fcb904018cf680b1e6e0e435853463c6bc1))
+
+### Fix
+
+* Type hint for BaseModel ([`b6b7b86`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b6b7b8633c8c40733b88dc39b5299675db8ed1b1))
+* Assert on error message instead of `assert model_validate()` ([`4103df8`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/4103df8a3215af54f3e7a5b2f1ad2d12f9e569a7))
+* Assert on error message instead of `assert validate()` ([`042176b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/042176b18d4945d0d8887d4dca6010bbf97b3548))
+* `dumps_kwargs` keyword arguments are no longer supported ([`d3d1c4f`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/d3d1c4ff6994343a575b1576064b627cc1139f87))
+* Copy step when instantiating HttpRunnerRequest ([`3534516`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/353451614d1bbf2a3d9ffd2092fe357d219f213f))
+* Replace method `model_dump_json` with function `pydantic_model_dump_json` ([`ba1f3a6`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ba1f3a6b091c8b8ff9d67c7f5612316c64ff7bb0))
+* Add excepted TypeError ([`2bb5e59`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/2bb5e593adfda56939b08c8b2e060bff97f65b6f))
+* Pydantic do not know type `Exception` ([`09eeb5b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/09eeb5b0acc93417199848aea9d8fcf80d29bc44))
+* Substitute deprecated methods with new methods ([`262d0f2`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/262d0f26985a9ee2b42d7a44844cc4181045b459))
+* Substitute deprecated methods with new methods ([`f270194`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/f270194f6f42270a12d5c49c1ea5d95996997498))
+* Substitute deprecated methods with new methods ([`35f7a2a`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/35f7a2a014ba17a50139f0993787340982382ac5))
+* Parametrized testcase always use the first parameter set after upgrading pydantic ([`9a0938d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9a0938dd1f40b1729da89335ef803c711b73e5eb))
+
+### Performance
+
+* Fail fast when decoding to json ([`aa64e19`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/aa64e191a860ffbf01fe1a7cc0ae4f2f1229c840))
+* Annotate specific fields combining Annotated and PlainSerializer to decrease looping times ([`ecc5f96`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ecc5f967d31e8868dc1312e077d5910e1e519ceb))
+
 ## v3.32.2 (2023-11-27)
 
 ### Fix
