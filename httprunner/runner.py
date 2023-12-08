@@ -282,7 +282,7 @@ class HttpRunner(object):
         else:
             # put request, response, and validation results in one attachment
             allure.attach(
-                self.__session.data.json(indent=4, ensure_ascii=False),
+                pydantic_model_dump_json(self.__session.data, indent=4),
                 "session data",
                 allure.attachment_type.JSON,
             )
