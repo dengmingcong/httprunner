@@ -847,8 +847,9 @@ class HttpRunnerRequest(RunRequestSetupMixin, RequestWithOptionalArgs):
             )
 
     def __init__(self, name: Text = None):  # noqa
-        # copy() is not needed for Step.perform() will do the copying thing
-        step = self.request.perform()  # type: TStep
+        # refer to the copy of class attribute 'request' as the default TStep
+        # note: copy() is required for class attribute are shared among instances and code below will change the `step`
+        step = self.request.perform().model_copy(deep=True)  # type: TStep
 
         # move variables from step.variables to step.private_variables
         step.private_variables = step.variables
