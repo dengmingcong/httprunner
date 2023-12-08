@@ -8,6 +8,7 @@ from typing import (
     Iterable,
     Sequence,
     Optional,
+    Type,
 )
 
 from pydantic import BaseModel
@@ -472,7 +473,7 @@ class StepRequestValidation(object):
     def assert_match_pydantic_model(
         self,
         jmespath_expression: Text,
-        expected_value: Union[BaseModel, str],
+        expected_value: Union[Type[BaseModel], str],
         message: Text = "",
     ) -> "StepRequestValidation":
         """
