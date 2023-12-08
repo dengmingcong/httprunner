@@ -8,7 +8,10 @@ from typing import List, Dict, Text, NoReturn, Union, Callable
 from httprunner.builtin import expand_nested_json, update_dict_recursively
 from httprunner.configs.emoji import emojis
 from httprunner.configs.validation import validation_settings
-from httprunner.json_encoders import AllureJSONAttachmentEncoder
+from httprunner.json_encoders import (
+    AllureJSONAttachmentEncoder,
+    pydantic_model_dump_json,
+)
 from httprunner.pyproject import PyProjectToml
 
 try:
@@ -214,14 +217,14 @@ class HttpRunner(object):
             else:
                 request_attachment_name = "request"
             allure.attach(
-                request_data.model_dump_json(indent=4),
+                pydantic_model_dump_json(request_data, indent=4),
                 request_attachment_name,
                 allure.attachment_type.JSON,
             )
 
             # save response data
             allure.attach(
-                response_data.model_dump_json(indent=4),
+                pydantic_model_dump_json(response_data, indent=4),
                 "response",
                 allure.attachment_type.JSON,
             )
@@ -272,7 +275,7 @@ class HttpRunner(object):
 
             # save stat
             allure.attach(
-                session_data.stat.model_dump_json(indent=4),
+                pydantic_model_dump_json(session_data.stat, indent=4),
                 "statistics",
                 allure.attachment_type.JSON,
             )
