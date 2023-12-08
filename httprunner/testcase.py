@@ -10,6 +10,8 @@ from typing import (
     Optional,
 )
 
+from pydantic import BaseModel
+
 from httprunner.builtin import update_dict_recursively
 from httprunner.models import (
     TConfig,
@@ -441,6 +443,56 @@ class StepRequestValidation(object):
         """
         self._step_context.validators.append(
             {"all_": [jmespath_expression, expected_value, message]}
+        )
+        return self
+
+    def assert_match_json_schema(
+        self,
+        jmespath_expression: Text,
+        expected_value: Union[dict, str],
+        message: Text = "",
+    ) -> "StepRequestValidation":
+        """
+        Assert part of response matches the JSON schema.
+
+        >>> schema = {
+        ...     "type" : "object",
+        ...     "properties" : {
+        ...         "price" : {"type" : "number"},
+        ...         "name" : {"type" : "string"},
+        ...     },
+        ... }
+        >>> StepRequestValidation().assert_match_json_schema("body.result", schema)
+        """
+        self._step_context.validators.append(
+            {"is_match_json_schema": [jmespath_expression, expected_value, message]}
+        )
+        return self
+
+    def assert_match_pydantic_model(
+        self,
+        jmespath_expression: Text,
+        expected_value: Union[BaseModel, str],
+        message: Text = "",
+    ) -> "StepRequestValidation":
+        """
+        Assert part of response matches the pydantic model.
+
+        Note:
+            By default extra attributes will be ignored, you can change the behaviour via config `extra`.
+            reference: https://docs.pydantic.dev/2.5/api/config/#pydantic.config.ConfigDict.extra
+
+        >>> class Teacher(BaseModel)
+        ...     name: str
+        ...     age: int
+        >>> class Student(BaseModel)
+        ...     name: str
+        ...     age: int
+        ...     teacher: Teacher
+        >>> StepRequestValidation().assert_match_pydantic_model("body.result", Student)
+        """
+        self._step_context.validators.append(
+            {"is_match_pydantic_model": [jmespath_expression, expected_value, message]}
         )
         return self
 
