@@ -6,6 +6,59 @@ import uuid
 
 from loguru import logger
 
+from httprunner import __version__
+
+
+def get_httprunner_version():
+    return __version__
+
+
+def sum_two(m, n):
+    return int(m) + int(n)
+
+
+def get_testcase_config_variables():
+    return {"foo1": "testcase_config_bar1", "foo2": "testcase_config_bar2"}
+
+
+def get_testsuite_config_variables():
+    return {"foo1": "testsuite_config_bar1", "foo2": "testsuite_config_bar2"}
+
+
+def get_app_version():
+    return [3.1, 3.0]
+
+
+def calculate_two_nums(a, b=1):
+    return [a + b, b - a]
+
+
+def get_raw_func():
+    return "${calculate_two_nums(1, 1)}"
+
+
+def get_raw_dict():
+    return {"foo": "$bar"}
+
+
+def get_raw_data_name(raw_data: dict) -> str:
+    """
+    Test extracted value containing dollar as function argument.
+    """
+    return raw_data["name"]
+
+
+def get_json(foo, bar):
+    return {"foo": foo, "bar": bar}
+
+
+def get_variables_from_string():
+    return {"foo": "foo", "config_model": "${sku.config_model}"}
+
+
+def get_variables_from_str():
+    return {"config_model": "${sku.config_model}"}
+
 
 def get_httpbin_server():
     return "https://httpbin.org"
@@ -31,13 +84,9 @@ def teardown_teststep(response):
     logger.info(f"teardown_teststep, response status code: {response.status_code}")
 
 
-def sum_two(m, n):
-    return m + n
-
-
 def sum_status_code(status_code, expect_sum):
-    """ sum status code digits
-        e.g. 400 => 4, 201 => 3
+    """sum status code digits
+    e.g. 400 => 4, 201 => 3
     """
     sum_value = 0
     for digit in str(status_code):
@@ -54,8 +103,7 @@ os.environ["TEST_ENV"] = "PRODUCTION"
 
 
 def skip_test_in_production_env():
-    """ skip this test in production environment
-    """
+    """skip this test in production environment"""
     return os.environ["TEST_ENV"] == "PRODUCTION"
 
 
@@ -97,8 +145,7 @@ def setup_hook_remove_kwargs(request):
 
 
 def teardown_hook_sleep_N_secs(response, n_secs):
-    """ sleep n seconds after request
-    """
+    """sleep n seconds after request"""
     if response.status_code == 200:
         time.sleep(0.1)
     else:
