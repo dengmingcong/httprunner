@@ -465,7 +465,7 @@ class StepRequestValidation(object):
         >>> StepRequestValidation().assert_match_json_schema("body.result", schema)
         """
         self._step_context.validators.append(
-            {"is_match_json_schema": [jmespath_expression, expected_value, message]}
+            {"match_json_schema": [jmespath_expression, expected_value, message]}
         )
         return self
 
@@ -492,7 +492,7 @@ class StepRequestValidation(object):
         >>> StepRequestValidation().assert_match_pydantic_model("body.result", Student)
         """
         self._step_context.validators.append(
-            {"is_match_pydantic_model": [jmespath_expression, expected_value, message]}
+            {"match_pydantic_model": [jmespath_expression, expected_value, message]}
         )
         return self
 
