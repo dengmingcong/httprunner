@@ -161,7 +161,7 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
                 # value is absolute file path
                 _file_path = value
                 if not os.path.isfile(value):
-                    raise ValueError(
+                    raise FileNotFoundError(
                         f"file specified by absolute path {value} not exist"
                     )
             else:
@@ -171,7 +171,7 @@ def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
                 project_meta = load_project_meta("")
                 _file_path = os.path.join(project_meta.httprunner_root_path, value)
                 if not os.path.isfile(_file_path):
-                    raise ValueError(
+                    raise FileNotFoundError(
                         f"no file '{value}' under '{project_meta.httprunner_root_path}' found"
                     )
 
@@ -198,7 +198,10 @@ def multipart_encoder(**kwargs):
         if os.path.isabs(value):
             # value is absolute file path
             _file_path = value
-            is_exists_file = os.path.isfile(value)
+            if not os.path.isfile(value):
+                raise FileNotFoundError(
+                    f"file specified by absolute path `{value}` does not exist"
+                )
         else:
             # value is not absolute file path, check if it is relative file path
             from httprunner.loader import load_project_meta
@@ -206,17 +209,17 @@ def multipart_encoder(**kwargs):
             project_meta = load_project_meta("")
 
             _file_path = os.path.join(project_meta.httprunner_root_path, value)
-            is_exists_file = os.path.isfile(_file_path)
+            if not os.path.isfile(_file_path):
+                raise FileNotFoundError(
+                    f"file '{value}' not found in '{project_meta.httprunner_root_path}'"
+                )
 
-        if is_exists_file:
-            # value is file path to upload
-            filename = os.path.basename(_file_path)
-            mime_type = get_filetype(_file_path)
-            # TODO: fix ResourceWarning for unclosed file
-            file_handler = open(_file_path, "rb")
-            fields_dict[key] = (filename, file_handler, mime_type)
-        else:
-            fields_dict[key] = value
+        # value is file path to upload
+        filename = os.path.basename(_file_path)
+        mime_type = get_filetype(_file_path)
+        # TODO: fix ResourceWarning for unclosed file
+        file_handler = open(_file_path, "rb")
+        fields_dict[key] = (filename, file_handler, mime_type)
 
     return MultipartEncoder(fields=fields_dict)
 
