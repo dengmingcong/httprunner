@@ -61,7 +61,7 @@ def get_req_resp_record(resp_obj: Response, **kwargs) -> ReqRespData:
         request_content_type = lower_dict_keys(request_headers).get("content-type")
         if request_content_type and "multipart/form-data" in request_content_type:
             # upload file type
-            request_body = "upload file stream (OMITTED)"
+            request_body = repr(request_body)
 
     request_data = RequestData(
         method=resp_obj.request.method,
