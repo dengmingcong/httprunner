@@ -47,21 +47,17 @@ def get_req_resp_record(resp_obj: Response, **kwargs) -> ReqRespData:
     request_body = resp_obj.request.body
     if request_body is not None:
         try:
+            # try to convert request body to json format
             request_body = json.loads(request_body)
         except json.JSONDecodeError:
             # str: a=1&b=2
-            pass
+            request_body = repr(request_body)
         except UnicodeDecodeError:
             # bytes/bytearray: request body in protobuf
-            pass
+            request_body = repr(request_body)
         except TypeError:
-            # neither str nor bytes/bytearray, e.g. <MultipartEncoder>
-            pass
-
-        request_content_type = lower_dict_keys(request_headers).get("content-type")
-        if request_content_type and "multipart/form-data" in request_content_type:
-            # upload file type
-            request_body = "upload file stream (OMITTED)"
+            # neither str nor bytes/bytearray, e.g. <MultipartEncoder>, <_io.BufferedReader>
+            request_body = repr(request_body)
 
     request_data = RequestData(
         method=resp_obj.request.method,
