@@ -23,7 +23,7 @@ class TestCaseUpload(HttpRunner):
             .with_data("$m_encoder")
             .validate()
             .assert_equal("status_code", 200)
-            .assert_startswith("body.form.file", "test.env")
+            .assert_startswith("body.files.file", "UserName=test")
         ),
         Step(
             RunRequest("upload file with multipart/form")
@@ -31,7 +31,7 @@ class TestCaseUpload(HttpRunner):
             .upload(**{"file": "test.env"})
             .validate()
             .assert_equal("status_code", 200)
-            .assert_startswith("body.form.file", "test.env")
+            .assert_startswith("body.files.file", "UserName=test")
         ),
         Step(
             RunRequest("upload file with discrete mime type")
@@ -40,6 +40,13 @@ class TestCaseUpload(HttpRunner):
             .with_headers(**{"X-Upload-File-As": "discrete"})
             .validate()
             .assert_equal("status_code", 200)
+            .assert_json_contains(
+                "body.headers",
+                {
+                    "Content-Length": "293968",
+                    "Content-Type": "image/png",
+                },
+            )
         ),
         Step(
             RunRequest("upload file with discrete mime type and custom content-type")
