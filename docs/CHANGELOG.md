@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.33.1 (2023-12-15)
+
+### Fix
+
+* AttributeError: 'tuple' object has no attribute 'extend' ([`0dfed66`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/0dfed66795adb4ae304797beb4b1148aa668780d))
+
 ## v3.33.0 (2023-12-08)
 
 ### Feature
