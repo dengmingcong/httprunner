@@ -936,6 +936,7 @@ class StepRefCase(object):
                 var_names=var_names, var_alias_mapping=var_alias_mapping
             )
         else:
+            # list.extend(Iterable), so pass in tuple is ok
             self._step_context.export.var_names.extend(var_names)
             self._step_context.export.var_alias_mapping.update(var_alias_mapping)
         return self
