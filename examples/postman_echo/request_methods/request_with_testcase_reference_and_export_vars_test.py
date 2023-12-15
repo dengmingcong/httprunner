@@ -38,8 +38,9 @@ class TestCaseRequestWithTestcaseReference(HttpRunner):
             )
             .setup_hook("${sleep(0.1)}")
             .call(RequestWithFunctions)
+            .export("foo3")
             .teardown_hook("${sleep(0.2)}")
-            .export(*["foo3", "app_version_1", "app_version_3"])
+            .export(*["app_version_1", "app_version_3"])
         ),
         Step(
             RunRequest("post form data")

@@ -76,7 +76,9 @@ class TRequest(BaseModel):
 
 
 class StepExport(BaseModel):
-    var_names: Union[list[str], tuple[str]] = []
+    # fix: AttributeError: 'tuple' object has no attribute 'extend'.
+    # remove type hint `tuple`, retain `list` only, pydantic will coerce `tuple` to `list`
+    var_names: list[str] = []
     var_alias_mapping: dict[str, str] = {}  # var will be renamed if in mapping
 
 
