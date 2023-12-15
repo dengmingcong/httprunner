@@ -91,7 +91,7 @@ class TestLoader(unittest.TestCase):
         self.assertEqual([], files)
 
     def test_load_custom_dot_env_file(self):
-        dot_env_path = os.path.join(os.getcwd(), "examples", "httpbin", "test.env")
+        dot_env_path = os.path.join(os.getcwd(), "examples", "test.env")
         env_variables_mapping = loader.load_dot_env_file(dot_env_path)
         self.assertIn("PROJECT_KEY", env_variables_mapping)
         self.assertEqual(env_variables_mapping["UserName"], "test")
