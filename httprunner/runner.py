@@ -411,7 +411,11 @@ class HttpRunner(object):
 
         # parse
         prepare_upload_step(step, self.__project_meta.functions)
-        request_dict = step.request.model_dump()
+
+        # fix: filehandler will be converted to SerializationIterator and file content will be lost.
+        # dict(model) will return raw field values and avoid SerializationIterator.
+        # refer: https://docs.pydantic.dev/2.5/concepts/serialization/#dictmodel-and-iteration
+        request_dict = dict(step.request)
         request_dict.pop("upload", None)
         parsed_request_dict = parse_data(
             request_dict, step.variables, self.__project_meta.functions

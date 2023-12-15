@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, IO
 from typing import Dict, Text, Union, Callable
 from typing import List
 
@@ -10,6 +10,7 @@ from pydantic import (
     HttpUrl,
     ConfigDict,
 )
+from requests_toolbelt import MultipartEncoder
 
 Name = Text
 Url = Text
@@ -66,13 +67,14 @@ class TRequest(BaseModel):
     headers: Headers = {}
     req_json: Union[Dict, List, Text] = Field(None, alias="json")
     req_json_update: list[tuple[Union[Dict, Text], bool]] = []
-    data: Union[Text, Dict[Text, Any]] = None
+    data: Union[Text, Dict[Text, Any], MultipartEncoder, IO] = None
     data_update: list[tuple[Union[Dict, Text], bool]] = []
     cookies: Cookies = {}
     timeout: float = 120
     allow_redirects: bool = True
     verify: Verify = False
     upload: Dict = {}  # used for upload files
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class StepExport(BaseModel):
