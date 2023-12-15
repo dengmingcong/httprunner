@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.33.2 (2023-12-15)
+
+### Fix
+
+* Replace model.model_dump() with dict() to retain file content ([`30cb72e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/30cb72ecee957ac944b4640c1a0ea43b64f4cc58))
+
 ## v3.33.1 (2023-12-15)
 
 ### Fix
