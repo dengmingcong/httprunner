@@ -569,7 +569,7 @@ class HttpRunner(object):
                     resp_obj,
                     step_data.export_vars,
                     step.max_retry_times,
-                    step.retry_times,
+                    step.remaining_retry_times,
                     self.__session.data.success,
                 )
         except ValidationFailure as vf:
@@ -596,18 +596,18 @@ class HttpRunner(object):
                     resp_obj,
                     step_data.export_vars,
                     step.max_retry_times,
-                    step.retry_times,
+                    step.remaining_retry_times,
                     self.__session.data.success,
                     is_meet_stop_retry_condition,
                 )
             self.__session.data.validators = resp_obj.validation_results
 
             # check if retry is needed
-            if step.retry_times > 0 and not is_meet_stop_retry_condition:
+            if step.remaining_retry_times > 0 and not is_meet_stop_retry_condition:
                 logger.warning(
                     f"step '{step.name}' validation failed, wait {step.retry_interval} seconds and try again"
                 )
-                step.retry_times -= 1
+                step.remaining_retry_times -= 1
                 time.sleep(step.retry_interval)
                 step_data = self.__run_step_request(step)
                 return step_data
@@ -628,7 +628,7 @@ class HttpRunner(object):
                     resp_obj,
                     step_data.export_vars,
                     step.max_retry_times,
-                    step.retry_times,
+                    step.remaining_retry_times,
                     self.__session.data.success,
                 )
             raise

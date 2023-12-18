@@ -95,8 +95,8 @@ class JMESPathExtractor(BaseModel):
 class TStep(BaseModel):
     name: Name
     parametrize: tuple = None
-    retry_times: Union[int, None] = 0
-    max_retry_times: Union[int, None] = 0
+    remaining_retry_times: Union[int, None] = 0  # times remaining to retry
+    max_retry_times: Union[int, None] = 0  # max retry times
     retry_interval: Union[float, None] = 0
     stop_retry_if: Any = None
     skip_on_condition: Any = None
