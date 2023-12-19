@@ -596,6 +596,12 @@ class HttpRunner(object):
                 # parametrized step is a step wrapper, codes later was not needed for itself
                 continue
 
+            # parsed parametrize variables > extracted variables > testcase config variables.
+            # Note: parsed parametrize variables will be used in skip_if and skip_unless condition
+            step_context_variables = merge_variables(
+                step.parsed_parametrize_vars, step_context_variables
+            )
+
             is_skip_step = False
             step_data = StepData(name=step.name)
 

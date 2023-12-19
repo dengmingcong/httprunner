@@ -121,8 +121,8 @@ def expand_parametrized_step(
         # deep copy step
         expanded_step = origin_step.model_copy(deep=True)
 
-        # parametrize variables > step.with_variables
-        expanded_step.variables.update(variables)
+        # store parsed parametrize variables
+        expanded_step.parsed_parametrize_vars = variables
 
         # determine id
         id = i + 1

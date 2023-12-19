@@ -95,6 +95,9 @@ class JMESPathExtractor(BaseModel):
 class TStep(BaseModel):
     name: Name
     parametrize: tuple = None
+    parsed_parametrize_vars: VariablesMapping = (
+        {}
+    )  # variables acquired after parsing parametrize
     remaining_retry_times: Union[int, None] = 0  # times remaining to retry
     max_retry_times: Union[int, None] = 0  # max retry times
     retry_interval: Union[float, None] = 0
