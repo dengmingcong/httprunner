@@ -77,13 +77,13 @@ def parse_validate_step_parameters(
 
 
 def expand_parametrized_step(
-    origin_step: TStep, step_config_variables: dict, functions: dict
+    origin_step: TStep, step_context_variables: dict, functions: dict
 ) -> list[TStep]:
     """
     Expand one parametrized step.
 
     :param origin_step: the original step to be expanded
-    :param step_config_variables: variables outside of this step
+    :param step_context_variables: variables outside of this step
     :param functions: debug talk functions
     """
     # argnames, argvalues, and ids have already been parsed
@@ -94,7 +94,7 @@ def expand_parametrized_step(
         is_skip_empty_parameter,
     ) = parse_validate_step_parameters(
         origin_step,
-        step_config_variables,
+        step_context_variables,
         functions,
     )
 
