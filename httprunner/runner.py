@@ -597,7 +597,7 @@ class HttpRunner(object):
                 self.__run_steps(expanded_steps, extracted_variables)
 
                 # parametrized step is a step wrapper, codes later was not needed for itself
-                continue  # noqa
+                continue
 
             # step variables set with HttpRunnerRequest.with_variables() > step outside variables
             step.variables = merge_variables(step.variables, step_context_variables)
