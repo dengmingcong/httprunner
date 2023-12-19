@@ -665,7 +665,15 @@ class HttpRunner(object):
 
             # skip step
             if is_skip_step:
-                self.__step_datas.append(step_data)
+                try:
+                    step.name = parse_data(
+                        step.name, step_context_variables, self.__project_meta.functions
+                    )
+                except VariableNotFound as e:
+                    logger.warning(repr(e))
+
+                with allure.step(step.name):
+                    self.__step_datas.append(step_data)
                 continue
 
             # run step
