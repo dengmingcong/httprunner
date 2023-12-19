@@ -1,17 +1,11 @@
 import inspect
-import json
 import os
 import time
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union, Callable
 
 from httprunner.builtin import expand_nested_json, update_dict_recursively
-from httprunner.configs.emoji import emojis
-from httprunner.configs.validation import validation_settings
-from httprunner.json_encoders import (
-    AllureJSONAttachmentEncoder,
-    pydantic_model_dump_json,
-)
+from httprunner.core.allure.runrequest.runrequest_retry import save_run_request_retry
 from httprunner.pyproject import PyProjectToml
 
 try:
@@ -48,7 +42,6 @@ from httprunner.models import (
     ProjectMeta,
     TestCase,
     Hooks,
-    SessionData,
     StepExport,
     ConfigExport,
     JMESPathExtractor,
@@ -195,160 +188,6 @@ class HttpRunner(object):
                 step_variables[var_name] = hook_content_eval
             else:
                 logger.error(f"Invalid hook format: {hook}")
-
-    def __add_allure_attachments(
-        self,
-        session_data: SessionData,
-        validation_results: dict,
-        exported_vars: dict,
-    ) -> NoReturn:
-        """
-        Add attachments to allure.
-        """
-        # split session data into request, response, validation results, export vars, and stat
-        # if only one request exists
-        if len(session_data.req_resps) == 1:
-            request_data = session_data.req_resps[0].request
-            response_data = session_data.req_resps[0].response
-
-            # save request data
-            if request_at := request_data.headers.get("Date", None):
-                request_attachment_name = f"request 🕒 {request_at}"
-            else:
-                request_attachment_name = "request"
-            allure.attach(
-                pydantic_model_dump_json(request_data, indent=4),
-                request_attachment_name,
-                allure.attachment_type.JSON,
-            )
-
-            # save response data
-            allure.attach(
-                pydantic_model_dump_json(response_data, indent=4),
-                "response",
-                allure.attachment_type.JSON,
-            )
-
-            # save validation results
-            for validation_result in validation_results.get(
-                "validate_extractor", []
-            ):  # type: dict
-                jmespath_ = validation_result.get(
-                    validation_settings.content.keys.jmespath_
-                )
-                # it is possible that jmespath is not str
-                jmespath_ = jmespath_ if isinstance(jmespath_, str) else "NA"
-
-                result = validation_result.pop(
-                    validation_settings.content.keys.result, "NA"
-                )
-                comparator = validation_result.get(
-                    validation_settings.content.keys.assert_, {}
-                ).get(validation_settings.content.keys.comparator, "NA")
-
-                validation_attachment_name = (
-                    f"{result} validate - {jmespath_} / {comparator}"
-                )
-
-                allure.attach(
-                    json.dumps(
-                        validation_result,
-                        indent=4,
-                        ensure_ascii=False,
-                        cls=AllureJSONAttachmentEncoder,
-                    ),
-                    validation_attachment_name,
-                    allure.attachment_type.JSON,
-                )
-
-            # save export vars
-            allure.attach(
-                json.dumps(
-                    exported_vars,
-                    indent=4,
-                    ensure_ascii=False,
-                    cls=AllureJSONAttachmentEncoder,
-                ),
-                "exported variables",
-                allure.attachment_type.JSON,
-            )
-
-            # save stat
-            allure.attach(
-                pydantic_model_dump_json(session_data.stat, indent=4),
-                "statistics",
-                allure.attachment_type.JSON,
-            )
-        else:
-            # put request, response, and validation results in one attachment
-            allure.attach(
-                pydantic_model_dump_json(self.__session.data, indent=4),
-                "session data",
-                allure.attachment_type.JSON,
-            )
-            # save export vars
-            allure.attach(
-                json.dumps(
-                    exported_vars,
-                    indent=4,
-                    ensure_ascii=False,
-                    cls=AllureJSONAttachmentEncoder,
-                ),
-                "exported variables",
-                allure.attachment_type.JSON,
-            )
-
-    def __save_allure_data(
-        self,
-        response_obj: ResponseObject,
-        exported_vars: dict,
-        max_retry_times: int,
-        remaining_retry_times: int,
-        is_success: bool,
-        is_meet_stop_retry_condition: bool = False,
-    ) -> NoReturn:
-        """
-        Save session data as allure raw data after validation completed.
-
-        Note:
-            1. this function is exclusively used for method self.__run_step_request().
-            2. if retry is needed (max_retries > 0), add new allure step as context
-        """
-        if not hasattr(self.__session, "data"):
-            return
-
-        if max_retry_times > 0:
-            if is_success:
-                result = emojis.success
-            else:
-                result = emojis.failure
-
-            if max_retry_times == remaining_retry_times:
-                title = f"first request {result}"
-            elif remaining_retry_times == 0:
-                title = f"retry: {max_retry_times} - last retry {result}"
-            else:
-                title = f"retry: {max_retry_times - remaining_retry_times} {result}"
-
-            if is_meet_stop_retry_condition:
-                title += " (the condition to stop retrying was met)"
-
-            # display Content-Length of response in title
-            try:
-                title += f'  • Content-Length: {response_obj.resp_obj.headers["Content-Length"]}'
-            except Exception as e:
-                logger.warning(
-                    f"error occurred while extracting content-length from response, exception: {repr(e)}"
-                )
-
-            with allure.step(title):
-                self.__add_allure_attachments(
-                    self.__session.data, response_obj.validation_results, exported_vars
-                )
-        else:
-            self.__add_allure_attachments(
-                self.__session.data, response_obj.validation_results, exported_vars
-            )
 
     @staticmethod
     def __handle_update_json_object(parsed_request_dict: dict) -> NoReturn:
@@ -565,12 +404,12 @@ class HttpRunner(object):
             self.__session.data.success = True  # validate success
 
             if self.__use_allure:
-                self.__save_allure_data(
+                save_run_request_retry(
+                    self.__session,
                     resp_obj,
                     step_data.export_vars,
                     step.max_retry_times,
                     step.remaining_retry_times,
-                    self.__session.data.success,
                 )
         except ValidationFailure as vf:
             # evaluate `stop_retry_if` before retrying
@@ -592,12 +431,12 @@ class HttpRunner(object):
                     )
 
             if self.__use_allure:
-                self.__save_allure_data(
+                save_run_request_retry(
+                    self.__session,
                     resp_obj,
                     step_data.export_vars,
                     step.max_retry_times,
                     step.remaining_retry_times,
-                    self.__session.data.success,
                     is_meet_stop_retry_condition,
                 )
             self.__session.data.validators = resp_obj.validation_results
@@ -624,12 +463,12 @@ class HttpRunner(object):
                 raise
         except Exception:
             if self.__use_allure:
-                self.__save_allure_data(
+                save_run_request_retry(
+                    self.__session,
                     resp_obj,
                     step_data.export_vars,
                     step.max_retry_times,
                     step.remaining_retry_times,
-                    self.__session.data.success,
                 )
             raise
         finally:
