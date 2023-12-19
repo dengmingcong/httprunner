@@ -4,8 +4,10 @@ import time
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union, Callable
 
-from httprunner.builtin import expand_nested_json, update_dict_recursively
+from httprunner.builtin import expand_nested_json
 from httprunner.core.allure.runrequest.runrequest_retry import save_run_request_retry
+from httprunner.core.runner.update_form import update_form
+from httprunner.core.runner.update_json import update_json
 from httprunner.pyproject import PyProjectToml
 
 try:
@@ -189,61 +191,6 @@ class HttpRunner(object):
             else:
                 logger.error(f"Invalid hook format: {hook}")
 
-    @staticmethod
-    def __handle_update_json_object(parsed_request_dict: dict) -> NoReturn:
-        """
-        Update request with data from update_json_object.
-        """
-        # skip if `req_json_update` is empty
-        if not (req_json_update := parsed_request_dict.pop("req_json_update", None)):
-            return
-
-        req_json = parsed_request_dict["req_json"]
-
-        if not isinstance(req_json, dict):
-            raise ValueError(
-                f"method `update_json_object()` can only be used when `req_json` (after parsing) is a dict, "
-                f"but got: {type(req_json)}"
-            )
-
-        for update_data, is_deep in req_json_update:
-            if not isinstance(update_data, dict):
-                raise ValueError(
-                    f"the parsed value of argument `req_json_update` in method `update_json_object()` must a dict, "
-                    f"but got: {type(req_json)}"
-                )
-            if is_deep:
-                update_dict_recursively(req_json, update_data)
-            else:
-                req_json.update(update_data)
-
-    @staticmethod
-    def __handle_update_form_data(parsed_request_dict: dict) -> NoReturn:
-        """
-        Update request with data from update_form_data.
-        """
-        if not (data_update := parsed_request_dict.pop("data_update", None)):
-            return
-
-        init_data = parsed_request_dict["data"]
-
-        if not isinstance(init_data, dict):
-            raise ValueError(
-                f"method `update_form_data()` can only be used when `data` is a dict, "
-                f"but got: {type(init_data)}"
-            )
-
-        for data_, is_deep in data_update:
-            if not isinstance(data_, dict):
-                raise ValueError(
-                    f"the parsed value of argument `data_update` in method `update_json_object()` must a dict, "
-                    f"but got: {type(data_)}"
-                )
-            if is_deep:
-                update_dict_recursively(init_data, data_)
-            else:
-                init_data.update(data_)
-
     def __run_step_request(self, step: TStep) -> StepData:
         """run teststep: request"""
         step_data = StepData(name=step.name)  # noqa
@@ -260,14 +207,8 @@ class HttpRunner(object):
             request_dict, step.variables, self.__project_meta.functions
         )
 
-        self.__handle_update_json_object(parsed_request_dict)
-        self.__handle_update_form_data(parsed_request_dict)  # noqa
-
-        # header `HRUN-Request-ID` is not useful
-        # parsed_request_dict["headers"].setdefault(
-        #     "HRUN-Request-ID",
-        #     f"HRUN-{self.__case_id}-{str(int(time.time() * 1000))[-6:]}",
-        # )
+        update_json(parsed_request_dict)
+        update_form(parsed_request_dict)
 
         # add http headers for every http request
         try:
