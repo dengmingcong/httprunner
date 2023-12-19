@@ -20,5 +20,7 @@ class RunRequest(
     SetupHookMixin,
     HttpMethodMix,
 ):
+    """Class entrypoint for a HttpRunner request."""
+
     def __init__(self, name: Text):
         super().__init__(name)

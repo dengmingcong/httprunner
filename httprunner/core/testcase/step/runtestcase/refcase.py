@@ -7,6 +7,8 @@ from httprunner.models import (
 
 
 class StepRefCase(TeardownHookMixin):
+    """Class representing testcase reference."""
+
     def __init__(self, step_context: TStep):
         self._step_context = step_context
 

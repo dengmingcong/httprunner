@@ -24,6 +24,8 @@ class RunTestCase(
     SetupHookMixin,
     StepVariableMixin,
 ):
+    """Class entrypoint for a HttpRunner testcase."""
+
     def __init__(self, name: Text):
         self._step_context = TStep(name=name)
 

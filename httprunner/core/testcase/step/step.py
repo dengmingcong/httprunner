@@ -24,6 +24,8 @@ from httprunner.models import (
 
 
 class Step(object):
+    """Class representing a testcase step."""
+
     def __init__(
         self,
         step_context: Union[

@@ -19,6 +19,8 @@ Number = Union[int, float]
 
 
 class StepRequestValidation(object):
+    """Class representing response validation."""
+
     def __init__(self, step_context: TStep):
         self._step_context = step_context
 

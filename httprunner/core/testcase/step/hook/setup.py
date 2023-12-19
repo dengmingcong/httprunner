@@ -2,6 +2,8 @@ from httprunner.models import TStep
 
 
 class SetupHookMixin:
+    """Mixin representing setup hook."""
+
     _step_context: TStep
 
     def setup_hook(self, hook: str, assign_var_name: str = None):

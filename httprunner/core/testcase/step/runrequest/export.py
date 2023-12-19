@@ -9,6 +9,8 @@ from httprunner.models import (
 
 
 class StepRequestExport(object):
+    """Class representing global variables export."""
+
     def __init__(self, step_context: TStep):
         self._step_context = step_context
 

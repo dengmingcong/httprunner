@@ -9,6 +9,8 @@ from httprunner.models import (
 
 
 class RetryStepMixin:
+    """Mixin representing retrying step."""
+
     _step_context: TStep
 
     def retry_on_failure(

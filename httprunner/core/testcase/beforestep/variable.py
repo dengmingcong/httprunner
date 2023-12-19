@@ -4,7 +4,7 @@ from httprunner.models import (
 
 
 class StepVariableMixin(object):
-    """Mixin representing setup for RunRequest."""
+    """Mixin representing add step variables."""
 
     _step_context: TStep
 

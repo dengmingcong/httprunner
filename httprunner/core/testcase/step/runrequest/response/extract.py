@@ -15,6 +15,8 @@ from httprunner.models import (
 
 
 class StepRequestExtraction(object):
+    """Class representing response extraction."""
+
     def __init__(self, step_context: TStep):
         self._step_context = step_context
 

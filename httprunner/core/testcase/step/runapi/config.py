@@ -9,9 +9,7 @@ from httprunner.models import (
 
 
 class RequestConfig(object):
-    """
-    Class representing request config.
-    """
+    """Class representing request config."""
 
     def __init__(self, name: Text):
         self.__name = name

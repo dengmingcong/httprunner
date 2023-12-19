@@ -14,6 +14,8 @@ from httprunner.models import (
 
 
 class HttpMethodMix:
+    """Mixin representing HTTP methods."""
+
     _step_context: TStep
 
     def get(self, url: Text) -> RequestWithOptionalArgs:
