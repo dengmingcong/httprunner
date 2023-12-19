@@ -498,71 +498,68 @@ class HttpRunner(object):
 
         return step_data
 
-    def __run_step(self, step: TStep) -> Dict:
+    def __run_step(self, step: TStep, step_context_variables: dict) -> Dict:
         """run teststep, teststep maybe a request or referenced testcase"""
-        is_skip_step = False
+        # step variables set with HttpRunnerRequest.with_variables() > step outside variables
+        step.variables = merge_variables(step.variables, step_context_variables)
+
+        # parse variables
+        step.variables = parse_variables_mapping(
+            step.variables, self.__project_meta.functions
+        )
+
+        # parse raw variables
+        if step.raw_variables:
+            parsed_raw_variables = parse_data(
+                step.raw_variables, step.variables, self.__project_meta.functions
+            )
+            if step.is_deep_parse_raw_variables:
+                parsed_raw_variables = parse_data(
+                    parsed_raw_variables,
+                    step.variables,
+                    self.__project_meta.functions,
+                )
+            step.variables.update(parsed_raw_variables)
+
+        # for HttpRunnerRequest step
+        if step.request_config:
+            # step variables set with HttpRunnerRequest.with_variables() >
+            # extracted variables > testcase config variables > HttpRunnerRequest config variables
+            step.variables = merge_variables(
+                step.variables, step.request_config.variables
+            )
+
+            # step config variables are supposed to be self-parsed before merged into step.variables
+            step.variables = parse_variables_mapping(
+                step.variables, self.__project_meta.functions
+            )
+
+            # final priority order:
+            # step private variables > step variables set with HttpRunnerRequest.with_variables() >
+            # extracted variables > testcase config variables > HttpRunnerRequest config variables
+            step.variables = merge_variables(step.private_variables, step.variables)
+
+            # parse variables
+            step.variables = parse_variables_mapping(
+                step.variables, self.__project_meta.functions
+            )
+
+        # parse step name for allure report
+        step.name = parse_data(step.name, step.variables, self.__project_meta.functions)
+
+        # dynamic set allure report title
+        allure.dynamic.title(step.name)
+
         logger.info(f"run step begin: {step.name} >>>>>>")
-        step_data = StepData(name=step.name)
 
-        # handle skip_if
-        if step.skip_on_condition is not None:
-            parsed_skip_condition = parse_data(
-                step.skip_on_condition, step.variables, self.__project_meta.functions
+        if step.request:
+            step_data = self.__run_step_request(step)
+        elif step.testcase:
+            step_data = self.__run_step_testcase(step)
+        else:
+            raise ParamsError(
+                f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
             )
-            logger.debug(
-                f"parsed skip condition: {parsed_skip_condition} ({type(parsed_skip_condition)})"
-            )
-
-            # call `eval()` if type is str
-            if isinstance(parsed_skip_condition, str):
-                parsed_skip_condition = eval(parsed_skip_condition)
-
-            if parsed_skip_condition:
-                is_skip_step = True
-                parsed_skip_reason = parse_data(
-                    step.skip_reason, step.variables, self.__project_meta.functions
-                )
-                logger.info(f"skip condition was met, reason: {parsed_skip_reason}")
-
-                # mark skipped step as success
-                step_data.success = True
-            else:
-                logger.info("skip condition was not met, run the step")
-
-        # handle skip_unless
-        if step.run_on_condition is not None:
-            parsed_run_condition = parse_data(
-                step.run_on_condition, step.variables, self.__project_meta.functions
-            )
-            logger.debug(
-                f"parsed run condition: {parsed_run_condition} ({type(parsed_run_condition)})"
-            )
-
-            # eval again if type is str
-            if isinstance(parsed_run_condition, str):
-                parsed_run_condition = eval(parsed_run_condition)
-
-            if not parsed_run_condition:
-                is_skip_step = True
-                parsed_skip_reason = parse_data(
-                    step.skip_reason, step.variables, self.__project_meta.functions
-                )
-                logger.info(f"skip condition was met, reason: {parsed_skip_reason}")
-
-                # mark skipped step as success
-                step_data.success = True
-            else:
-                logger.info("run condition was met, run the step")
-
-        if not is_skip_step:
-            if step.request:
-                step_data = self.__run_step_request(step)
-            elif step.testcase:
-                step_data = self.__run_step_testcase(step)
-            else:
-                raise ParamsError(
-                    f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
-                )
 
         self.__step_datas.append(step_data)
         logger.info(f"run step end: {step.name} <<<<<<\n")
@@ -599,60 +596,77 @@ class HttpRunner(object):
                 # parametrized step is a step wrapper, codes later was not needed for itself
                 continue
 
-            # step variables set with HttpRunnerRequest.with_variables() > step outside variables
-            step.variables = merge_variables(step.variables, step_context_variables)
+            is_skip_step = False
+            step_data = StepData(name=step.name)
 
-            # parse variables
-            step.variables = parse_variables_mapping(
-                step.variables, self.__project_meta.functions
-            )
-
-            # parse raw variables
-            if step.raw_variables:
-                parsed_raw_variables = parse_data(
-                    step.raw_variables, step.variables, self.__project_meta.functions
+            # handle skip_if
+            if step.skip_if_condition is not None:
+                parsed_skip_condition = parse_data(
+                    step.skip_if_condition,
+                    step_context_variables,
+                    self.__project_meta.functions,
                 )
-                if step.is_deep_parse_raw_variables:
-                    parsed_raw_variables = parse_data(
-                        parsed_raw_variables,
-                        step.variables,
+                logger.debug(
+                    f"parsed skip condition: {parsed_skip_condition} ({type(parsed_skip_condition)})"
+                )
+
+                # call `eval()` if type is str
+                if isinstance(parsed_skip_condition, str):
+                    parsed_skip_condition = eval(parsed_skip_condition)
+
+                if parsed_skip_condition:
+                    is_skip_step = True
+                    parsed_skip_reason = parse_data(
+                        step.skip_reason,
+                        step_context_variables,
                         self.__project_meta.functions,
                     )
-                step.variables.update(parsed_raw_variables)
+                    logger.info(f"skip condition was met, reason: {parsed_skip_reason}")
 
-            # for HttpRunnerRequest step
-            if step.request_config:
-                # step variables set with HttpRunnerRequest.with_variables() >
-                # extracted variables > testcase config variables > HttpRunnerRequest config variables
-                step.variables = merge_variables(
-                    step.variables, step.request_config.variables
+                    # mark skipped step as success
+                    step_data.success = True
+                else:
+                    logger.info("skip condition was not met, run the step")
+
+            # handle skip_unless
+            if step.skip_unless_condition is not None:
+                parsed_run_condition = parse_data(
+                    step.skip_unless_condition,
+                    step_context_variables,
+                    self.__project_meta.functions,
+                )
+                logger.debug(
+                    f"parsed run condition: {parsed_run_condition} ({type(parsed_run_condition)})"
                 )
 
-                # step config variables are supposed to be self-parsed before merged into step.variables
-                step.variables = parse_variables_mapping(
-                    step.variables, self.__project_meta.functions
-                )
+                # eval again if type is str
+                if isinstance(parsed_run_condition, str):
+                    parsed_run_condition = eval(parsed_run_condition)
 
-                # final priority order:
-                # step private variables > step variables set with HttpRunnerRequest.with_variables() >
-                # extracted variables > testcase config variables > HttpRunnerRequest config variables
-                step.variables = merge_variables(step.private_variables, step.variables)
+                if not parsed_run_condition:
+                    is_skip_step = True
+                    parsed_skip_reason = parse_data(
+                        step.skip_reason,
+                        step_context_variables,
+                        self.__project_meta.functions,
+                    )
+                    logger.info(f"skip condition was met, reason: {parsed_skip_reason}")
 
-                # parse variables
-                step.variables = parse_variables_mapping(
-                    step.variables, self.__project_meta.functions
-                )
+                    # mark skipped step as success
+                    step_data.success = True
+                else:
+                    logger.info("run condition was met, run the step")
 
-            # parse step name for allure report
-            step.name = parse_data(
-                step.name, step.variables, self.__project_meta.functions
-            )
+            # skip step
+            if is_skip_step:
+                self.__step_datas.append(step_data)
+                continue
 
             # run step
             try:
                 if self.__use_allure:
-                    with allure.step(f"step: {step.name}"):
-                        extract_mapping = self.__run_step(step)
+                    with allure.step(step.name):
+                        extract_mapping = self.__run_step(step, step_context_variables)
 
                         # raise exception to mark this step failed in allure report
                         # run only when self.__continue_on_failure is True
@@ -664,7 +678,7 @@ class HttpRunner(object):
                                     "self.__continue_on_failure is set to True and step.testcase failed"
                                 )
                 else:
-                    extract_mapping = self.__run_step(step)
+                    extract_mapping = self.__run_step(step, step_context_variables)
 
                     if not (step_data := self.__step_datas[-1]).success:
                         if step.request:
