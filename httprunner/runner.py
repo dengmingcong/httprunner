@@ -585,14 +585,14 @@ class HttpRunner(object):
         for step in steps:
             # variables got from outside of step
             # extracted variables > testcase config variables
-            step_config_variables = merge_variables(
+            step_context_variables = merge_variables(
                 extracted_variables, self.__config.variables
             )
 
             if step.parametrize:
                 # step.variables have already been parsed
                 expanded_steps = expand_parametrized_step(
-                    step, step_config_variables, self.__project_meta.functions
+                    step, step_context_variables, self.__project_meta.functions
                 )
                 self.__run_steps(expanded_steps, extracted_variables)
 
@@ -600,7 +600,7 @@ class HttpRunner(object):
                 continue  # noqa
 
             # step variables set with HttpRunnerRequest.with_variables() > step outside variables
-            step.variables = merge_variables(step.variables, step_config_variables)
+            step.variables = merge_variables(step.variables, step_context_variables)
 
             # parse variables
             step.variables = parse_variables_mapping(
