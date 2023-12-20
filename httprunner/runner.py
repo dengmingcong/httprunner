@@ -687,8 +687,8 @@ class HttpRunner(object):
                     with allure.step(step.name):
                         extract_mapping = self.__run_step(step, step_context_variables)
 
-                        # raise exception to mark this step failed in allure report
-                        # run only when self.__continue_on_failure is True
+                        # raise exception to mark this step failed in allure report.
+                        # run only when self.__continue_on_failure is True.
                         if not (step_data := self.__step_datas[-1]).success:
                             if step.request:
                                 raise step_data.data.exception
@@ -884,20 +884,17 @@ class HttpRunner(object):
             > signature of the base method in class 'HttpRunner'
         """
         self.__init_tests__()
-        self.__continue_on_failure = self.__config.continue_on_failure  # noqa
+        self.__continue_on_failure = self.__config.continue_on_failure
 
         # the location of the first testcase decided the project meta
         # for project meta would usually be located once
         self.__project_meta = self.__project_meta or load_project_meta()
-        # no need to set case id
-        # self.__case_id = self.__case_id or str(uuid.uuid4())
+
         self.__log_path = self.__log_path or os.path.join(
             self.__project_meta.httprunner_root_path,
             "logs",
             f"{self.__case_id}.run.log",
         )
-        # do not save logging messages to log files to free disk space
-        # log_handler = logger.add(self.__log_path, level="DEBUG")
 
         # parse config name
         config_variables = self.__config.variables
@@ -917,23 +914,18 @@ class HttpRunner(object):
             f"Start to run testcase: {self.__config.name}, TestCase ID: {self.__case_id}"
         )
 
-        try:
-            case_result = self.run_testcase(
-                TestCase(config=self.__config, teststeps=self.__teststeps)
-            )
+        case_result = self.run_testcase(
+            TestCase(config=self.__config, teststeps=self.__teststeps)
+        )
 
-            # mark testcase as failed finally after all steps were executed and failed steps existed
-            if self.__continue_on_failure:
-                if self.__failed_steps:
-                    self.success = False
-                    raise ValidationFailure(
-                        f"continue_on_failure was set to True and {len(self.__failed_steps)} steps failed."
-                    )
-                else:
-                    self.success = True
+        # mark testcase as failed finally after all steps were executed and failed steps existed
+        if self.__continue_on_failure:
+            if self.__failed_steps:
+                self.success = False
+                raise ValidationFailure(
+                    f"continue_on_failure was set to True and {len(self.__failed_steps)} steps failed."
+                )
+            else:
+                self.success = True
 
-            return case_result
-        finally:
-            pass
-            # logger.remove(log_handler)
-            # logger.info(f"generate testcase log: {self.__log_path}")
+        return case_result
