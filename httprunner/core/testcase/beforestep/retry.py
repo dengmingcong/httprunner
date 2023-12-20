@@ -1,6 +1,5 @@
 from typing import (
     Any,
-    Union,
 )
 
 from httprunner.models import (
@@ -15,8 +14,8 @@ class RetryStepMixin:
 
     def retry_on_failure(
         self,
-        retry_times: int,
-        retry_interval: Union[int, float],
+        retry_times: Any,
+        retry_interval: Any,
         stop_retry_if: Any = None,
     ):
         """
