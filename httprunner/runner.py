@@ -342,7 +342,7 @@ class HttpRunner(object):
             resp_obj.validate(
                 validators, variables_mapping, self.__project_meta.functions
             )
-            self.__session.data.validators = resp_obj.validation_results
+            self.__session.data.validation_results = resp_obj.validation_results
             self.__session.data.success = True  # validate success
 
             if self.__use_allure:
@@ -381,7 +381,7 @@ class HttpRunner(object):
                     step.remaining_retry_times,
                     is_meet_stop_retry_condition,
                 )
-            self.__session.data.validators = resp_obj.validation_results
+            self.__session.data.validation_results = resp_obj.validation_results
 
             # check if retry is needed
             if step.remaining_retry_times > 0 and not is_meet_stop_retry_condition:

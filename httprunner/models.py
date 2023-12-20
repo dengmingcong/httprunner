@@ -207,7 +207,7 @@ class SessionData(BaseModel):
     req_resps: List[ReqRespData] = []
     stat: RequestStat = RequestStat()
     address: AddressData = AddressData()
-    validators: Dict = {}
+    validation_results: Dict = {}
     exception: Exception = None
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
