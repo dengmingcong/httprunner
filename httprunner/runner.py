@@ -545,7 +545,12 @@ class HttpRunner(object):
             )
 
         # parse step name for allure report
-        step.name = parse_data(step.name, step.variables, self.__project_meta.functions)
+        try:
+            step.name = parse_data(
+                step.name, step.variables, self.__project_meta.functions
+            )
+        except VariableNotFound as e:
+            logger.warning(f"error occurred while parsing step name: {repr(e)}")
 
         # dynamic set allure report title
         allure.dynamic.title(step.name)
@@ -670,7 +675,7 @@ class HttpRunner(object):
                         step.name, step_context_variables, self.__project_meta.functions
                     )
                 except VariableNotFound as e:
-                    logger.warning(repr(e))
+                    logger.warning(f"error occurred while parsing step name: {repr(e)}")
 
                 with allure.step(step.name):
                     self.__step_datas.append(step_data)
