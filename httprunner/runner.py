@@ -7,6 +7,7 @@ from typing import List, Dict, Text, NoReturn, Union
 from httprunner.builtin import expand_nested_json
 from httprunner.core.allure.runrequest.runrequest_retry import save_run_request_retry
 from httprunner.core.runner.parametrized_step import expand_parametrized_step
+from httprunner.core.runner.skip_step import is_skip_step
 from httprunner.core.runner.update_form import update_form
 from httprunner.core.runner.update_json import update_json
 from httprunner.pyproject import PyProjectToml
@@ -607,69 +608,12 @@ class HttpRunner(object):
                 step.parsed_parametrize_vars, step_context_variables
             )
 
-            is_skip_step = False
-            step_data = StepData(name=step.name)
-
-            # handle skip_if
-            if step.skip_if_condition is not None:
-                parsed_skip_condition = parse_data(
-                    step.skip_if_condition,
-                    step_context_variables,
-                    self.__project_meta.functions,
-                )
-                logger.debug(
-                    f"parsed skip condition: {parsed_skip_condition} ({type(parsed_skip_condition)})"
-                )
-
-                # call `eval()` if type is str
-                if isinstance(parsed_skip_condition, str):
-                    parsed_skip_condition = eval(parsed_skip_condition)
-
-                if parsed_skip_condition:
-                    is_skip_step = True
-                    parsed_skip_reason = parse_data(
-                        step.skip_reason,
-                        step_context_variables,
-                        self.__project_meta.functions,
-                    )
-                    logger.info(f"skip condition was met, reason: {parsed_skip_reason}")
-
-                    # mark skipped step as success
-                    step_data.success = True
-                else:
-                    logger.info("skip condition was not met, run the step")
-
-            # handle skip_unless
-            if step.skip_unless_condition is not None:
-                parsed_run_condition = parse_data(
-                    step.skip_unless_condition,
-                    step_context_variables,
-                    self.__project_meta.functions,
-                )
-                logger.debug(
-                    f"parsed run condition: {parsed_run_condition} ({type(parsed_run_condition)})"
-                )
-
-                # eval again if type is str
-                if isinstance(parsed_run_condition, str):
-                    parsed_run_condition = eval(parsed_run_condition)
-
-                if not parsed_run_condition:
-                    is_skip_step = True
-                    parsed_skip_reason = parse_data(
-                        step.skip_reason,
-                        step_context_variables,
-                        self.__project_meta.functions,
-                    )
-                    logger.info(f"skip condition was met, reason: {parsed_skip_reason}")
-
-                    # mark skipped step as success
-                    step_data.success = True
-                else:
-                    logger.info("run condition was met, run the step")
-
-            # skip step
-            if is_skip_step:
+            if is_skip_step(
+                step, step_context_variables, self.__project_meta.functions
+            ):
+                step_data = StepData(name=step.name)
+                # mark skipped step as success
+                step_data.success = True
                 try:
                     step.name = parse_data(
                         step.name, step_context_variables, self.__project_meta.functions
