@@ -98,9 +98,9 @@ class TStep(BaseModel):
     parsed_parametrize_vars: VariablesMapping = (
         {}
     )  # variables acquired after parsing parametrize
-    remaining_retry_times: Any = 0  # times remaining to retry
-    max_retry_times: Any = 0  # max retry times
-    retry_interval: Any = 0
+    remaining_retry_times: Union[int, str] = 0  # times remaining to retry
+    max_retry_times: Union[int, str] = 0  # max retry times
+    retry_interval: Union[int, float, str] = 0
     stop_retry_if: Any = None
     skip_if_condition: Any = None
     skip_unless_condition: Any = None

@@ -8,6 +8,11 @@ def parse_retry_args(
     step: TStep, step_context_variables: dict, functions: dict
 ) -> NoReturn:
     """Parse step retry args (retry times and interval)."""
+    if not isinstance(step.max_retry_times, str) and not isinstance(
+        step.retry_interval, str
+    ):
+        return
+
     parsed_max_retry_times = parse_data(
         step.max_retry_times, step_context_variables, functions
     )
