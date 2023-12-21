@@ -197,10 +197,8 @@ class HttpRunner(object):
             else:
                 logger.error(f"Invalid hook format: {hook}")
 
-    def __run_step_request(self, step: TStep) -> StepData:
-        """run teststep: request"""
-        step_data = StepData(name=step.name)  # noqa
-
+    def __prepare_step_request(self, step: TStep) -> tuple:
+        """Prepare before sending http request."""
         # parse
         prepare_upload_step(step, self.__project_meta.functions)
 
@@ -240,6 +238,14 @@ class HttpRunner(object):
 
         parsed_request_dict["verify"] = self.__config.verify
         parsed_request_dict["json"] = parsed_request_dict.pop("req_json", {})
+
+        return method, url, parsed_request_dict
+
+    def __run_step_request(self, step: TStep) -> StepData:
+        """run teststep: request"""
+        step_data = StepData(name=step.name)
+
+        method, url, parsed_request_dict = self.__prepare_step_request(step)
 
         # request
         resp = self.__session.request(method, url, **parsed_request_dict)
@@ -656,7 +662,7 @@ class HttpRunner(object):
         self.__project_meta = self.__project_meta or load_project_meta()
         self.__parse_config(self.__config)
 
-        self.__start_at = time.time()  # noqa
+        self.__start_at = time.time()
         self.__step_datas: List[StepData] = []
         self.__session = self.__session or HttpSession()
 
@@ -745,7 +751,7 @@ class HttpRunner(object):
         self.__export = self.__export or self.__config.export
         self.validate_testcase_export()
 
-        export_vars_mapping = {}  # noqa
+        export_vars_mapping = {}
 
         if isinstance(self.__export, StepExport):
             var_names_set = set(self.__export.var_names)
