@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union
 
 from httprunner.builtin import expand_nested_json
-from httprunner.core.allure.runrequest.runrequest_retry import save_run_request_retry
+from httprunner.core.allure.runrequest.runrequest import save_run_request
 from httprunner.core.runner.export_request_step_vars import (
     export_request_step_variables,
 )
@@ -302,95 +302,22 @@ class HttpRunner(object):
 
         # validate
         validators = step.validators
-        self.__session.data.success = (
-            False  # default to False, re-assign it to make it more explicit
-        )
 
         try:
             resp_obj.validate(validators, step.variables, self.__project_meta.functions)
-            self.__session.data.validation_results = resp_obj.validation_results
-            self.__session.data.success = True  # validate success
-
-            if self.__use_allure:
-                save_run_request_retry(
-                    self.__session,
-                    resp_obj,
-                    step_data.export_vars,
-                    step.max_retry_times,
-                    step.remaining_retry_times,
-                )
-        except ValidationFailure as vf:
-            # evaluate `stop_retry_if` before retrying
-            is_meet_stop_retry_condition = False
-            if step.stop_retry_if is not None:
-                parsed_stop_retry_if = parse_data(
-                    step.stop_retry_if, step.variables, self.__project_meta.functions
-                )
-                logger.debug(f"parsed `stop_retry_if`: {parsed_stop_retry_if}")
-
-                # call `eval()` if type is str
-                if isinstance(parsed_stop_retry_if, str):
-                    parsed_stop_retry_if = eval(parsed_stop_retry_if)
-
-                if parsed_stop_retry_if:
-                    is_meet_stop_retry_condition = True
-                    logger.info(
-                        "`stop_retry_if` condition was met, retrying was stopped"
-                    )
-
-            if self.__use_allure:
-                save_run_request_retry(
-                    self.__session,
-                    resp_obj,
-                    step_data.export_vars,
-                    step.max_retry_times,
-                    step.remaining_retry_times,
-                    is_meet_stop_retry_condition,
-                )
-            self.__session.data.validation_results = resp_obj.validation_results
-
-            # check if retry is needed
-            if step.remaining_retry_times > 0 and not is_meet_stop_retry_condition:
-                logger.warning(
-                    f"step '{step.name}' validation failed, wait {step.retry_interval} seconds and try again"
-                )
-                step.remaining_retry_times -= 1
-                time.sleep(step.retry_interval)
-                step_data = self.__run_step_request(step)
-                return step_data
-
-            self.__failed_steps.append(step)
-
+        finally:
             # log testcase duration before raise ValidationFailure
             self.__duration = time.time() - self.__start_at
 
-            if self.__continue_on_failure:
-                self.__session.data.exception = vf
-            else:
-                raise
-        except Exception:
             if self.__use_allure:
-                save_run_request_retry(
-                    self.__session,
+                save_run_request(
+                    self.__session.data,
                     resp_obj,
                     step_data.export_vars,
-                    step.max_retry_times,
-                    step.remaining_retry_times,
                 )
-            raise
-        finally:
-            if hasattr(self, "__failed_steps") and self.__failed_steps:
-                self.success = False
-            else:
-                self.success = True
 
-            step_data.success = self.__session.data.success
-
-            if hasattr(self.__session, "data"):
-                # httprunner.client.HttpSession, not locust.clients.HttpSession
-                # save step data
-                step_data.data = self.__session.data
-
+        self.__session.data.validation_results = resp_obj.validation_results
+        step_data.data = self.__session.data
         return step_data
 
     def __run_step_testcase(self, step: TStep) -> StepData:
