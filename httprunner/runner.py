@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 
 from loguru import logger
 
-from httprunner import utils, exceptions
+from httprunner import exceptions
 from httprunner.client import HttpSession
 from httprunner.exceptions import ValidationFailure, ParamsError, VariableNotFound
 from httprunner.ext.uploader import prepare_upload_step
@@ -262,28 +262,6 @@ class HttpRunner(object):
         if step.teardown_hooks:
             self.__call_hooks(step.teardown_hooks, step.variables, "teardown request")
 
-        def log_req_resp_details():
-            err_msg = "\n{} DETAILED REQUEST & RESPONSE {}\n".format("*" * 32, "*" * 32)
-
-            # log request
-            err_msg += "====== request details ======\n"
-            err_msg += f"url: {url}\n"
-            err_msg += f"method: {method}\n"
-            headers = parsed_request_dict.pop("headers", {})
-            err_msg += f"headers: {headers}\n"
-            for k, v in parsed_request_dict.items():
-                v = utils.omit_long_data(v)
-                err_msg += f"{k}: {repr(v)}\n"
-
-            err_msg += "\n"
-
-            # log response
-            err_msg += "====== response details ======\n"
-            err_msg += f"status_code: {resp.status_code}\n"
-            err_msg += f"headers: {resp.headers}\n"
-            err_msg += f"body: {repr(resp.text)}\n"
-            logger.error(err_msg)
-
         # extract
         extractors: list = step.extract
 
@@ -399,7 +377,6 @@ class HttpRunner(object):
                 return step_data
 
             self.__failed_steps.append(step)
-            log_req_resp_details()
 
             # log testcase duration before raise ValidationFailure
             self.__duration = time.time() - self.__start_at
@@ -605,9 +582,9 @@ class HttpRunner(object):
         def step_runner(step_: TStep) -> StepData:
             """Run step."""
             if step.request:
-                return self.__run_step_request(step)
+                return self.__run_step_request(step_)
             elif step.testcase:
-                return self.__run_step_testcase(step)
+                return self.__run_step_testcase(step_)
             else:
                 raise ParamsError(
                     f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
