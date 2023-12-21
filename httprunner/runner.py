@@ -320,16 +320,10 @@ class HttpRunner(object):
                 local_var_name = var
                 export_as = var
 
-            # cannot export variables extracted
-            if local_var_name in extract_mapping:
-                raise ValueError(
-                    f"cannot export variable {local_var_name} which is extracted from response"
-                )
-
             if local_var_name not in variables_mapping:
                 raise ValueError(
                     f"failed to export local step variable {local_var_name}, "
-                    f"all step variables now: {variables_mapping}"
+                    f"all step variables now: {variables_mapping.keys()}"
                 )
 
             export_mapping[export_as] = variables_mapping[local_var_name]
