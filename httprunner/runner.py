@@ -256,18 +256,8 @@ class HttpRunner(object):
         if step.teardown_hooks:
             self.__call_hooks(step.teardown_hooks, step.variables, "teardown request")
 
-    def __run_step_request(self, step: TStep) -> StepData:
-        """run teststep: request"""
-        step_data = StepData(name=step.name)
-
-        method, url, parsed_request_dict = self.__prepare_step_request(step)
-
-        # request
-        resp = self.__session.request(method, url, **parsed_request_dict)
-        resp_obj = ResponseObject(resp)
-
-        self.__preprocess_response(parsed_request_dict, resp_obj, step)
-
+    def __extract(self, step: TStep, resp_obj: ResponseObject) -> dict:
+        """Extract from response content."""
         # extract
         extractors: list = step.extract
 
@@ -285,11 +275,25 @@ class HttpRunner(object):
                     )
                 parsed_extractors.append(extractor)
 
-        extract_mapping = resp_obj.extract(parsed_extractors)
-        step_data.export_vars = extract_mapping
+        return resp_obj.extract(parsed_extractors)
+
+    def __run_step_request(self, step: TStep) -> StepData:
+        """run teststep: request"""
+        step_data = StepData(name=step.name)
+
+        method, url, parsed_request_dict = self.__prepare_step_request(step)
+
+        # request
+        resp = self.__session.request(method, url, **parsed_request_dict)
+        resp_obj = ResponseObject(resp)
+
+        # preprocess before extracting and validating
+        self.__preprocess_response(parsed_request_dict, resp_obj, step)
+
+        step_data.export_vars = self.__extract(step, resp_obj)
 
         variables_mapping = step.variables
-        variables_mapping.update(extract_mapping)
+        variables_mapping.update(step_data.export_vars)
 
         # added by @deng at 2022.2.9
         export_mapping = {}
