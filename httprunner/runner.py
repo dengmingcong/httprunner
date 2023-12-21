@@ -11,6 +11,7 @@ from httprunner.core.runner.export_request_step_vars import (
     export_request_step_variables,
 )
 from httprunner.core.runner.parametrized_step import expand_parametrized_step
+from httprunner.core.runner.retry import parse_retry_args
 from httprunner.core.runner.skip_step import is_skip_step
 from httprunner.core.runner.update_form import update_form
 from httprunner.core.runner.update_json import update_json
@@ -476,6 +477,9 @@ class HttpRunner(object):
             self.__display_skipped_step(step, step_context_variables)
             # important: return directly if step is skipped
             return
+
+        # parse step retry args (retry times and interval)
+        parse_retry_args(step, step_context_variables, self.__project_meta.functions)
 
         self.__resolve_step_variables(step, step_context_variables)
 
