@@ -292,8 +292,7 @@ class HttpRunner(object):
 
         step_data.export_vars = self.__extract(step, resp_obj)
 
-        variables_mapping = step.variables
-        variables_mapping.update(step_data.export_vars)
+        step.variables.update(step_data.export_vars)
 
         # added by @deng at 2022.2.9
         export_mapping = {}
@@ -314,13 +313,13 @@ class HttpRunner(object):
                 local_var_name = var
                 export_as = var
 
-            if local_var_name not in variables_mapping:
+            if local_var_name not in step.variables:
                 raise ValueError(
                     f"failed to export local step variable {local_var_name}, "
-                    f"all step variables now: {variables_mapping.keys()}"
+                    f"all step variables now: {step.variables.keys()}"
                 )
 
-            export_mapping[export_as] = variables_mapping[local_var_name]
+            export_mapping[export_as] = step.variables[local_var_name]
 
         # extracted variables > local variables
         step_data.export_vars = merge_variables(step_data.export_vars, export_mapping)
@@ -332,9 +331,7 @@ class HttpRunner(object):
         )
 
         try:
-            resp_obj.validate(
-                validators, variables_mapping, self.__project_meta.functions
-            )
+            resp_obj.validate(validators, step.variables, self.__project_meta.functions)
             self.__session.data.validation_results = resp_obj.validation_results
             self.__session.data.success = True  # validate success
 
