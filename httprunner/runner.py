@@ -7,6 +7,9 @@ from typing import List, Dict, Text, NoReturn, Union
 
 from httprunner.builtin import expand_nested_json
 from httprunner.core.allure.runrequest.runrequest_retry import save_run_request_retry
+from httprunner.core.runner.export_request_step_vars import (
+    export_request_step_variables,
+)
 from httprunner.core.runner.parametrized_step import expand_parametrized_step
 from httprunner.core.runner.skip_step import is_skip_step
 from httprunner.core.runner.update_form import update_form
@@ -290,39 +293,12 @@ class HttpRunner(object):
         # preprocess before extracting and validating
         self.__preprocess_response(parsed_request_dict, resp_obj, step)
 
+        # extract from response and save to variables
         step_data.export_vars = self.__extract(step, resp_obj)
-
         step.variables.update(step_data.export_vars)
 
-        # added by @deng at 2022.2.9
-        export_mapping = {}
-        # export local variables to make them usable for steps next
-        for var in step.globalize:
-            if isinstance(var, dict):
-                if len(var) != 1:
-                    raise ValueError(
-                        f"length of dict can only be 1 but got {len(var)} for: {var}"
-                    )
-                local_var_name = list(var.keys())[0]
-                export_as = list(var.values())[0]
-            else:
-                if not isinstance(var, str) or not var:
-                    raise ValueError(
-                        "type of var can only be dict or str, and must not be empty"
-                    )
-                local_var_name = var
-                export_as = var
-
-            if local_var_name not in step.variables:
-                raise ValueError(
-                    f"failed to export local step variable {local_var_name}, "
-                    f"all step variables now: {step.variables.keys()}"
-                )
-
-            export_mapping[export_as] = step.variables[local_var_name]
-
-        # extracted variables > local variables
-        step_data.export_vars = merge_variables(step_data.export_vars, export_mapping)
+        # make local variables global and available for next steps
+        step_data.export_vars.update(export_request_step_variables(step))
 
         # validate
         validators = step.validators
