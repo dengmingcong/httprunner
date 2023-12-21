@@ -456,31 +456,8 @@ class HttpRunner(object):
         with allure.step(step.name):
             self.__step_datas.append(step_data)
 
-    def __run_step(self, step: TStep, step_context_variables: dict) -> NoReturn:
-        """run teststep, teststep maybe a request or referenced testcase"""
-        # expand and run parametrized steps
-        if step.parametrize:
-            expanded_steps = expand_parametrized_step(
-                step, step_context_variables, self.__project_meta.functions
-            )
-            self.__run_steps(expanded_steps, step_context_variables)
-
-            # important: parametrized step is a step wrapper, codes later was not needed for itself
-            return
-
-        # parsed parametrize variables > extracted variables > testcase config variables.
-        # Note: parsed parametrize variables will be used in skip_if and skip_unless condition
-        step_context_variables.update(step.parsed_parametrize_vars)
-
-        # skip step if condition is satisfied
-        if is_skip_step(step, step_context_variables, self.__project_meta.functions):
-            self.__display_skipped_step(step, step_context_variables)
-            # important: return directly if step is skipped
-            return
-
-        # parse step retry args (retry times and interval)
-        parse_retry_args(step, step_context_variables, self.__project_meta.functions)
-
+    def __run_step_once(self, step: TStep, step_context_variables: dict):
+        """Core function for running step (maybe a request or referenced testcase)."""
         self.__resolve_step_variables(step, step_context_variables)
 
         # parse step name for allure report
@@ -518,6 +495,43 @@ class HttpRunner(object):
 
         # put extracted variables to session variables for later exporting
         self.__session_variables.update(step_data.export_vars)
+
+    def __run_step(self, step: TStep, step_context_variables: dict) -> NoReturn:
+        """run teststep, teststep maybe a request or referenced testcase"""
+        # expand and run parametrized steps
+        if step.parametrize:
+            expanded_steps = expand_parametrized_step(
+                step, step_context_variables, self.__project_meta.functions
+            )
+            self.__run_steps(expanded_steps, step_context_variables)
+
+            # important: parametrized step is a step wrapper, codes later was not needed for itself
+            return
+
+        # parsed parametrize variables > extracted variables > testcase config variables.
+        # Note: parsed parametrize variables will be used in skip_if and skip_unless condition
+        step_context_variables.update(step.parsed_parametrize_vars)
+
+        # skip step if condition is satisfied
+        if is_skip_step(step, step_context_variables, self.__project_meta.functions):
+            self.__display_skipped_step(step, step_context_variables)
+            # important: return directly if step is skipped
+            return
+
+        # parse step retry args (retry times and interval)
+        parse_retry_args(step, step_context_variables, self.__project_meta.functions)
+
+        # note: skipped step will not be retried
+        if step.remaining_retry_times > 0:
+            # retain raw step info to enable parsing step again.
+            # fix: trace id is always the same when retrying step.
+            try:
+                self.__run_step_once(step.model_copy(deep=True), step_context_variables)
+            except ValidationFailure:
+                step.remaining_retry_times -= 1
+                self.__run_step(step, step_context_variables)
+
+        self.__run_step_once(step.model_copy(deep=True), step_context_variables)
 
     def __parse_config(self, config: TConfig) -> NoReturn:
         """Parse TConfig instance."""
