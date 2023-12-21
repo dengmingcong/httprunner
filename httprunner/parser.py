@@ -534,15 +534,18 @@ def parse_data(
         return parse_string(raw_data, variables_mapping, functions_mapping)
 
     elif isinstance(raw_data, list):
-        return [
-            parse_data(item, variables_mapping, functions_mapping) for item in raw_data
-        ]
+        # fix: do not create new list, otherwise the id of list will be changed
+        for index, item in enumerate(raw_data):
+            raw_data[index] = parse_data(item, variables_mapping, functions_mapping)
+        return raw_data
 
+    # note: set has no order, so we have to create a new set
     elif isinstance(raw_data, set):
         return {
             parse_data(item, variables_mapping, functions_mapping) for item in raw_data
         }
 
+    # note: tuple cannot be modified, so we have to create a new tuple
     elif isinstance(raw_data, tuple):
         return tuple(
             [
@@ -557,13 +560,15 @@ def parse_data(
         return raw_data
 
     elif isinstance(raw_data, dict):
-        parsed_data = {}
         for key, value in raw_data.items():
             parsed_key = parse_data(key, variables_mapping, functions_mapping)
             parsed_value = parse_data(value, variables_mapping, functions_mapping)
-            parsed_data[parsed_key] = parsed_value
+            raw_data[parsed_key] = parsed_value
 
-        return parsed_data
+            if parsed_key != key:
+                raw_data.pop(key)
+
+        return raw_data
 
     elif isinstance(raw_data, ParseMe):
         raw_data.__dict__ = parse_data(
