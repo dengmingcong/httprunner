@@ -665,16 +665,13 @@ class HttpRunner(object):
         self.__start_at = time.time()  # noqa
         self.__step_datas: List[StepData] = []
         self.__session = self.__session or HttpSession()
-        # save extracted variables of teststeps
-        extracted_variables: VariablesMapping = {}
 
         # init step context variables as to testcase config variables (already merged session variables)
         step_context_variables = deepcopy(self.__config.variables)
         self.__run_steps(self.__teststeps, step_context_variables)
 
-        # save extracted variables to session variables (only session variables can be exported)
-        self.__session_variables.update(extracted_variables)
         self.__duration = time.time() - self.__start_at
+
         return self
 
     def run_path(self, path: Text) -> "HttpRunner":
