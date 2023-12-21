@@ -241,16 +241,10 @@ class HttpRunner(object):
 
         return method, url, parsed_request_dict
 
-    def __run_step_request(self, step: TStep) -> StepData:
-        """run teststep: request"""
-        step_data = StepData(name=step.name)
-
-        method, url, parsed_request_dict = self.__prepare_step_request(step)
-
-        # request
-        resp = self.__session.request(method, url, **parsed_request_dict)
-        resp_obj = ResponseObject(resp)
-
+    def __preprocess_response(
+        self, parsed_request_dict: dict, resp_obj: ResponseObject, step: TStep
+    ) -> NoReturn:
+        """Preprocess response before actions on response such as extracting, validating."""
         # expand nested json if headers contain 'X-Json-Control' and its value is 'expand'.
         # Note: The header is case-sensitive.
         if parsed_request_dict["headers"].get("X-Json-Control") == "expand":
@@ -261,6 +255,18 @@ class HttpRunner(object):
         # teardown hooks
         if step.teardown_hooks:
             self.__call_hooks(step.teardown_hooks, step.variables, "teardown request")
+
+    def __run_step_request(self, step: TStep) -> StepData:
+        """run teststep: request"""
+        step_data = StepData(name=step.name)
+
+        method, url, parsed_request_dict = self.__prepare_step_request(step)
+
+        # request
+        resp = self.__session.request(method, url, **parsed_request_dict)
+        resp_obj = ResponseObject(resp)
+
+        self.__preprocess_response(parsed_request_dict, resp_obj, step)
 
         # extract
         extractors: list = step.extract
