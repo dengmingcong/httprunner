@@ -6,10 +6,12 @@ from httprunner.parser import parse_data
 
 def is_skip_step(step: TStep, step_context_variables: dict, functions: dict) -> bool:
     """Handle when skip_if or skip_unless was set."""
-    if step.skip_if_condition and step.skip_unless_condition:
+    # skip_if and skip_unless can not be set at the same time
+    if step.skip_if_condition is not None and step.skip_unless_condition is not None:
         raise SyntaxError("skip_if and skip_unless can not be set at the same time")
 
-    if not step.skip_if_condition and not step.skip_unless_condition:
+    # both skip_if and skip_unless were not set
+    if step.skip_if_condition is None and step.skip_unless_condition is None:
         return False
 
     # skip_if was set
