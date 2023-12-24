@@ -17,7 +17,7 @@ from httprunner.core.runner.export_request_step_vars import (
     export_request_step_variables,
 )
 from httprunner.core.runner.parametrized_step import expand_parametrized_step
-from httprunner.core.runner.retry import parse_retry_args
+from httprunner.core.runner.retry import parse_retry_args, gen_retry_step_title
 from httprunner.core.runner.skip_step import is_skip_step
 from httprunner.core.runner.update_form import update_form
 from httprunner.core.runner.update_json import update_json
@@ -297,17 +297,28 @@ class HttpRunner(object):
         # validate
         validators = step.validators
 
+        is_validation_pass = False
         try:
             resp_obj.validate(validators, step.variables, self.__project_meta.functions)
+            is_validation_pass = True
         finally:
             # log testcase duration before raise ValidationFailure
             self.__duration = time.time() - self.__start_at
 
-            save_run_request(
-                self.__session.data,
-                resp_obj,
-                step_data.export_vars,
-            )
+            if step.is_ever_retried:
+                step_title = gen_retry_step_title(step, is_validation_pass, self.__project_meta.functions, self.__session.data.stat.content_size)
+                with allure.step(step_title):
+                    save_run_request(
+                        self.__session.data,
+                        resp_obj,
+                        step_data.export_vars,
+                    )
+            else:
+                save_run_request(
+                    self.__session.data,
+                    resp_obj,
+                    step_data.export_vars,
+                )
 
         self.__session.data.validation_results = resp_obj.validation_results
         step_data.data = self.__session.data
@@ -483,6 +494,9 @@ class HttpRunner(object):
 
         # note: skipped step will not be retried
         if step.remaining_retry_times > 0:
+            # mark step as ever retried, steps with this marker will be put under new allure step
+            step.is_ever_retried = True
+
             # retain raw step info to enable parsing step again.
             # fix: trace id is always the same when retrying step.
             try:
