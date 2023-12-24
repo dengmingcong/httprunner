@@ -40,7 +40,7 @@ loguru = "0.7.0"
 pydantic = "^2.5.0"
 pytest = "7.4.0"
 pytest-html = "3.2.0"
-python = "^3.9"
+python = ">= 3.9, < 3.11"
 pyyaml = "6.0.1"  # fix: This error originates from the build backend, and is likely not a problem with poetry but with pyyaml (5.4.1) not supporting PEP 517 builds. You can verify this by running 'pip wheel --use-pep517 "pyyaml (==5.4.1)"'.
 requests = "2.30.0"  # reference: https://github.com/ionrock/cachecontrol/issues/292
 requests-toolbelt = "1.0.0"
