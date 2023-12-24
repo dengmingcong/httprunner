@@ -17,11 +17,20 @@ from httprunner.core.runner.export_request_step_vars import (
     export_request_step_variables,
 )
 from httprunner.core.runner.parametrized_step import expand_parametrized_step
-from httprunner.core.runner.retry import parse_retry_args, gen_retry_step_title
+from httprunner.core.runner.retry import (
+    parse_retry_args,
+    gen_retry_step_title,
+    is_meet_stop_retry_condition,
+)
 from httprunner.core.runner.skip_step import is_skip_step
 from httprunner.core.runner.update_form import update_form
 from httprunner.core.runner.update_json import update_json
-from httprunner.exceptions import ValidationFailure, ParamsError, VariableNotFound
+from httprunner.exceptions import (
+    ValidationFailure,
+    ParamsError,
+    VariableNotFound,
+    RetryInterruptedError,
+)
 from httprunner.ext.uploader import prepare_upload_step
 from httprunner.loader import load_project_meta, load_testcase_file
 from httprunner.models import (
@@ -111,7 +120,10 @@ class HttpRunner(object):
         """
         set if saving allure data no matter if allure was installed
         """
-        warnings.warn("This method is deprecated and has no effect now, you can delete it safely.", DeprecationWarning)
+        warnings.warn(
+            "This method is deprecated and has no effect now, you can delete it safely.",
+            DeprecationWarning,
+        )
         return self
 
     @property
@@ -298,6 +310,7 @@ class HttpRunner(object):
         validators = step.validators
 
         is_validation_pass = False
+
         try:
             resp_obj.validate(validators, step.variables, self.__project_meta.functions)
             is_validation_pass = True
@@ -306,7 +319,18 @@ class HttpRunner(object):
             self.__duration = time.time() - self.__start_at
 
             if step.is_ever_retried:
-                step_title = gen_retry_step_title(step, is_validation_pass, self.__project_meta.functions, self.__session.data.stat.content_size)
+                # check if stopping retry was required when validation failed
+                if not is_validation_pass:
+                    step.is_stop_retry = is_meet_stop_retry_condition(
+                        step, self.__project_meta.functions
+                    )
+
+                step_title = gen_retry_step_title(
+                    step,
+                    is_validation_pass,
+                    self.__session.data.stat.content_size,
+                    step.is_stop_retry,
+                )
                 with allure.step(step_title):
                     save_run_request(
                         self.__session.data,
@@ -440,7 +464,7 @@ class HttpRunner(object):
                 step.variables, self.__project_meta.functions
             )
 
-    def __run_step_once(self, step: TStep, step_context_variables: dict):
+    def __try_step_once(self, step: TStep, step_context_variables: dict):
         """Core function for running step (maybe a request or referenced testcase)."""
         self.__resolve_step_variables(step, step_context_variables)
 
@@ -500,12 +524,23 @@ class HttpRunner(object):
             # retain raw step info to enable parsing step again.
             # fix: trace id is always the same when retrying step.
             try:
-                self.__run_step_once(step.model_copy(deep=True), step_context_variables)
-            except ValidationFailure:
+                self.__try_step_once(
+                    (step_copy := step.model_copy(deep=True)), step_context_variables
+                )
+            except ValidationFailure as e:
+                if step_copy.is_stop_retry:
+                    logger.info(
+                        "The condition to stop retrying was met, stop retrying."
+                    )
+                    raise RetryInterruptedError from e
+
+                logger.info(
+                    f"step '{step.name}' validation failed, wait {step.retry_interval} seconds and try again"
+                )
                 step.remaining_retry_times -= 1
                 self.__run_step(step, step_context_variables)
         else:
-            self.__run_step_once(step.model_copy(deep=True), step_context_variables)
+            self.__try_step_once(step.model_copy(deep=True), step_context_variables)
 
     def __parse_config(self, config: TConfig) -> NoReturn:
         """Parse TConfig instance."""

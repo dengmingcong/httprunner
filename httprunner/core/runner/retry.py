@@ -1,5 +1,7 @@
 from typing import NoReturn
 
+from loguru import logger
+
 from httprunner.configs.emoji import emojis
 from httprunner.models import TStep
 from httprunner.parser import parse_data
@@ -35,7 +37,28 @@ def parse_retry_args(
         step.retry_interval = parsed_retry_interval
 
 
-def gen_retry_step_title(step: TStep, is_validation_pass: bool, functions: dict, content_length: int) -> str:
+def is_meet_stop_retry_condition(step: TStep, functions: dict) -> bool:
+    """Return True if meet stop retry condition, otherwise False."""
+    if step.stop_retry_if is None:
+        return False
+
+    parsed_stop_retry_condition = parse_data(
+        step.stop_retry_if, step.variables, functions
+    )
+
+    logger.debug(
+        f"parsed stop retry condition: {parsed_stop_retry_condition} ({type(parsed_stop_retry_condition)})"
+    )
+
+    if isinstance(parsed_stop_retry_condition, str):
+        parsed_stop_retry_condition = eval(parsed_stop_retry_condition)
+
+    return bool(parsed_stop_retry_condition)
+
+
+def gen_retry_step_title(
+    step: TStep, is_validation_pass: bool, content_length: int, is_stop_retry: bool
+) -> str:
     """Generate retry step title."""
     if is_validation_pass:
         emoji = emojis.success
@@ -49,11 +72,9 @@ def gen_retry_step_title(step: TStep, is_validation_pass: bool, functions: dict,
     else:
         title = f"retry: {step.max_retry_times - step.remaining_retry_times} {emoji}"
 
-    if step.stop_retry_if is not None and parse_data(
-        step.stop_retry_if, step.variables, functions
-    ):
+    if is_stop_retry:
         title += " (the condition to stop retrying was met)"
 
-    title += f'  • Content-Length: {content_length}'
+    title += f"  • Content-Length: {content_length}"
 
     return title
