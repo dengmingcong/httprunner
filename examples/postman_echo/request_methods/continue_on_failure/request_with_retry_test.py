@@ -5,10 +5,10 @@
 import pytest
 
 from httprunner import HttpRunner, Config, Step, RunRequest
-from httprunner.exceptions import ValidationFailure
+from httprunner.exceptions import RetryInterruptedError
 
 
-@pytest.mark.xfail(raises=ValidationFailure)
+@pytest.mark.xfail(raises=RetryInterruptedError)
 class TestCaseRequestWithRetry(HttpRunner):
 
     config = (
@@ -20,6 +20,7 @@ class TestCaseRequestWithRetry(HttpRunner):
                 "expect_foo1": "config_bar1",
                 "expect_foo2": "config_bar2",
                 "sum_v": 0,
+                "array": [],
             }
         )
         .base_url("https://postman-echo.com")
@@ -68,14 +69,13 @@ class TestCaseRequestWithRetry(HttpRunner):
         ),
         Step(
             RunRequest("stop retry")
-            .retry_on_failure(10, 0.5, "$sum_v == 10")
-            .get("/get")
-            .with_params(**{"sum_v": "${sum_two($sum_v, 1)}"})
-            .extract()
-            .with_jmespath("body.args.sum_v", "sum_v")
+            .retry_on_failure(10, 0.5, "$array == [1, 1, 1]")
+            .post("/post")
+            .with_json({"array": "$array"})
+            .teardown_hook("${pyexp(array.append(1))}")
             .validate()
             .assert_equal("status_code", 200)
-            .assert_equal("body.args.sum_v", "100")
+            .assert_equal("body.json.array", [1, 1, 1, 1, 1])
         ),
     ]
 
