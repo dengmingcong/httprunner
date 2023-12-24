@@ -201,7 +201,7 @@ class HttpSession(requests.Session):
             logger.warning(f"failed to get server address info: {ex}")
 
         # get length of the response content
-        content_size = int(dict(response.headers).get("content-length") or 0)
+        content_size = int(dict(response.headers).get("Content-Length") or 0)
 
         # record the consumed time
         self.data.stat.response_time_ms = response_time_ms
