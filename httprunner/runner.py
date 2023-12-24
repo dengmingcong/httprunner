@@ -1,11 +1,17 @@
 import inspect
 import os
 import time
+import warnings
 from copy import deepcopy
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union
 
+import allure
+from loguru import logger
+
+from httprunner import exceptions
 from httprunner.builtin import expand_nested_json
+from httprunner.client import HttpSession
 from httprunner.core.allure.runrequest.runrequest import save_run_request
 from httprunner.core.runner.export_request_step_vars import (
     export_request_step_variables,
@@ -15,31 +21,9 @@ from httprunner.core.runner.retry import parse_retry_args
 from httprunner.core.runner.skip_step import is_skip_step
 from httprunner.core.runner.update_form import update_form
 from httprunner.core.runner.update_json import update_json
-from httprunner.pyproject import PyProjectToml
-
-try:
-    import allure
-
-    USE_ALLURE = True
-except ModuleNotFoundError:
-    USE_ALLURE = False
-
-from loguru import logger
-
-from httprunner import exceptions
-from httprunner.client import HttpSession
 from httprunner.exceptions import ValidationFailure, ParamsError, VariableNotFound
 from httprunner.ext.uploader import prepare_upload_step
 from httprunner.loader import load_project_meta, load_testcase_file
-from httprunner.parser import (
-    build_url,
-    parse_data,
-    parse_variables_mapping,
-    update_url_origin,
-)
-from httprunner.response import ResponseObject
-from httprunner.testcase import Config, Step
-from httprunner.utils import merge_variables
 from httprunner.models import (
     TConfig,
     TStep,
@@ -55,6 +39,16 @@ from httprunner.models import (
     ConfigExport,
     JMESPathExtractor,
 )
+from httprunner.parser import (
+    build_url,
+    parse_data,
+    parse_variables_mapping,
+    update_url_origin,
+)
+from httprunner.pyproject import PyProjectToml
+from httprunner.response import ResponseObject
+from httprunner.testcase import Config, Step
+from httprunner.utils import merge_variables
 
 
 class HttpRunner(object):
@@ -79,7 +73,6 @@ class HttpRunner(object):
     # log
     __log_path: Text = ""
     __continue_on_failure: bool = False
-    __use_allure: bool = USE_ALLURE
 
     def __init_subclass__(cls):
         """Add validation for subclass."""
@@ -118,7 +111,7 @@ class HttpRunner(object):
         """
         set if saving allure data no matter if allure was installed
         """
-        self.__use_allure = is_use_allure
+        warnings.warn("This method is deprecated and has no effect now, you can delete it safely.", DeprecationWarning)
         return self
 
     @property
@@ -310,12 +303,11 @@ class HttpRunner(object):
             # log testcase duration before raise ValidationFailure
             self.__duration = time.time() - self.__start_at
 
-            if self.__use_allure:
-                save_run_request(
-                    self.__session.data,
-                    resp_obj,
-                    step_data.export_vars,
-                )
+            save_run_request(
+                self.__session.data,
+                resp_obj,
+                step_data.export_vars,
+            )
 
         self.__session.data.validation_results = resp_obj.validation_results
         step_data.data = self.__session.data
@@ -336,7 +328,6 @@ class HttpRunner(object):
             case_result = (
                 testcase_cls()
                 .set_continue_on_failure(self.__continue_on_failure)
-                .set_use_allure(self.__use_allure)
                 .with_session(self.__session)
                 .with_case_id(self.__case_id)
                 .with_variables(step_variables)
@@ -355,7 +346,6 @@ class HttpRunner(object):
             case_result = (
                 HttpRunner()
                 .set_continue_on_failure(self.__continue_on_failure)
-                .set_use_allure(self.__use_allure)
                 .with_session(self.__session)
                 .with_case_id(self.__case_id)
                 .with_variables(step_variables)
@@ -481,10 +471,7 @@ class HttpRunner(object):
                     f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
                 )
 
-        if self.__use_allure:
-            with allure.step(step.name):
-                step_data = step_runner(step)
-        else:
+        with allure.step(step.name):
             step_data = step_runner(step)
 
         self.__step_datas.append(step_data)
@@ -745,10 +732,9 @@ class HttpRunner(object):
             self.__config.name, config_variables, self.__project_meta.functions
         )
 
-        if self.__use_allure:
-            # update allure report meta
-            allure.dynamic.title(self.__config.name)
-            allure.dynamic.description(type(self).__doc__)
+        # update allure report meta
+        allure.dynamic.title(self.__config.name)
+        allure.dynamic.description(type(self).__doc__)
 
         logger.info(
             f"Start to run testcase: {self.__config.name}, TestCase ID: {self.__case_id}"
