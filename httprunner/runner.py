@@ -429,50 +429,20 @@ class HttpRunner(object):
                 step.variables, self.__project_meta.functions
             )
 
-    def __display_skipped_step(
-        self, step: TStep, step_context_variables: dict
-    ) -> NoReturn:
-        """Generate allure report for skipped step."""
-        step_data = StepData(name=step.name)
-        # mark skipped step as success
-        step_data.success = True
-        try:
-            step.name = parse_data(
-                step.name, step_context_variables, self.__project_meta.functions
-            )
-        except VariableNotFound as e:
-            logger.warning(f"error occurred while parsing step name: {repr(e)}")
-
-        with allure.step(step.name):
-            self.__step_datas.append(step_data)
-
     def __run_step_once(self, step: TStep, step_context_variables: dict):
         """Core function for running step (maybe a request or referenced testcase)."""
         self.__resolve_step_variables(step, step_context_variables)
 
-        # parse step name for allure report
-        try:
-            step.name = parse_data(
-                step.name, step.variables, self.__project_meta.functions
-            )
-        except VariableNotFound as e:
-            logger.warning(f"error occurred while parsing step name: {repr(e)}")
-
         logger.info(f"run step begin: {step.name} >>>>>>")
 
-        def step_runner(step_: TStep) -> StepData:
-            """Run step."""
-            if step.request:
-                return self.__run_step_request(step_)
-            elif step.testcase:
-                return self.__run_step_testcase(step_)
-            else:
-                raise ParamsError(
-                    f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
-                )
-
-        with allure.step(step.name):
-            step_data = step_runner(step)
+        if step.request:
+            step_data = self.__run_step_request(step)
+        elif step.testcase:
+            step_data = self.__run_step_testcase(step)
+        else:
+            raise ParamsError(
+                f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
+            )
 
         self.__step_datas.append(step_data)
         logger.info(f"run step end: {step.name} <<<<<<\n")
@@ -501,7 +471,10 @@ class HttpRunner(object):
 
         # skip step if condition is satisfied
         if is_skip_step(step, step_context_variables, self.__project_meta.functions):
-            self.__display_skipped_step(step, step_context_variables)
+            step_data = StepData(name=step.name)
+            # mark skipped step as success
+            step_data.success = True
+            self.__step_datas.append(step_data)
             # important: return directly if step is skipped
             return
 
@@ -537,8 +510,17 @@ class HttpRunner(object):
     def __run_steps(self, steps: list[TStep], step_context_variables) -> NoReturn:
         """Iterate and run steps."""
         for step in steps:
-            # run step
-            self.__run_step(step, step_context_variables)
+            # parse step name
+            try:
+                step.name = parse_data(
+                    step.name, step_context_variables, self.__project_meta.functions
+                )
+            except VariableNotFound as e:
+                logger.warning(f"error occurred while parsing step name: {repr(e)}")
+
+            with allure.step(step.name):
+                # run step
+                self.__run_step(step, step_context_variables)
 
     def run_testcase(self, testcase: TestCase) -> "HttpRunner":
         """run specified testcase
