@@ -518,7 +518,7 @@ class HttpRunner(object):
             # important: return directly if step is skipped
             return
 
-        # parse step retry args (retry times and interval)
+        # parse step retry args (retry times and retry interval)
         parse_retry_args(step, step_context_variables, self.__project_meta.functions)
 
         # note: skipped step will not be retried
