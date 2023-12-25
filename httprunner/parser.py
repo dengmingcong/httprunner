@@ -274,7 +274,7 @@ def get_mapping_variable(
         return variables_mapping[variable_name]
     except KeyError:
         raise exceptions.VariableNotFound(
-            f"`{variable_name}` not found, available vars: {variables_mapping.keys()}",
+            f"`{variable_name}` not found, available vars: {list(variables_mapping.keys())}",
             variable_name,
         )
 
@@ -366,7 +366,7 @@ def parse_string(
                 # get the name not defined from exception, e.g. name 'baz' is not defined
                 name_not_found = str(ne).split("'")[1]
                 raise VariableNotFound(
-                    f"`{name_not_found}` not found, available vars: {variables_mapping.keys()}",
+                    f"`{name_not_found}` not found, available vars: {list(variables_mapping.keys())}",
                     name_not_found,
                 ) from ne
 
@@ -409,7 +409,7 @@ def parse_string(
                 expression_eval_value = eval(raw_expression, variables_mapping_copy)
             except NameError as ex:
                 raise exceptions.VariableNotFound(
-                    f"{ex}, available vars: {variables_mapping.keys()}"
+                    f"{ex}, available vars: {list(variables_mapping.keys())}"
                 )
             except Exception as ex:
                 raise ValueError(
