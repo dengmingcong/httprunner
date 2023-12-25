@@ -52,6 +52,7 @@ def is_meet_stop_retry_condition(step: TStep, functions: dict) -> bool:
 
     if isinstance(parsed_stop_retry_condition, str):
         parsed_stop_retry_condition = eval(parsed_stop_retry_condition)
+        logger.debug(f"eval parsed stop retry condition: {parsed_stop_retry_condition}")
 
     return bool(parsed_stop_retry_condition)
 
