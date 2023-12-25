@@ -1,4 +1,4 @@
-from typing import Union, NoReturn
+from typing import NoReturn
 
 from httprunner.models import StepData
 from httprunner.models import TStep, JMESPathExtractor
@@ -14,7 +14,7 @@ def extract(step: TStep, resp_obj: ResponseObject, functions: dict) -> dict:
     # parse JMESPath
     # note: do not change variable 'extractors' directly to reduce surprise
     parsed_extractors = []
-    for extractor in extractors:  # type: Union[JMESPathExtractor]
+    for extractor in extractors:
         if isinstance(extractor, JMESPathExtractor):
             if "$" in extractor.expression:
                 extractor = extractor.model_copy(deep=True)
