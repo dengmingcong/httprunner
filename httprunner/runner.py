@@ -332,7 +332,9 @@ class HttpRunner(object):
             step_data.data = self.__session.data
             self.__step_datas.append(step_data)
 
-    def __run_step_testcase(self, step: TStep) -> StepData:
+    def __run_step_testcase(
+        self, step: TStep, step_context_variables: dict
+    ) -> NoReturn:
         """run teststep: referenced testcase"""
         step_data = StepData(name=step.name)
         step_variables = step.variables
@@ -342,63 +344,55 @@ class HttpRunner(object):
         if step.setup_hooks:
             self.__call_hooks(step.setup_hooks, step_variables, "setup testcase")
 
-        if hasattr(step.testcase, "config") and hasattr(step.testcase, "teststeps"):
-            testcase_cls = step.testcase
-            case_result = (
-                testcase_cls()
-                .set_continue_on_failure(self.__continue_on_failure)
-                .with_session(self.__session)
-                .with_case_id(self.__case_id)
-                .with_variables(step_variables)
-                .with_export(step_export)
-                .run()
-            )
-
-        elif isinstance(step.testcase, Text):
-            if os.path.isabs(step.testcase):
-                ref_testcase_path = step.testcase
-            else:
-                ref_testcase_path = os.path.join(
-                    self.__project_meta.httprunner_root_path, step.testcase
+        httprunner_obj = HttpRunner()
+        try:
+            if hasattr(step.testcase, "config") and hasattr(step.testcase, "teststeps"):
+                (
+                    (httprunner_obj := step.testcase())
+                    .set_continue_on_failure(self.__continue_on_failure)
+                    .with_session(self.__session)
+                    .with_case_id(self.__case_id)
+                    .with_variables(step_variables)
+                    .with_export(step_export)
+                    .run()
                 )
+            elif isinstance(step.testcase, Text):
+                if os.path.isabs(step.testcase):
+                    ref_testcase_path = step.testcase
+                else:
+                    ref_testcase_path = os.path.join(
+                        self.__project_meta.httprunner_root_path, step.testcase
+                    )
 
-            case_result = (
-                HttpRunner()
-                .set_continue_on_failure(self.__continue_on_failure)
-                .with_session(self.__session)
-                .with_case_id(self.__case_id)
-                .with_variables(step_variables)
-                .with_export(step_export)
-                .run_path(ref_testcase_path)
-            )
+                (
+                    httprunner_obj.set_continue_on_failure(self.__continue_on_failure)
+                    .with_session(self.__session)
+                    .with_case_id(self.__case_id)
+                    .with_variables(step_variables)
+                    .with_export(step_export)
+                    .run_path(ref_testcase_path)
+                )
+            else:
+                raise exceptions.ParamsError(
+                    f"Invalid teststep referenced testcase: {step.model_dump()}"
+                )
+        finally:
+            # list of step data
+            step_data.data = httprunner_obj.get_step_datas()
 
-        else:
-            raise exceptions.ParamsError(
-                f"Invalid teststep referenced testcase: {step.model_dump()}"
-            )
+            step_data.export_vars = httprunner_obj.get_export_variables()
+
+            # update step context variables with new extracted variables
+            step_context_variables.update(step_data.export_vars)
+
+            # put extracted variables to session variables for later exporting
+            self.__session_variables.update(step_data.export_vars)
+
+            self.__step_datas.append(step_data)
 
         # teardown hooks
         if step.teardown_hooks:
             self.__call_hooks(step.teardown_hooks, step.variables, "teardown testcase")
-
-        step_data.data = case_result.get_step_datas()  # list of step data
-        step_data.export_vars = case_result.get_export_variables()
-
-        if case_result.get_failed_steps():
-            step_data.success = False
-            self.__failed_steps.append(step)
-        else:
-            step_data.success = True
-
-        if self.__failed_steps:
-            self.success = False
-        else:
-            self.success = True
-
-        if step_data.export_vars:
-            logger.info(f"export variables: {step_data.export_vars}")
-
-        return step_data
 
     def __resolve_step_variables(
         self, step: TStep, step_context_variables: dict
@@ -458,7 +452,7 @@ class HttpRunner(object):
             if step.request:
                 self.__run_step_request(step, step_context_variables)
             elif step.testcase:
-                self.__run_step_testcase(step)
+                self.__run_step_testcase(step, step_context_variables)
             else:
                 raise ParamsError(
                     f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
