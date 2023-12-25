@@ -321,7 +321,7 @@ class HttpRunner(object):
                 step, self.__project_meta.functions
             ):
                 is_stop_retry = True
-                raise RetryWasInterruptedError from e
+                raise RetryWasInterruptedError(e)
             raise
         finally:
             # log testcase duration before raise ValidationFailure
@@ -524,9 +524,9 @@ class HttpRunner(object):
             # mark step as ever retried, steps with this marker will be put under new allure step
             step.is_ever_retried = True
 
-            # retain raw step info to enable parsing step again.
-            # fix: trace id is always the same when retrying step.
             try:
+                # retain raw step info to enable parsing step again.
+                # fix: trace id is always the same when retrying step.
                 self.__try_step_once(step.model_copy(deep=True), step_context_variables)
             except ValidationFailure:
                 logger.info(
@@ -535,10 +535,9 @@ class HttpRunner(object):
                 step.remaining_retry_times -= 1
                 self.__run_step(step, step_context_variables)
             except RetryWasInterruptedError as e:
+                logger.info("The condition to stop retrying was met, stop retrying.")
                 # re-raise ValidationFailure to stop retrying
-                raise ValidationFailure(
-                    "The condition to stop retrying was met, stop retrying."
-                ) from e
+                raise ValidationFailure(e)
         else:
             self.__try_step_once(step.model_copy(deep=True), step_context_variables)
 
