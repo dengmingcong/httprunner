@@ -535,9 +535,10 @@ class HttpRunner(object):
                 step.remaining_retry_times -= 1
                 self.__run_step(step, step_context_variables)
             except RetryWasInterruptedError as e:
-                logger.info("The condition to stop retrying was met, stop retrying.")
                 # re-raise ValidationFailure to stop retrying
-                raise ValidationFailure from e
+                raise ValidationFailure(
+                    "The condition to stop retrying was met, stop retrying."
+                ) from e
         else:
             self.__try_step_once(step.model_copy(deep=True), step_context_variables)
 
