@@ -327,6 +327,12 @@ class HttpRunner(object):
             # log testcase duration before raise ValidationFailure
             self.__duration = time.time() - self.__start_at
 
+            # do not export variables if validation failed, make allure report be compliant with code
+            if not is_validation_pass:
+                export_vars = {}
+            else:
+                export_vars = step_data.export_vars
+
             if step.is_ever_retried:
                 step_title = gen_retry_step_title(
                     step,
@@ -338,13 +344,13 @@ class HttpRunner(object):
                     save_run_request(
                         self.__session.data,
                         resp_obj,
-                        step_data.export_vars,
+                        export_vars,
                     )
             else:
                 save_run_request(
                     self.__session.data,
                     resp_obj,
-                    step_data.export_vars,
+                    export_vars,
                 )
 
         self.__session.data.validation_results = resp_obj.validation_results
