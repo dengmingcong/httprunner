@@ -24,7 +24,11 @@ class SubTestCase(HttpRunner):
 
 
 class TestParametrizeStep(HttpRunner):
-    config = Config("test parametrizing steps").base_url("https://www.postman-echo.com")
+    config = (
+        Config("test parametrizing steps")
+        .base_url("https://www.postman-echo.com")
+        .variables(**{"sum_v": 0})
+    )
     teststeps = [
         Step(
             RunRequest("parametrize in RunRequest")
@@ -52,7 +56,6 @@ class TestParametrizeStep(HttpRunner):
         Step(
             RunRequest("parametrize and retry")
             .parametrize("foo,bar", [(1, 1), (2, 2)])
-            .with_variables(**{"sum_v": 0})
             .retry_on_failure(3, 0.5)
             .get("/get")
             .with_params(**{"sum_v": "${sum_two($sum_v, $foo)}"})
