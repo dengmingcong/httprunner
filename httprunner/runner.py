@@ -477,19 +477,21 @@ class HttpRunner(object):
         """Core function for running step (maybe a request or referenced testcase)."""
         self.__resolve_step_variables(step, step_context_variables)
 
-        logger.info(f"run step begin: {step.name} >>>>>>")
+        try:
+            logger.info(f"run step begin: {step.name} >>>>>>")
 
-        if step.request:
-            step_data = self.__run_step_request(step)
-        elif step.testcase:
-            step_data = self.__run_step_testcase(step)
-        else:
-            raise ParamsError(
-                f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
-            )
+            if step.request:
+                step_data = self.__run_step_request(step)
+            elif step.testcase:
+                step_data = self.__run_step_testcase(step)
+            else:
+                raise ParamsError(
+                    f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
+                )
+        finally:
+            logger.info(f"run step end: {step.name} <<<<<<\n")
 
         self.__step_datas.append(step_data)
-        logger.info(f"run step end: {step.name} <<<<<<\n")
 
         # update step context variables with new extracted variables
         step_context_variables.update(step_data.export_vars)
