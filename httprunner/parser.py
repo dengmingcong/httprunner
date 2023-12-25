@@ -539,11 +539,11 @@ def parse_data(
             raw_data[index] = parse_data(item, variables_mapping, functions_mapping)
         return raw_data
 
-    # note: set has no order, so we have to create a new set
     elif isinstance(raw_data, set):
-        return {
-            parse_data(item, variables_mapping, functions_mapping) for item in raw_data
-        }
+        for item in raw_data:
+            raw_data.remove(item)
+            raw_data.add(parse_data(item, variables_mapping, functions_mapping))
+        return raw_data
 
     # note: tuple cannot be modified, so we have to create a new tuple
     elif isinstance(raw_data, tuple):
@@ -560,9 +560,12 @@ def parse_data(
         return raw_data
 
     elif isinstance(raw_data, dict):
-        for key, value in raw_data.items():
+        # reference:
+        for key in list(raw_data.keys()):
             parsed_key = parse_data(key, variables_mapping, functions_mapping)
-            parsed_value = parse_data(value, variables_mapping, functions_mapping)
+            parsed_value = parse_data(
+                raw_data[key], variables_mapping, functions_mapping
+            )
             raw_data[parsed_key] = parsed_value
 
             if parsed_key != key:
