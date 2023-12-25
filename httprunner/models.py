@@ -209,7 +209,6 @@ class SessionData(BaseModel):
     stat: RequestStat = RequestStat()
     address: AddressData = AddressData()
     validation_results: Dict = {}
-    exception: Exception = None
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 

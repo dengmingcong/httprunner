@@ -535,9 +535,17 @@ class HttpRunner(object):
             except VariableNotFound as e:
                 logger.warning(f"error occurred while parsing step name: {repr(e)}")
 
-            with allure.step(step.name):
-                # run step
-                self.__run_step(step, step_context_variables)
+            try:
+                with allure.step(step.name):
+                    self.__run_step(step, step_context_variables)
+            except (ValidationFailure, VariableNotFound):
+                self.__failed_steps.append(step)
+                if self.__continue_on_failure:
+                    logger.warning(
+                        f"step `{step.name}` failed, but continue_on_failure was set to True, continue to run next step"
+                    )
+                else:
+                    raise
 
     def run_testcase(self, testcase: TestCase) -> "HttpRunner":
         """run specified testcase
@@ -744,13 +752,11 @@ class HttpRunner(object):
         )
 
         # mark testcase as failed finally after all steps were executed and failed steps existed
-        if self.__continue_on_failure:
-            if self.__failed_steps:
-                self.success = False
-                raise ValidationFailure(
-                    f"continue_on_failure was set to True and {len(self.__failed_steps)} steps failed."
-                )
-            else:
-                self.success = True
+        if self.__failed_steps:
+            raise ValidationFailure(
+                f"continue_on_failure was set to True and {len(self.__failed_steps)} steps failed."
+            )
+        else:
+            self.success = True
 
         return case_result
