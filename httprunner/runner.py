@@ -30,6 +30,7 @@ from httprunner.exceptions import (
     ParamsError,
     VariableNotFound,
     RetryWasInterruptedError,
+    MultiStepsFailedError,
 )
 from httprunner.ext.uploader import prepare_upload_step
 from httprunner.loader import load_project_meta, load_testcase_file
@@ -541,7 +542,7 @@ class HttpRunner(object):
             except (ValidationFailure, VariableNotFound):
                 self.__failed_steps.append(step)
                 if self.__continue_on_failure:
-                    logger.warning(
+                    logger.debug(
                         f"step `{step.name}` failed, but continue_on_failure was set to True, continue to run next step"
                     )
                 else:
@@ -753,7 +754,7 @@ class HttpRunner(object):
 
         # mark testcase as failed finally after all steps were executed and failed steps existed
         if self.__failed_steps:
-            raise ValidationFailure(
+            raise MultiStepsFailedError(
                 f"continue_on_failure was set to True and {len(self.__failed_steps)} steps failed."
             )
         else:
