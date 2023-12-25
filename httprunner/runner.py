@@ -14,7 +14,7 @@ from httprunner.builtin import expand_nested_json
 from httprunner.client import HttpSession
 from httprunner.core.allure.runrequest.runrequest import save_run_request
 from httprunner.core.runner.export_request_step_vars import (
-    export_request_step_variables,
+    extract_export_request_variables,
 )
 from httprunner.core.runner.parametrized_step import expand_parametrized_step
 from httprunner.core.runner.retry import (
@@ -46,7 +46,6 @@ from httprunner.models import (
     Hooks,
     StepExport,
     ConfigExport,
-    JMESPathExtractor,
 )
 from httprunner.parser import (
     build_url,
@@ -265,28 +264,7 @@ class HttpRunner(object):
         if step.teardown_hooks:
             self.__call_hooks(step.teardown_hooks, step.variables, "teardown request")
 
-    def __extract(self, step: TStep, resp_obj: ResponseObject) -> dict:
-        """Extract from response content."""
-        # extract
-        extractors: list = step.extract
-
-        # parse JMESPath
-        # note: do not change variable 'extractors' directly to reduce surprise
-        parsed_extractors = []
-        for extractor in extractors:  # type: Union[JMESPathExtractor]
-            if isinstance(extractor, JMESPathExtractor):
-                if "$" in extractor.expression:
-                    extractor = extractor.model_copy(deep=True)
-                    extractor.expression = parse_data(
-                        extractor.expression,
-                        step.variables,
-                        self.__project_meta.functions,
-                    )
-                parsed_extractors.append(extractor)
-
-        return resp_obj.extract(parsed_extractors)
-
-    def __run_step_request(self, step: TStep) -> StepData:
+    def __run_step_request(self, step: TStep, step_context_variables: dict) -> StepData:
         """run teststep: request"""
         step_data = StepData(name=step.name)
 
@@ -299,12 +277,16 @@ class HttpRunner(object):
         # preprocess before extracting and validating
         self.__preprocess_response(parsed_request_dict, resp_obj, step)
 
-        # extract from response and save to variables
-        step_data.export_vars = self.__extract(step, resp_obj)
-        step.variables.update(step_data.export_vars)
-
-        # make local variables global and available for next steps
-        step_data.export_vars.update(export_request_step_variables(step))
+        # extract and export variables from request step.
+        # step context variables and self.__session_variables will be updated.
+        extract_export_request_variables(
+            resp_obj,
+            step,
+            step_data,
+            step_context_variables,
+            self.__project_meta.functions,
+            self.__session_variables,
+        )
 
         # validate
         validators = step.validators
@@ -327,12 +309,6 @@ class HttpRunner(object):
             # log testcase duration before raise ValidationFailure
             self.__duration = time.time() - self.__start_at
 
-            # do not export variables if validation failed, make allure report be compliant with code
-            if not is_validation_pass:
-                export_vars = {}
-            else:
-                export_vars = step_data.export_vars
-
             if step.is_ever_retried:
                 step_title = gen_retry_step_title(
                     step,
@@ -344,13 +320,13 @@ class HttpRunner(object):
                     save_run_request(
                         self.__session.data,
                         resp_obj,
-                        export_vars,
+                        step_data.export_vars,
                     )
             else:
                 save_run_request(
                     self.__session.data,
                     resp_obj,
-                    export_vars,
+                    step_data.export_vars,
                 )
 
         self.__session.data.validation_results = resp_obj.validation_results
@@ -492,12 +468,6 @@ class HttpRunner(object):
             logger.info(f"run step end: {step.name} <<<<<<\n")
 
         self.__step_datas.append(step_data)
-
-        # update step context variables with new extracted variables
-        step_context_variables.update(step_data.export_vars)
-
-        # put extracted variables to session variables for later exporting
-        self.__session_variables.update(step_data.export_vars)
 
     def __run_step(self, step: TStep, step_context_variables: dict) -> NoReturn:
         """run teststep, teststep maybe a request or referenced testcase"""
