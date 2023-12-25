@@ -22,7 +22,12 @@ class RunTestCase(
     SetupHookMixin,
     StepVariableMixin,
 ):
-    """Class entrypoint for a HttpRunner testcase."""
+    """
+    Class entrypoint for a HttpRunner testcase.
+
+    Note:
+        RunTestCase does not support `retry_on_failure()`.
+    """
 
     def __init__(self, name: Text):
         self._step_context = TStep(name=name)
