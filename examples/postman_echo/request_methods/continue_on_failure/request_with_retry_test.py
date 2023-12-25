@@ -31,42 +31,42 @@ class TestCaseRequestWithRetry(HttpRunner):
     )
 
     teststeps = [
-        # Step(
-        #     RunRequest("retry and success")
-        #     .retry_on_failure(3, 0.5)
-        #     .with_variables(**{"foo1": "bar11", "foo2": "bar21"})
-        #     .get("/get")
-        #     .with_params(
-        #         **{"foo1": "$foo1", "foo2": "$foo2", "sum_v": "${sum_two($sum_v, 1)}"}
-        #     )
-        #     .with_headers(**{"User-Agent": "HttpRunner/${get_httprunner_version()}"})
-        #     .extract()
-        #     .with_jmespath("body.args.foo2", "foo3")
-        #     .with_jmespath("body.args.sum_v", "sum_v")
-        #     .validate()
-        #     .assert_equal("status_code", 200)
-        #     .assert_equal("body.args.foo1", "bar11")
-        #     .assert_equal("body.args.sum_v", "4")
-        #     .assert_equal("body.args.foo2", "bar21")
-        # ),
-        # Step(
-        #     RunRequest("retry but failed")
-        #     .retry_on_failure(3, 0.5)
-        #     .with_variables(**{"foo1": "bar11", "foo2": "bar21"})
-        #     .get("/get")
-        #     .with_params(
-        #         **{"foo1": "$foo1", "foo2": "$foo2", "sum_v": "${sum_two($sum_v, 1)}"}
-        #     )
-        #     .with_headers(**{"User-Agent": "HttpRunner/${get_httprunner_version()}"})
-        #     .extract()
-        #     .with_jmespath("body.args.foo2", "foo3")
-        #     .with_jmespath("body.args.sum_v", "sum_v")
-        #     .validate()
-        #     .assert_equal("status_code", 200)
-        #     .assert_equal("body.args.foo1", "bar11")
-        #     .assert_equal("body.args.sum_v", "bad")
-        #     .assert_equal("body.args.foo2", "bar21")
-        # ),
+        Step(
+            RunRequest("retry and success")
+            .retry_on_failure(3, 0.5)
+            .with_variables(**{"foo1": "bar11", "foo2": "bar21"})
+            .get("/get")
+            .with_params(
+                **{"foo1": "$foo1", "foo2": "$foo2", "sum_v": "${sum_two($sum_v, 1)}"}
+            )
+            .with_headers(**{"User-Agent": "HttpRunner/${get_httprunner_version()}"})
+            .extract()
+            .with_jmespath("body.args.foo2", "foo3")
+            .with_jmespath("body.args.sum_v", "sum_v")
+            .validate()
+            .assert_equal("status_code", 200)
+            .assert_equal("body.args.foo1", "bar11")
+            .assert_equal("body.args.sum_v", "4")
+            .assert_equal("body.args.foo2", "bar21")
+        ),
+        Step(
+            RunRequest("retry but failed")
+            .retry_on_failure(3, 0.5)
+            .with_variables(**{"foo1": "bar11", "foo2": "bar21"})
+            .get("/get")
+            .with_params(
+                **{"foo1": "$foo1", "foo2": "$foo2", "sum_v": "${sum_two($sum_v, 1)}"}
+            )
+            .with_headers(**{"User-Agent": "HttpRunner/${get_httprunner_version()}"})
+            .extract()
+            .with_jmespath("body.args.foo2", "foo3")
+            .with_jmespath("body.args.sum_v", "sum_v")
+            .validate()
+            .assert_equal("status_code", 200)
+            .assert_equal("body.args.foo1", "bar11")
+            .assert_equal("body.args.sum_v", "bad")
+            .assert_equal("body.args.foo2", "bar21")
+        ),
         Step(
             RunRequest("stop retry")
             .retry_on_failure(10, 0.5, "$array == [1, 1, 1]")
