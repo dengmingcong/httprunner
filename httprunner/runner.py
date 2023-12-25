@@ -29,7 +29,6 @@ from httprunner.exceptions import (
     ValidationFailure,
     ParamsError,
     VariableNotFound,
-    RetryInterruptedError,
 )
 from httprunner.ext.uploader import prepare_upload_step
 from httprunner.loader import load_project_meta, load_testcase_file
@@ -527,12 +526,13 @@ class HttpRunner(object):
                 self.__try_step_once(
                     (step_copy := step.model_copy(deep=True)), step_context_variables
                 )
-            except ValidationFailure as e:
+            except ValidationFailure:
                 if step_copy.is_stop_retry:
                     logger.info(
                         "The condition to stop retrying was met, stop retrying."
                     )
-                    raise RetryInterruptedError from e
+                    # re-raise ValidationFailure to stop retrying
+                    raise
 
                 logger.info(
                     f"step '{step.name}' validation failed, wait {step.retry_interval} seconds and try again"

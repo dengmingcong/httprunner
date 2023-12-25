@@ -15,10 +15,6 @@ class ValidationFailure(AssertionError):
     pass
 
 
-class RetryInterruptedError(AssertionError):
-    pass
-
-
 class ExtractFailure(MyBaseFailure):
     pass
 
