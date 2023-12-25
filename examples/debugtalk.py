@@ -3,6 +3,7 @@ import random
 import string
 import time
 import uuid
+from typing import Union
 
 from loguru import logger
 
@@ -193,3 +194,17 @@ def alter_response_error(response):
 
 def gen_variables():
     return {"var_a": 1, "var_b": 2}
+
+
+def gen_trace_id(
+    format_: str = "TIMESTAMP_IN_MILLISECOND",
+) -> Union[str, int]:
+    """Returns trace id based on id type."""
+    if format_ == "TIMESTAMP_IN_SECOND":
+        return int(time.time())
+    elif format_ == "TIMESTAMP_IN_MILLISECOND":
+        return str(int(time.time() * 1000))
+    elif format_ == "UUID4":
+        return uuid.uuid4().hex
+    elif format_ == "UUID4_URN":
+        return uuid.uuid4().urn
