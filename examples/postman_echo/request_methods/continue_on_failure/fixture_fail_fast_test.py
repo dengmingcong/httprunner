@@ -1,7 +1,7 @@
 import pytest
 
 from httprunner import HttpRunner, Config, Step, RunRequest
-from httprunner.exceptions import ValidationFailure
+from httprunner.exceptions import MultiStepsFailedError
 
 
 class BasePost(HttpRunner):
@@ -24,7 +24,7 @@ def bad_post():
     (BasePost().run())
 
 
-@pytest.mark.xfail(raises=ValidationFailure)
+@pytest.mark.xfail(raises=MultiStepsFailedError)
 class TestFixtureFailFast(HttpRunner):
 
     config = (

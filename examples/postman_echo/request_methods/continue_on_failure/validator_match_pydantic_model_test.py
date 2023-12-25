@@ -2,7 +2,7 @@ import pytest
 from pydantic import BaseModel, ConfigDict
 
 from httprunner import HttpRunner, Config, Step, RunRequest
-from httprunner.exceptions import ValidationFailure
+from httprunner.exceptions import MultiStepsFailedError
 
 
 def snake_to_camel(snake_str: str, is_first_word_lower: bool = True) -> str:
@@ -29,7 +29,7 @@ class Sku(BaseModel):
     model_config = ConfigDict(alias_generator=snake_to_camel)
 
 
-@pytest.mark.xfail(raises=ValidationFailure)
+@pytest.mark.xfail(raises=MultiStepsFailedError)
 class TestValidatorMatchPydanticModel(HttpRunner):
     config = (
         Config("test validator match pydantic model")

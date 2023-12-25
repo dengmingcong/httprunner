@@ -16,10 +16,10 @@ from .sub_step import (
 
 
 import pytest
-from httprunner.exceptions import ValidationFailure
+from httprunner.exceptions import MultiStepsFailedError
 
 
-@pytest.mark.xfail(raises=ValidationFailure)
+@pytest.mark.xfail(raises=MultiStepsFailedError)
 class TestCaseRequestWithTestcaseReference(HttpRunner):
 
     config = (

@@ -1,10 +1,10 @@
 import pytest
 
 from httprunner import HttpRunner, Config, Step, RunRequest
-from httprunner.exceptions import ValidationFailure
+from httprunner.exceptions import MultiStepsFailedError
 
 
-@pytest.mark.xfail(raises=ValidationFailure)
+@pytest.mark.xfail(raises=MultiStepsFailedError)
 class TestValidatorMatchSchema(HttpRunner):
     config = (
         Config("test validator match schema")
