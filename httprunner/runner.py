@@ -264,7 +264,7 @@ class HttpRunner(object):
         if step.teardown_hooks:
             self.__call_hooks(step.teardown_hooks, step.variables, "teardown request")
 
-    def __run_step_request(self, step: TStep, step_context_variables: dict) -> StepData:
+    def __run_step_request(self, step: TStep, step_context_variables: dict) -> NoReturn:
         """run teststep: request"""
         step_data = StepData(name=step.name)
 
@@ -328,10 +328,9 @@ class HttpRunner(object):
                     resp_obj,
                     step_data.export_vars,
                 )
-
-        self.__session.data.validation_results = resp_obj.validation_results
-        step_data.data = self.__session.data
-        return step_data
+            self.__session.data.validation_results = resp_obj.validation_results
+            step_data.data = self.__session.data
+            self.__step_datas.append(step_data)
 
     def __run_step_testcase(self, step: TStep) -> StepData:
         """run teststep: referenced testcase"""
@@ -457,17 +456,15 @@ class HttpRunner(object):
             logger.info(f"run step begin: {step.name} >>>>>>")
 
             if step.request:
-                step_data = self.__run_step_request(step)
+                self.__run_step_request(step, step_context_variables)
             elif step.testcase:
-                step_data = self.__run_step_testcase(step)
+                self.__run_step_testcase(step)
             else:
                 raise ParamsError(
                     f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
                 )
         finally:
             logger.info(f"run step end: {step.name} <<<<<<\n")
-
-        self.__step_datas.append(step_data)
 
     def __run_step(self, step: TStep, step_context_variables: dict) -> NoReturn:
         """run teststep, teststep maybe a request or referenced testcase"""
