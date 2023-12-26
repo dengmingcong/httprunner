@@ -29,7 +29,7 @@ class ApiResponse(Response):
         Response.raise_for_status(self)
 
 
-def get_req_resp_record(resp_obj: Response, **kwargs) -> ReqRespData:
+def get_req_resp_record(requests_response: Response, **kwargs) -> ReqRespData:
     """get request and response info from Response() object."""
 
     def log_print(req_or_resp, r_type):
@@ -42,10 +42,10 @@ def get_req_resp_record(resp_obj: Response, **kwargs) -> ReqRespData:
         logger.debug(msg)
 
     # record actual request info
-    request_headers = dict(resp_obj.request.headers)
-    request_cookies = resp_obj.request._cookies.get_dict()
+    request_headers = dict(requests_response.request.headers)
+    request_cookies = requests_response.request._cookies.get_dict()
 
-    request_body = resp_obj.request.body
+    request_body = requests_response.request.body
     if request_body is not None:
         try:
             # try to convert request body to json format
@@ -61,8 +61,8 @@ def get_req_resp_record(resp_obj: Response, **kwargs) -> ReqRespData:
             request_body = repr(request_body)
 
     request_data = RequestData(
-        method=resp_obj.request.method,
-        url=resp_obj.request.url,
+        method=requests_response.request.method,
+        url=requests_response.request.url,
         headers=request_headers,
         cookies=request_cookies,
         body=request_body,
@@ -72,28 +72,28 @@ def get_req_resp_record(resp_obj: Response, **kwargs) -> ReqRespData:
     log_print(request_data, "request")
 
     # record response info
-    resp_headers = dict(resp_obj.headers)
+    resp_headers = dict(requests_response.headers)
     lower_resp_headers = lower_dict_keys(resp_headers)
     content_type = lower_resp_headers.get("content-type", "")
 
     if "image" in content_type:
         # response is image type, record bytes content only
-        response_body = resp_obj.content
+        response_body = requests_response.content
     else:
         try:
             # try to record json data
-            response_body = resp_obj.json()
+            response_body = requests_response.json()
             if kwargs.get("is_expand_nested_json"):
                 expand_nested_json(response_body)
         except ValueError:
             # only record at most 512 text charactors
-            resp_text = resp_obj.text
+            resp_text = requests_response.text
             response_body = omit_long_data(resp_text)
 
     response_data = ResponseData(
-        status_code=resp_obj.status_code,
-        cookies=resp_obj.cookies or {},
-        encoding=resp_obj.encoding,
+        status_code=requests_response.status_code,
+        cookies=requests_response.cookies or {},
+        encoding=requests_response.encoding,
         headers=resp_headers,
         content_type=content_type,
         body=response_body,
@@ -120,13 +120,13 @@ class HttpSession(requests.Session):
         super(HttpSession, self).__init__()
         self.data = SessionData()
 
-    def update_last_req_resp_record(self, resp_obj) -> NoReturn:
+    def update_last_req_resp_record(self, requests_response: Response) -> NoReturn:
         """
         update request and response info from Response() object.
         """
         # TODO: fix
         self.data.req_resps.pop()
-        self.data.req_resps.append(get_req_resp_record(resp_obj))
+        self.data.req_resps.append(get_req_resp_record(requests_response))
 
     def request(self, method, url, name=None, **kwargs) -> Response:
         """
@@ -182,19 +182,19 @@ class HttpSession(requests.Session):
         now = datetime.now(timezone(timedelta(hours=8)))
         kwargs["headers"].update({"Date": now.strftime("%Y-%m-%d %H:%M:%S %Z")})
 
-        response = self._send_request_safe_mode(method, url, **kwargs)
+        requests_response = self._send_request_safe_mode(method, url, **kwargs)
         response_time_ms = round((time.time() - start_timestamp) * 1000, 2)
 
         # get length of the response content
-        content_size = int(dict(response.headers).get("Content-Length") or 0)
+        content_size = int(dict(requests_response.headers).get("Content-Length") or 0)
 
         # record the consumed time
         self.data.stat.response_time_ms = response_time_ms
-        self.data.stat.elapsed_ms = response.elapsed.microseconds / 1000.0
+        self.data.stat.elapsed_ms = requests_response.elapsed.microseconds / 1000.0
         self.data.stat.content_size = content_size
 
         # record request and response histories, include 30X redirection
-        response_list = response.history + [response]
+        response_list = requests_response.history + [requests_response]
 
         # expand nested json if headers contain 'X-Json-Control' and its value is 'expand'
         is_expand_nested_json = False
@@ -202,22 +202,24 @@ class HttpSession(requests.Session):
             is_expand_nested_json = True
 
         self.data.req_resps = [
-            get_req_resp_record(resp_obj, is_expand_nested_json=is_expand_nested_json)
-            for resp_obj in response_list
+            get_req_resp_record(
+                requests_response_, is_expand_nested_json=is_expand_nested_json
+            )
+            for requests_response_ in response_list
         ]
 
         try:
-            response.raise_for_status()
+            requests_response.raise_for_status()
         except RequestException as ex:
             logger.error(f"{str(ex)}")
         else:
             logger.info(
-                f"status_code: {response.status_code}, "
+                f"status_code: {requests_response.status_code}, "
                 f"response_time(ms): {response_time_ms} ms, "
                 f"response_length: {content_size} bytes"
             )
 
-        return response
+        return requests_response
 
     def _send_request_safe_mode(self, method, url, **kwargs) -> Response:
         """
