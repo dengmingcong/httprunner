@@ -1,6 +1,7 @@
 import json
 import time
 from datetime import datetime, timedelta, timezone
+from typing import NoReturn
 
 import requests
 import urllib3
@@ -119,7 +120,7 @@ class HttpSession(requests.Session):
         super(HttpSession, self).__init__()
         self.data = SessionData()
 
-    def update_last_req_resp_record(self, resp_obj):
+    def update_last_req_resp_record(self, resp_obj) -> NoReturn:
         """
         update request and response info from Response() object.
         """
@@ -127,7 +128,7 @@ class HttpSession(requests.Session):
         self.data.req_resps.pop()
         self.data.req_resps.append(get_req_resp_record(resp_obj))
 
-    def request(self, method, url, name=None, **kwargs):
+    def request(self, method, url, name=None, **kwargs) -> Response:
         """
         Constructs and sends a :py:class:`requests.Request`.
         Returns :py:class:`requests.Response` object.
@@ -218,7 +219,7 @@ class HttpSession(requests.Session):
 
         return response
 
-    def _send_request_safe_mode(self, method, url, **kwargs):
+    def _send_request_safe_mode(self, method, url, **kwargs) -> Response:
         """
         Send a HTTP request, and catch any exception that might occur due to connection problems.
         Safe mode has been removed from requests 1.x.
