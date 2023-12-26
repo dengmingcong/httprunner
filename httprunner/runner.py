@@ -541,12 +541,16 @@ class HttpRunner(object):
                 with allure.step(step.name):
                     self.__run_step(step, step_context_variables)
             except (ValidationFailure, VariableNotFound, JMESPathError):
+                # record failed step for later raising MultiStepsFailedError
                 self.__failed_steps.append(step)
+
+                # continue to run next step if continue_on_failure was set to True
                 if self.__continue_on_failure:
                     logger.debug(
                         f"step `{step.name}` failed, but continue_on_failure was set to True, continue to run next step"
                     )
                 else:
+                    # stop running next step if continue_on_failure was set to False
                     raise
 
     def run_testcase(self, testcase: TestCase) -> "HttpRunner":
