@@ -87,7 +87,7 @@ smoke test:
   script:
     - |
       cd examples
-      poetry run pytest . --debugtalk-py-file="debugtalk.py"
+      poetry run pytest . --debugtalk-py-file="debugtalk.py" --disable-warnings
 
 semantic release:
   stage: publish
