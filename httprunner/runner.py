@@ -13,6 +13,7 @@ from loguru import logger
 from httprunner import exceptions
 from httprunner.builtin import expand_nested_json
 from httprunner.client import HttpSession
+from httprunner.core.allure.runrequest.export_vars import save_export_vars
 from httprunner.core.allure.runrequest.runrequest import save_run_request
 from httprunner.core.runner.export_request_step_vars import (
     extract_export_request_variables,
@@ -383,6 +384,12 @@ class HttpRunner(object):
             step_data.data = httprunner_obj.get_step_datas()
 
             step_data.export_vars = httprunner_obj.get_export_variables()
+
+            try:
+                # save exported variables to allure report for RunTestCase step
+                save_export_vars(step_data.export_vars)
+            except KeyError:
+                logger.warning("Allure data was not saved.")
 
             # update step context variables with new extracted variables
             step_context_variables.update(step_data.export_vars)
