@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union
 
 import allure
+from jmespath.exceptions import JMESPathError
 from loguru import logger
 
 from httprunner import exceptions
@@ -539,7 +540,7 @@ class HttpRunner(object):
             try:
                 with allure.step(step.name):
                     self.__run_step(step, step_context_variables)
-            except (ValidationFailure, VariableNotFound):
+            except (ValidationFailure, VariableNotFound, JMESPathError):
                 self.__failed_steps.append(step)
                 if self.__continue_on_failure:
                     logger.debug(
