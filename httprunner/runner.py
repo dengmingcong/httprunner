@@ -9,6 +9,7 @@ from typing import List, Dict, Text, NoReturn, Union
 import allure
 from jmespath.exceptions import JMESPathError
 from loguru import logger
+from requests import RequestException
 
 from httprunner import exceptions
 from httprunner.builtin import expand_nested_json
@@ -298,6 +299,12 @@ class HttpRunner(object):
         is_stop_retry = False
 
         try:
+            try:
+                # skip validation and raise ValidationFailure directly if RequestException was raised
+                resp_obj.resp_obj.raise_for_status()
+            except RequestException as ex:
+                raise ValidationFailure(ex)
+
             resp_obj.validate(validators, step.variables, self.__project_meta.functions)
             is_validation_pass = True
         except ValidationFailure as e:
