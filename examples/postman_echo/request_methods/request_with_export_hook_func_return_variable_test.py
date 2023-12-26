@@ -5,10 +5,10 @@
 from httprunner import HttpRunner, Config, Step, RunRequest
 
 
-class TestCaseRequestWithFunctions(HttpRunner):
+class TestExportHookFuncReturnVariable(HttpRunner):
 
     config = (
-        Config("request methods testcase with functions")
+        Config("test export hook func return variable")
         .variables(
             **{
                 "foo1": "config_bar1",
@@ -25,7 +25,7 @@ class TestCaseRequestWithFunctions(HttpRunner):
 
     teststeps = [
         Step(
-            RunRequest("get with params")
+            RunRequest("export hook func return variable and rename")
             .with_variables(
                 **{"foo1": "bar11", "foo2": "bar21", "sum_v": "${sum_two(1, 2)}"}
             )
@@ -56,7 +56,7 @@ class TestCaseRequestWithFunctions(HttpRunner):
             .with_json(
                 {
                     "app_version": "$app_version",
-                    "app_version_rename": "$app_version_rename"
+                    "app_version_rename": "$app_version_rename",
                 }
             )
             .validate()
@@ -81,7 +81,3 @@ class TestCaseRequestWithFunctions(HttpRunner):
             .assert_equal("body.form.foo3", "bar21")
         ),
     ]
-
-
-if __name__ == "__main__":
-    TestCaseRequestWithFunctions().test_start()
