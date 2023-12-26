@@ -15,15 +15,13 @@ from httprunner import exceptions
 from httprunner.builtin import expand_nested_json
 from httprunner.client import HttpSession
 from httprunner.core.allure.runrequest.export_vars import save_export_vars
-from httprunner.core.allure.runrequest.runrequest import save_run_request
+from httprunner.core.allure.runrequest.runrequest import save_run_request_retry
 from httprunner.core.runner.export_request_step_vars import (
     extract_export_request_variables,
 )
 from httprunner.core.runner.parametrized_step import expand_parametrized_step
 from httprunner.core.runner.retry import (
     parse_retry_args,
-    gen_retry_step_title,
-    is_meet_stop_retry_condition,
 )
 from httprunner.core.runner.skip_step import is_skip_step
 from httprunner.core.runner.update_form import update_form
@@ -32,7 +30,7 @@ from httprunner.exceptions import (
     ValidationFailure,
     ParamsError,
     VariableNotFound,
-    RetryWasInterruptedError,
+    RetryInterruptError,
     MultiStepsFailedError,
 )
 from httprunner.ext.uploader import prepare_upload_step
@@ -295,9 +293,6 @@ class HttpRunner(object):
         # validate
         validators = step.validators
 
-        is_validation_pass = False
-        is_stop_retry = False
-
         try:
             try:
                 # skip validation and raise ValidationFailure directly if RequestException was raised
@@ -306,38 +301,40 @@ class HttpRunner(object):
                 raise ValidationFailure(ex)
 
             resp_obj.validate(validators, step.variables, self.__project_meta.functions)
-            is_validation_pass = True
+            save_run_request_retry(
+                step,
+                self.__project_meta.functions,
+                self.__session.data,
+                resp_obj,
+                step_data.export_vars,
+                self.__session.data.stat.content_size,
+                None,
+            )
         except ValidationFailure as e:
+            save_run_request_retry(
+                step,
+                self.__project_meta.functions,
+                self.__session.data,
+                resp_obj,
+                step_data.export_vars,
+                self.__session.data.stat.content_size,
+                e,
+            )
             # check if stopping retry was required when validation failed
-            if step.is_ever_retried and is_meet_stop_retry_condition(
-                step, self.__project_meta.functions
-            ):
-                is_stop_retry = True
-                raise RetryWasInterruptedError(e)
-            raise
+        except Exception as e:
+            save_run_request_retry(
+                step,
+                self.__project_meta.functions,
+                self.__session.data,
+                resp_obj,
+                step_data.export_vars,
+                self.__session.data.stat.content_size,
+                e,
+            )
         finally:
             # log testcase duration before raise ValidationFailure
             self.__duration = time.time() - self.__start_at
 
-            if step.is_ever_retried:
-                step_title = gen_retry_step_title(
-                    step,
-                    is_validation_pass,
-                    self.__session.data.stat.content_size,
-                    is_stop_retry,
-                )
-                with allure.step(step_title):
-                    save_run_request(
-                        self.__session.data,
-                        resp_obj,
-                        step_data.export_vars,
-                    )
-            else:
-                save_run_request(
-                    self.__session.data,
-                    resp_obj,
-                    step_data.export_vars,
-                )
             self.__session.data.validation_results = resp_obj.validation_results
             step_data.data = self.__session.data
             self.__step_datas.append(step_data)
@@ -513,16 +510,16 @@ class HttpRunner(object):
                 # retain raw step info to enable parsing step again.
                 # fix: trace id is always the same when retrying step.
                 self.__try_step_once(step.model_copy(deep=True), step_context_variables)
+            except RetryInterruptError as e:
+                logger.info("The condition to stop retrying was met, stop retrying.")
+                # re-raise ValidationFailure to stop retrying
+                raise ValidationFailure(e)
             except ValidationFailure:
                 logger.info(
                     f"step '{step.name}' validation failed, wait {step.retry_interval} seconds and try again"
                 )
                 step.remaining_retry_times -= 1
                 self.__run_step(step, step_context_variables)
-            except RetryWasInterruptedError as e:
-                logger.info("The condition to stop retrying was met, stop retrying.")
-                # re-raise ValidationFailure to stop retrying
-                raise ValidationFailure(e)
         else:
             self.__try_step_once(step.model_copy(deep=True), step_context_variables)
 
