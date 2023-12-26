@@ -58,10 +58,10 @@ def is_meet_stop_retry_condition(step: TStep, functions: dict) -> bool:
 
 
 def gen_retry_step_title(
-    step: TStep, is_validation_pass: bool, content_length: int, is_stop_retry: bool
+    step: TStep, is_pass: bool, content_length: int, is_stop_retry: bool
 ) -> str:
     """Generate retry step title."""
-    if is_validation_pass:
+    if is_pass:
         emoji = emojis.success
     else:
         emoji = emojis.failure
