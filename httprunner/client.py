@@ -234,5 +234,9 @@ class HttpSession(requests.Session):
             resp = ApiResponse()
             resp.error = ex
             resp.status_code = 0  # with this status_code, content returns None
-            resp.request = Request(method, url).prepare()
+            resp.request = (
+                ex.request
+                if hasattr(ex, "request") and ex.request
+                else Request(method, url).prepare()
+            )
             return resp
