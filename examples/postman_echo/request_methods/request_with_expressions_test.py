@@ -18,7 +18,7 @@ class TestCaseRequestWithExpressions(HttpRunner):
 
     teststeps = [
         Step(
-            RunRequest("get with params")
+            RunRequest("request with expression")
             .with_variables(
                 **{
                     "baz": "${obj.foo[1]['$name'][1:2]}",
