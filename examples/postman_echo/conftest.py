@@ -20,6 +20,9 @@ def session_fixture(request):
 
     logger.info("task finished, generate task summary for --save-tests")
 
+    if "nosummary" in request.keywords:
+        return
+
     summary = {
         "success": True,
         "stat": {
