@@ -19,7 +19,7 @@ class MultiStepsFailedError(MyBaseFailure):
     pass
 
 
-class RetryWasInterruptedError(MyBaseFailure):
+class RetryInterruptError(AssertionError):
     pass
 
 
