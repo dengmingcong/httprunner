@@ -425,5 +425,27 @@ class StepRequestValidation(object):
         )
         return self
 
+    def assert_is_truthy(self, jmespath_expression: Text, message: Text = ""):
+        """
+        Assert the value is considered true.
+
+        Reference: https://docs.python.org/3/library/stdtypes.html#truth-value-testing
+        """
+        self._step_context.validators.append(
+            {"is_truthy": [jmespath_expression, None, message]}
+        )
+        return self
+
+    def assert_is_falsy(self, jmespath_expression: Text, message: Text = ""):
+        """
+        Assert the value is considered false.
+
+        Reference: https://docs.python.org/3/library/stdtypes.html#truth-value-testing
+        """
+        self._step_context.validators.append(
+            {"is_falsy": [jmespath_expression, None, message]}
+        )
+        return self
+
     def perform(self) -> TStep:
         return self._step_context
