@@ -540,7 +540,12 @@ class HttpRunner(object):
             try:
                 with allure.step(step.name):
                     self.__run_step(step, step_context_variables)
-            except (ValidationFailure, VariableNotFound, JMESPathError):
+            except (
+                ValidationFailure,
+                VariableNotFound,
+                JMESPathError,
+                MultiStepsFailedError,
+            ):
                 # record failed step for later raising MultiStepsFailedError.
                 # self.__failed_steps will keep intouch until self.__continue_on_failure is set to True.
                 self.__failed_steps.append(step)
@@ -553,6 +558,12 @@ class HttpRunner(object):
                 else:
                     # stop running next step if continue_on_failure was set to False
                     raise
+
+        # raise MultiStepsFailedError to mark testcase or RunTestCase step as failed
+        if self.__failed_steps:
+            raise MultiStepsFailedError(
+                f"continue_on_failure was set to True and {len(self.__failed_steps)} steps failed."
+            )
 
     def run_testcase(self, testcase: TestCase) -> "HttpRunner":
         """run specified testcase
@@ -758,12 +769,6 @@ class HttpRunner(object):
             TestCase(config=self.__config, teststeps=self.__teststeps)
         )
 
-        # mark testcase as failed finally after all steps were executed and failed steps existed
-        if self.__failed_steps:
-            raise MultiStepsFailedError(
-                f"continue_on_failure was set to True and {len(self.__failed_steps)} steps failed."
-            )
-        else:
-            self.success = True
+        self.success = True
 
         return case_result
