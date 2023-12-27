@@ -2,7 +2,7 @@ import inspect
 import os
 import time
 import warnings
-from copy import deepcopy
+from copy import copy
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union
 
@@ -623,7 +623,7 @@ class HttpRunner(object):
         self.__session = self.__session or HttpSession()
 
         # init step context variables as to testcase config variables (already merged session variables)
-        step_context_variables = deepcopy(self.__config.variables)
+        step_context_variables = copy(self.__config.variables)
         self.__run_steps(self.__teststeps, step_context_variables)
 
         self.__duration = time.time() - self.__start_at
