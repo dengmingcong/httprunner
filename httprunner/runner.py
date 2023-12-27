@@ -287,9 +287,6 @@ class HttpRunner(object):
             self.__project_meta.functions,
         )
 
-        # validate
-        validators = step.validators
-
         try:
             try:
                 # skip validation and raise ValidationFailure directly if RequestException was raised
@@ -297,7 +294,9 @@ class HttpRunner(object):
             except RequestException as ex:
                 raise ValidationFailure(ex)
 
-            resp_obj.validate(validators, step.variables, self.__project_meta.functions)
+            resp_obj.validate(
+                step.validators, step.variables, self.__project_meta.functions
+            )
             save_run_request_retry(
                 step,
                 self.__project_meta.functions,
