@@ -2,14 +2,14 @@ import pytest
 from pydantic import BaseModel
 
 from httprunner import HttpRunner, Config, Step, RunRequest
-from httprunner.exceptions import ValidationFailure
+from httprunner.exceptions import MultiStepsFailedError
 
 
 class Obj(BaseModel):
     foo: list = [{}, {"bar": [1, 2, 3]}]
 
 
-@pytest.mark.xfail(raises=ValidationFailure)
+@pytest.mark.xfail(raises=MultiStepsFailedError)
 class TestCaseRequestWithExpressions(HttpRunner):
 
     config = (

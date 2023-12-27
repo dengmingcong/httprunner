@@ -15,6 +15,14 @@ class ValidationFailure(AssertionError):
     pass
 
 
+class MultiStepsFailedError(MyBaseFailure):
+    pass
+
+
+class RetryInterruptError(AssertionError):
+    pass
+
+
 class ExtractFailure(MyBaseFailure):
     pass
 
@@ -85,5 +93,4 @@ class TestcaseNotFound(NotFoundError):
 
 
 class SummaryEmpty(MyBaseError):
-    """ test result summary data is empty
-    """
+    """test result summary data is empty"""

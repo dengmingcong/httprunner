@@ -57,6 +57,7 @@ class TestCaseUpload(HttpRunner):
             )
             .validate()
             .assert_equal("status_code", 200)
+            .assert_equal('body.headers."Content-Type"', "message/rfc822")
         ),
     ]
 

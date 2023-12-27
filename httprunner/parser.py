@@ -274,7 +274,8 @@ def get_mapping_variable(
         return variables_mapping[variable_name]
     except KeyError:
         raise exceptions.VariableNotFound(
-            f"{variable_name} not found in {variables_mapping}", variable_name
+            f"`{variable_name}` not found, available vars: {list(variables_mapping.keys())}",
+            variable_name,
         )
 
 
@@ -365,7 +366,8 @@ def parse_string(
                 # get the name not defined from exception, e.g. name 'baz' is not defined
                 name_not_found = str(ne).split("'")[1]
                 raise VariableNotFound(
-                    f"{name_not_found} not found in {variables_mapping}", name_not_found
+                    f"`{name_not_found}` not found, available vars: {list(variables_mapping.keys())}",
+                    name_not_found,
                 ) from ne
 
     try:
@@ -407,7 +409,7 @@ def parse_string(
                 expression_eval_value = eval(raw_expression, variables_mapping_copy)
             except NameError as ex:
                 raise exceptions.VariableNotFound(
-                    f"{ex}, all variables: {variables_mapping}"
+                    f"{ex}, available vars: {list(variables_mapping.keys())}"
                 )
             except Exception as ex:
                 raise ValueError(
@@ -534,15 +536,18 @@ def parse_data(
         return parse_string(raw_data, variables_mapping, functions_mapping)
 
     elif isinstance(raw_data, list):
-        return [
-            parse_data(item, variables_mapping, functions_mapping) for item in raw_data
-        ]
+        # fix: do not create new list, otherwise the id of list will be changed
+        for index, item in enumerate(raw_data):
+            raw_data[index] = parse_data(item, variables_mapping, functions_mapping)
+        return raw_data
 
     elif isinstance(raw_data, set):
-        return {
-            parse_data(item, variables_mapping, functions_mapping) for item in raw_data
-        }
+        for item in raw_data:
+            raw_data.remove(item)
+            raw_data.add(parse_data(item, variables_mapping, functions_mapping))
+        return raw_data
 
+    # note: tuple cannot be modified, so we have to create a new tuple
     elif isinstance(raw_data, tuple):
         return tuple(
             [
@@ -557,13 +562,18 @@ def parse_data(
         return raw_data
 
     elif isinstance(raw_data, dict):
-        parsed_data = {}
-        for key, value in raw_data.items():
+        # reference:
+        for key in list(raw_data.keys()):
             parsed_key = parse_data(key, variables_mapping, functions_mapping)
-            parsed_value = parse_data(value, variables_mapping, functions_mapping)
-            parsed_data[parsed_key] = parsed_value
+            parsed_value = parse_data(
+                raw_data[key], variables_mapping, functions_mapping
+            )
+            raw_data[parsed_key] = parsed_value
 
-        return parsed_data
+            if parsed_key != key:
+                raw_data.pop(key)
+
+        return raw_data
 
     elif isinstance(raw_data, ParseMe):
         raw_data.__dict__ = parse_data(

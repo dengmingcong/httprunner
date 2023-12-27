@@ -6,10 +6,10 @@ import pytest
 
 from httprunner import HttpRunner, Config, Step, RunRequest
 from httprunner import Parameters
-from httprunner.exceptions import ValidationFailure
+from httprunner.exceptions import MultiStepsFailedError
 
 
-@pytest.mark.xfail(raises=ValidationFailure)
+@pytest.mark.xfail(raises=MultiStepsFailedError)
 class TestCaseRequestWithParameters(HttpRunner):
     @pytest.mark.parametrize(
         "param",

@@ -9,7 +9,7 @@ from loguru import logger
 from httprunner.utils import get_platform, ExtendJSONEncoder
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def session_fixture(request):
     """setup and teardown each task"""
     logger.info("start running testcases ...")
@@ -19,6 +19,9 @@ def session_fixture(request):
     yield
 
     logger.info("task finished, generate task summary for --save-tests")
+
+    if "nosummary" in request.keywords:
+        return
 
     summary = {
         "success": True,

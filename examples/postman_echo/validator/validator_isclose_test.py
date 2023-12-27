@@ -16,9 +16,7 @@ class TestValidatorIsClose(HttpRunner):
         Step(
             RunRequest("validate with is_close")
             .post("/post")
-            .with_json({
-                "foo": 20
-            })
+            .with_json({"foo": 20})
             .validate()
             .assert_equal("status_code", 200)
             .assert_is_close("body.json.foo", (10, 10))
@@ -39,9 +37,7 @@ class TestValidatorIsCloseFail(HttpRunner):
         Step(
             RunRequest("validate with is_close")
             .post("/post")
-            .with_json({
-                "foo": 20
-            })
+            .with_json({"foo": 20})
             .validate()
             .assert_equal("status_code", 200)
             .assert_is_close("body.json.foo", (10, 9.9))

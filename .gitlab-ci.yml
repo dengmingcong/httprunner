@@ -11,7 +11,7 @@ default:
 
 variables:
   FLAKE_COMMAND: poetry run flake8 examples/ httprunner/ tests/
-  UNIT_TEST_COMMAND: poetry run coverage run --source=httprunner -m pytest tests
+  UNIT_TEST_COMMAND: poetry run coverage run --source=httprunner -m pytest tests --disable-warnings
   IS_RUN_LINT: "true"
   IS_RUN_UNIT_TEST: "true"
   IS_RUN_SMOKE_TEST: "true"
@@ -87,7 +87,7 @@ smoke test:
   script:
     - |
       cd examples
-      poetry run pytest . --debugtalk-py-file="debugtalk.py"
+      poetry run pytest . --debugtalk-py-file="debugtalk.py" --disable-warnings
 
 semantic release:
   stage: publish

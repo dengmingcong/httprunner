@@ -14,9 +14,11 @@ class PostmanEchoPost(HttpRunnerRequest):
     )
     request = (
         RunRequest("")
-        .with_variables(**{
-            "foo": "builtin_request_foo",
-        })
+        .with_variables(
+            **{
+                "foo": "builtin_request_foo",
+            }
+        )
         .post("/post")
         .with_headers(**{"User-Agent": "HttpRunner/3.0", "Content-Type": "text/plain"})
         .with_data("$foo-$bar")
@@ -65,13 +67,15 @@ class TestVariablePriority(HttpRunner):
         ),
         Step(
             PostmanEchoPost(
-                "step.with_variables > extracted vars > testcase config vars "
-                "> builtin request vars > builtin config vars"
+                "builtin request vars > step.with_variables > extracted vars > testcase config vars "
+                "> builtin config vars"
             )
-            .with_variables(**{
-                "foo": "step.with_variables_foo",
-                "bar": "step.with_variables_bar",
-            })
+            .with_variables(
+                **{
+                    "foo": "step.with_variables_foo",
+                    "bar": "step.with_variables_bar",
+                }
+            )
             .with_data("$foo-$bar-$baz-$qux-$fred")
             .validate()
             .assert_equal(
@@ -143,27 +147,29 @@ class PostmanEchoPostWithNestedVars(HttpRunnerRequest):
             "bar": "builtin_config_bar",
             "qux": "builtin_config_qux",
             "fred": "builtin_config_fred",
-            "user": {
-                "account_id": "$account_id",
-                "token": "$token"
-            }
+            "user": {"account_id": "$account_id", "token": "$token"},
         }
     )
     request = (
         RunRequest("")
-        .with_variables(**{
-            "foo": "builtin_request_foo", "bar": "builtin_request_bar",
-            "account_id": "${user['account_id']}",
-            "token": "${user['token']}",
-        })
+        .with_variables(
+            **{
+                "foo": "builtin_request_foo",
+                "bar": "builtin_request_bar",
+                "account_id": "${user['account_id']}",
+                "token": "${user['token']}",
+            }
+        )
         .post("/post")
         .with_headers(**{"User-Agent": "HttpRunner/3.0"})
-        .with_json({
-            "foo": "$foo",
-            "bar": "$bar",
-            "account_id": "$account_id",
-            "token": "$token",
-        })
+        .with_json(
+            {
+                "foo": "$foo",
+                "bar": "$bar",
+                "account_id": "$account_id",
+                "token": "$token",
+            }
+        )
         .validate()
         .assert_equal("status_code", 200)
     )
@@ -179,10 +185,7 @@ class TestCaseRequestWithHttpRunnerRequestWithNestedVariableUser(HttpRunner):
                 "bar": "testcase_config_bar",
                 "baz": "testcase_config_baz",
                 "qux": "testcase_config_qux",
-                "user": {
-                    "account_id": 1,
-                    "token": "some-token"
-                }
+                "user": {"account_id": 1, "token": "some-token"},
             }
         )
         .base_url("https://postman-echo.com")
@@ -194,14 +197,8 @@ class TestCaseRequestWithHttpRunnerRequestWithNestedVariableUser(HttpRunner):
             PostmanEchoPostWithNestedVars("test clear")
             .with_variables(**{"foo": "step_append_foo", "bar": "step_append_bar"})
             .validate()
-            .assert_equal(
-                "body.json.account_id",
-                1
-            )
-            .assert_equal(
-                "body.json.token",
-                "some-token"
-            )
+            .assert_equal("body.json.account_id", 1)
+            .assert_equal("body.json.token", "some-token")
         ),
     ]
 
@@ -217,7 +214,7 @@ class TestCaseRequestWithHttpRunnerRequestWithNestedVariableUserParts(HttpRunner
                 "baz": "testcase_config_baz",
                 "qux": "testcase_config_qux",
                 "account_id": 1,
-                "token": "some-token"
+                "token": "some-token",
             }
         )
         .base_url("https://postman-echo.com")
@@ -229,13 +226,7 @@ class TestCaseRequestWithHttpRunnerRequestWithNestedVariableUserParts(HttpRunner
             PostmanEchoPostWithNestedVars("test clear")
             .with_variables(**{"foo": "step_append_foo", "bar": "step_append_bar"})
             .validate()
-            .assert_equal(
-                "body.json.account_id",
-                1
-            )
-            .assert_equal(
-                "body.json.token",
-                "some-token"
-            )
+            .assert_equal("body.json.account_id", 1)
+            .assert_equal("body.json.token", "some-token")
         ),
     ]

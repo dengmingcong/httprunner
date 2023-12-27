@@ -122,14 +122,14 @@ def uniform_validator(validator):
 
 
 class ResponseObject(object):
-    def __init__(self, resp_obj: requests.Response):
+    def __init__(self, requests_response: requests.Response):
         """initialize with a requests.Response object
 
         Args:
-            resp_obj (instance): requests.Response instance
+            requests_response (instance): requests.Response instance
 
         """
-        self.resp_obj = resp_obj
+        self.resp_obj = requests_response
         self.validation_results: Dict = {}
 
     def __getattr__(self, key):

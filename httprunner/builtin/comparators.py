@@ -302,3 +302,13 @@ def match_pydantic_model(
         validate_error_message = e
 
     assert not validate_error_message, f"{message}\n{validate_error_message}"
+
+
+def is_truthy(check_value: Any, expect_value: Any, message: Text = ""):  # noqa
+    """Assert value is truthy."""
+    assert bool(check_value), message
+
+
+def is_falsy(check_value: Any, expect_value: Any, message: Text = ""):  # noqa
+    """Assert value is falsy."""
+    assert not bool(check_value), message

@@ -5,7 +5,7 @@
 from httprunner import HttpRunner, Config, Step, RunRequest
 
 
-class TestCaseRequestWithFunctions(HttpRunner):
+class TestExportStepSetByWithVariables(HttpRunner):
 
     config = (
         Config("request methods testcase with functions")
@@ -25,7 +25,7 @@ class TestCaseRequestWithFunctions(HttpRunner):
 
     teststeps = [
         Step(
-            RunRequest("get with params")
+            RunRequest("export variables set by with_variables")
             .with_variables(
                 **{"foo1": "bar11", "foo2": "bar21", "sum_v": "${sum_two(1, 2)}"}
             )
@@ -78,7 +78,3 @@ class TestCaseRequestWithFunctions(HttpRunner):
             .assert_equal("body.form.foo3", "bar21")
         ),
     ]
-
-
-if __name__ == "__main__":
-    TestCaseRequestWithFunctions().test_start()

@@ -95,12 +95,16 @@ class JMESPathExtractor(BaseModel):
 class TStep(BaseModel):
     name: Name
     parametrize: tuple = None
-    retry_times: Union[int, None] = 0
-    max_retry_times: Union[int, None] = 0
-    retry_interval: Union[float, None] = 0
+    parsed_parametrize_vars: VariablesMapping = (
+        {}
+    )  # variables acquired after parsing parametrize
+    remaining_retry_times: Union[int, str] = 0  # times remaining to retry
+    max_retry_times: Union[int, str] = 0  # max retry times
+    retry_interval: Union[int, float, str] = 0
     stop_retry_if: Any = None
-    skip_on_condition: Any = None
-    run_on_condition: Any = None
+    is_ever_retried: bool = None  # will be set to True when retry occurs
+    skip_if_condition: Any = None
+    skip_unless_condition: Any = None
     skip_reason: Union[str, None] = None
     request: Union[TRequest, None] = None
     testcase: Union[Text, Callable, None] = None
@@ -204,8 +208,7 @@ class SessionData(BaseModel):
     req_resps: List[ReqRespData] = []
     stat: RequestStat = RequestStat()
     address: AddressData = AddressData()
-    validators: Dict = {}
-    exception: Exception = None
+    validation_results: Dict = {}
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 

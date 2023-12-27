@@ -16,10 +16,10 @@ from .request_with_retry_test import (
 
 
 import pytest
-from httprunner.exceptions import ValidationFailure
+from httprunner.exceptions import MultiStepsFailedError
 
 
-@pytest.mark.xfail(raises=ValidationFailure)
+@pytest.mark.xfail(raises=MultiStepsFailedError)
 class TestCaseRequestWithTestcaseReferenceAndRetry(HttpRunner):
 
     config = (

@@ -55,6 +55,9 @@ def testcase_fixture(request):
 
     yield
 
+    if "nosummary" in request.keywords:
+        return
+
     logger.debug(
         f"teardown testcase fixture: {config.name} - {request.module.__name__}"
     )

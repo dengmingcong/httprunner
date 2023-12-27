@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 import pytest
-from httprunner.exceptions import ValidationFailure
+from httprunner.exceptions import MultiStepsFailedError
 
 from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
 
@@ -18,7 +18,7 @@ from .sub_step import (
 )
 
 
-@pytest.mark.xfail(raises=ValidationFailure)
+@pytest.mark.xfail(raises=MultiStepsFailedError)
 class TestCaseRequestWithSkipTestcaseReference(HttpRunner):
 
     config = (
