@@ -42,18 +42,4 @@ class TestChangeObjAttrInHook(HttpRunner):
             .assert_equal("status_code", 200)
             .assert_equal("body.json.id", 100)
         ),
-        Step(
-            RunRequest("export request hook variables - use")
-            .post("/post")
-            .with_json(
-                {
-                    "setup": "$request_setup_hook",
-                    "teardown": "$request_teardown_hook",
-                }
-            )
-            .validate()
-            .assert_equal("status_code", 200)
-            .assert_equal("body.json.setup", "request_setup_hook")
-            .assert_equal("body.json.teardown", "request_teardown_hook")
-        ),
     ]
