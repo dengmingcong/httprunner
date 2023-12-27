@@ -8,6 +8,7 @@ from typing import Union
 from loguru import logger
 
 from httprunner import __version__
+from httprunner.parser import ParseMe
 
 
 def get_httprunner_version():
@@ -212,3 +213,13 @@ def gen_trace_id(
 
 def gen_hook_variable(hook: str):
     return hook
+
+
+class CustomClass(ParseMe):
+    def __init__(self, foo):
+        self.id = None
+        self.foo = foo
+
+
+def modify_obj_attr(obj: CustomClass):
+    obj.id = 100
