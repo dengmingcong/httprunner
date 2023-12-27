@@ -338,15 +338,15 @@ class HttpRunner(object):
         step_variables = step.variables
         step_export = step.export
 
-        # setup hooks
+        # setup hooks,
+        # variables added by setup hooks will be part of nested testcase's session variables.
         if step.setup_hooks:
             self.__call_hooks(step.setup_hooks, step_variables, "setup testcase")
 
-        httprunner_obj = HttpRunner()
         try:
             if hasattr(step.testcase, "config") and hasattr(step.testcase, "teststeps"):
-                (
-                    (httprunner_obj := step.testcase())
+                httprunner_obj = (
+                    step.testcase()
                     .set_continue_on_failure(self.__continue_on_failure)
                     .with_session(self.__session)
                     .with_case_id(self.__case_id)
@@ -362,8 +362,9 @@ class HttpRunner(object):
                         self.__project_meta.httprunner_root_path, step.testcase
                     )
 
-                (
-                    httprunner_obj.set_continue_on_failure(self.__continue_on_failure)
+                httprunner_obj = (
+                    HttpRunner()
+                    .set_continue_on_failure(self.__continue_on_failure)
                     .with_session(self.__session)
                     .with_case_id(self.__case_id)
                     .with_variables(step_variables)
@@ -374,17 +375,20 @@ class HttpRunner(object):
                 raise exceptions.ParamsError(
                     f"Invalid teststep referenced testcase: {step.model_dump()}"
                 )
-        finally:
+
+            # teardown hooks.
+            # variables added by teardown hooks will be part of nested testcase's session variables.
+            if step.teardown_hooks:
+                self.__call_hooks(
+                    step.teardown_hooks, step.variables, "teardown testcase"
+                )
+
             # list of step data
             step_data.data = httprunner_obj.get_step_datas()
 
+            # step.variables and variables added by hooks will be part of nested testcase's session variables,
+            # and thus can be exported.
             step_data.export_vars = httprunner_obj.get_export_variables()
-
-            try:
-                # save exported variables to allure report for RunTestCase step
-                save_export_vars(step_data.export_vars)
-            except KeyError:
-                logger.warning("Allure data was not saved.")
 
             # update step context variables with new extracted variables
             step_context_variables.update(step_data.export_vars)
@@ -393,10 +397,12 @@ class HttpRunner(object):
             self.__session_variables.update(step_data.export_vars)
 
             self.__step_datas.append(step_data)
-
-        # teardown hooks
-        if step.teardown_hooks:
-            self.__call_hooks(step.teardown_hooks, step.variables, "teardown testcase")
+        finally:
+            try:
+                # save exported variables to allure report for RunTestCase step
+                save_export_vars(step_data.export_vars)
+            except KeyError:
+                logger.warning("Allure data was not saved.")
 
     def __resolve_step_variables(
         self, step: TStep, step_context_variables: dict
