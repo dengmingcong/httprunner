@@ -10,7 +10,7 @@ from httprunner.core.runner.retry import (
     gen_retry_step_title,
     is_meet_stop_retry_condition,
 )
-from httprunner.exceptions import RetryInterruptError
+from httprunner.exceptions import RetryInterruptError, ValidationFailure
 from httprunner.models import (
     SessionData,
     TStep,
@@ -48,7 +48,13 @@ def save_run_request_retry(
         is_pass = True
 
     if step.is_ever_retried:
-        if is_meet_stop_retry_condition(step, functions):
+        # success will stop retrying automatically.
+        # stopping retrying only happens when ValidationFailure is raised.
+        if (
+            not is_pass
+            and isinstance(exception, ValidationFailure)
+            and is_meet_stop_retry_condition(step, functions)
+        ):
             is_stop_retry = True
         else:
             is_stop_retry = False
@@ -65,7 +71,7 @@ def save_run_request_retry(
                 response_obj,
                 exported_vars,
             )
-            if exception:
+            if not is_pass:
                 # mark step as failed in allure if this is the last retry and exception was raised
                 if step.remaining_retry_times == 0:
                     raise exception

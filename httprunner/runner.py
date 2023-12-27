@@ -310,17 +310,6 @@ class HttpRunner(object):
                 self.__session.data.stat.content_size,
                 None,
             )
-        except ValidationFailure as e:
-            save_run_request_retry(
-                step,
-                self.__project_meta.functions,
-                self.__session.data,
-                resp_obj,
-                step_data.export_vars,
-                self.__session.data.stat.content_size,
-                e,
-            )
-            # check if stopping retry was required when validation failed
         except Exception as e:
             save_run_request_retry(
                 step,
