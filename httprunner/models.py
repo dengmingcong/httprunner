@@ -110,6 +110,7 @@ class TStep(BaseModel):
     testcase: Union[Text, Callable, None] = None
     variables: VariablesMapping = {}
     raw_variables: str = None
+    is_variables_resolved: bool = False
     is_deep_parse_raw_variables: bool = None
     private_variables: VariablesMapping = (
         {}
