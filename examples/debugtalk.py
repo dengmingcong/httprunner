@@ -208,3 +208,7 @@ def gen_trace_id(
         return uuid.uuid4().hex
     elif format_ == "UUID4_URN":
         return uuid.uuid4().urn
+
+
+def gen_hook_variable(hook: str):
+    return hook
