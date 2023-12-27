@@ -2,6 +2,31 @@
 
 <!--next-version-placeholder-->
 
+## v3.34.0 (2023-12-27)
+
+### Feature
+
+* Add validator is_truthy and is_falsy ([`1b30491`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1b304911235b0e3bd8a66a0e84e1b8fdc87af9de))
+* No longer print client and server ip in logs ([`32e6e54`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/32e6e546b75688fd7cdff8378af193ed130d5a77))
+* Save exported variables to allure report for RunTestCase step ([`9d9dd11`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9d9dd116e9ff84afa337e3665ada53ed61b4a424))
+* Continue on JMESPathError ([`1f88731`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1f887315403fa555d0940db3b6a68792779bee28))
+* Add new exception MultiStepsFailedError for continue_on_failure ([`3033e5b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/3033e5bd2cfb8f01e19c140383355f2a020aff8e))
+* Support continue_on_failure again ([`6725c97`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/6725c976e2f4124d7ec7e011d48fc998d9f14b2a))
+* Do not export variables if validation failed ([`8fca2b5`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/8fca2b5cd036de292f53ee1e758feb225bd4dc30))
+
+### Fix
+
+* Last retry was always marked success even exception was raised ([`d88e598`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/d88e59810f2a7ce117c81841fe89871135a39ee4))
+* The reason of why testcase failed is misunderstanding when RequestException occurs ([`cdd5d09`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/cdd5d095ebdfabf28ab386c4cd7aae4394fbc84d))
+* Request headers and body was not displayed appropriate in log ([`d114f33`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/d114f3351603382055ed0f347599a0447ea6a97d))
+* RunTestCase step show as success even some steps failed when __continue_on_failure was set to True ([`9bc894f`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9bc894fbff7bc11ec8bf6bded3db07699a9ff2d6))
+* Dictionary keys changed during iteration ([`9bf8e40`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9bf8e407a330fb6088d74785acddd2bffce68588))
+* F401 'typing.Union' imported but unused ([`1b8c25b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1b8c25b2892152b453429f212fc4a096e0e1d9c0))
+
+### Performance
+
+* Print variable names only when VariableNotFound raised ([`df01360`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/df01360887d11901dd163db27a60e149c6dcd871))
+
 ## v3.33.2 (2023-12-15)
 
 ### Fix
