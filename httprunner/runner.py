@@ -17,7 +17,7 @@ from httprunner.client import HttpSession
 from httprunner.core.allure.runrequest.export_vars import save_export_vars
 from httprunner.core.allure.runrequest.runrequest import save_run_request_retry
 from httprunner.core.runner.export_request_step_vars import (
-    extract_export_request_variables,
+    extract_request_variables,
 )
 from httprunner.core.runner.parametrized_step import expand_parametrized_step
 from httprunner.core.runner.retry import (
@@ -279,15 +279,12 @@ class HttpRunner(object):
         # preprocess before extracting and validating
         self.__preprocess_response(parsed_request_dict, resp_obj, step)
 
-        # extract and export variables from request step.
-        # step context variables and self.__session_variables will be updated.
-        extract_export_request_variables(
+        # extract variables from request step and local variables,
+        # step context variables and self.__session_variables will not be updated.
+        extract_mapping: dict = extract_request_variables(
             resp_obj,
             step,
-            step_data,
-            step_context_variables,
             self.__project_meta.functions,
-            self.__session_variables,
         )
 
         # validate
@@ -306,7 +303,10 @@ class HttpRunner(object):
                 self.__project_meta.functions,
                 self.__session.data,
                 resp_obj,
-                step_data.export_vars,
+                step_data,
+                extract_mapping,
+                step_context_variables,
+                self.__session_variables,
                 self.__session.data.stat.content_size,
                 None,
             )
@@ -316,7 +316,10 @@ class HttpRunner(object):
                 self.__project_meta.functions,
                 self.__session.data,
                 resp_obj,
-                step_data.export_vars,
+                step_data,
+                extract_mapping,
+                step_context_variables,
+                self.__session_variables,
                 self.__session.data.stat.content_size,
                 e,
             )

@@ -60,23 +60,32 @@ def export_local_step_variables(step: TStep) -> dict:
     return export_mapping
 
 
-def extract_export_request_variables(
+def extract_request_variables(
     resp_obj: ResponseObject,
     step: TStep,
-    step_data: StepData,
-    step_context_variables: dict,
     functions: dict,
-    session_variables: dict,
-) -> NoReturn:
+) -> dict:
     """Extract and export variables from response object."""
-    step_data.export_vars = extract(step, resp_obj, functions)
-    step.variables.update(step_data.export_vars)
+    extract_mapping = extract(step, resp_obj, functions)
+    step.variables.update(extract_mapping)
 
     # make local variables global and available for next steps
-    step_data.export_vars.update(export_local_step_variables(step))
+    extract_mapping.update(export_local_step_variables(step))
+
+    return extract_mapping
+
+
+def export_request_variables(
+    step_data: StepData,
+    step_context_variables: dict,
+    session_variables: dict,
+    extract_mapping: dict,
+) -> NoReturn:
+    """Export variables, including those extracted from response and those exported from request local variables."""
+    step_data.export_vars.update(extract_mapping)
 
     # update step context variables with new extracted variables
-    step_context_variables.update(step_data.export_vars)
+    step_context_variables.update(extract_mapping)
 
     # put extracted variables to session variables for later exporting
-    session_variables.update(step_data.export_vars)
+    session_variables.update(extract_mapping)

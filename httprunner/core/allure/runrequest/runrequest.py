@@ -6,14 +6,17 @@ from loguru import logger
 from httprunner.core.allure.runrequest.export_vars import save_export_vars
 from httprunner.core.allure.runrequest.http_session_data import save_http_session_data
 from httprunner.core.allure.runrequest.validation_result import save_validation_result
+from httprunner.core.runner.export_request_step_vars import export_request_variables
 from httprunner.core.runner.retry import (
     gen_retry_step_title,
     is_meet_stop_retry_condition,
+    is_last_request,
 )
 from httprunner.exceptions import RetryInterruptError, ValidationFailure
 from httprunner.models import (
     SessionData,
     TStep,
+    StepData,
 )
 from httprunner.response import ResponseObject
 
@@ -37,7 +40,10 @@ def save_run_request_retry(
     functions: dict,
     session_data: SessionData,
     response_obj: ResponseObject,
-    exported_vars: dict,
+    step_data: StepData,
+    extract_mapping: dict,
+    step_context_variables: dict,
+    session_variables: dict,
     content_size: int,
     exception: Optional[Exception],
 ) -> NoReturn:
@@ -59,6 +65,13 @@ def save_run_request_retry(
         else:
             is_stop_retry = False
 
+        # export only when this is the last retry,
+        # otherwise do not export variables to avoid polluting the global variables
+        if is_last_request(is_pass, is_stop_retry, step):
+            export_request_variables(
+                step_data, step_context_variables, session_variables, extract_mapping
+            )
+
         step_title = gen_retry_step_title(
             step,
             is_pass,
@@ -69,7 +82,7 @@ def save_run_request_retry(
             save_run_request(
                 session_data,
                 response_obj,
-                exported_vars,
+                step_data.exported_vars,
             )
             if not is_pass:
                 # mark step as failed in allure if this is the last retry and exception was raised
@@ -80,10 +93,14 @@ def save_run_request_retry(
                 if is_stop_retry:
                     raise RetryInterruptError(exception)
     else:
+        # always export variables for steps that are not retried
+        export_request_variables(
+            step_data, step_context_variables, session_variables, extract_mapping
+        )
         save_run_request(
             session_data,
             response_obj,
-            exported_vars,
+            step_data.exported_vars,
         )
 
     # re-raise exception
