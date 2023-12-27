@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.34.1 (2023-12-27)
+
+### Fix
+
+* Cannot import name 'RequestWithOptionalArgs' from 'httprunner.testcase' ([`0db06fa`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/0db06fa59378b73dc3d8314c4cf675b5eb6ba757))
+
 ## v3.34.0 (2023-12-27)
 
 ### Feature
