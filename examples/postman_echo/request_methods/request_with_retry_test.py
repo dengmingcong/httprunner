@@ -30,7 +30,7 @@ class TestParseVariablesEachTry(HttpRunner):
             .retry_on_failure(10, 0.5)
             .with_json({"trace_id": "$foo", "diff": "${pyexp(int(foo) - timestamp)}"})
             .validate()
-            .assert_greater_than("body.json.diff", 2000)
+            .assert_greater_than("body.json.diff", 5000)
         ),
     ]
 
