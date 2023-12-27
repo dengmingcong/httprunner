@@ -498,7 +498,7 @@ class HttpRunner(object):
                 step.remaining_retry_times -= 1
                 self.__run_step(step, step_context_variables)
         else:
-            self.__try_step_once(step.model_copy(deep=True), step_context_variables)
+            self.__try_step_once(step, step_context_variables)
 
     def __parse_config(self, config: TConfig) -> NoReturn:
         """Parse TConfig instance."""
