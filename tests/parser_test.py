@@ -512,7 +512,6 @@ class TestParserBasic(unittest.TestCase):
                 os.path.dirname(os.path.dirname(__file__)),
                 "examples",
                 "postman_echo",
-                "request_methods",
             ),
         )
         parsed_params = parser.parse_parameters(parameters)

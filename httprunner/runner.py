@@ -2,7 +2,7 @@ import inspect
 import os
 import time
 import warnings
-from copy import deepcopy
+from copy import copy
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn, Union
 
@@ -17,7 +17,8 @@ from httprunner.client import HttpSession
 from httprunner.core.allure.runrequest.export_vars import save_export_vars
 from httprunner.core.allure.runrequest.runrequest import save_run_request_retry
 from httprunner.core.runner.export_request_step_vars import (
-    extract_export_request_variables,
+    extract_request_variables,
+    export_extracted_variables,
 )
 from httprunner.core.runner.parametrized_step import expand_parametrized_step
 from httprunner.core.runner.retry import (
@@ -279,19 +280,13 @@ class HttpRunner(object):
         # preprocess before extracting and validating
         self.__preprocess_response(parsed_request_dict, resp_obj, step)
 
-        # extract and export variables from request step.
-        # step context variables and self.__session_variables will be updated.
-        extract_export_request_variables(
+        # extract variables from request step and local variables,
+        # step context variables and self.__session_variables will not be updated.
+        extract_mapping: dict = extract_request_variables(
             resp_obj,
             step,
-            step_data,
-            step_context_variables,
             self.__project_meta.functions,
-            self.__session_variables,
         )
-
-        # validate
-        validators = step.validators
 
         try:
             try:
@@ -300,13 +295,18 @@ class HttpRunner(object):
             except RequestException as ex:
                 raise ValidationFailure(ex)
 
-            resp_obj.validate(validators, step.variables, self.__project_meta.functions)
+            resp_obj.validate(
+                step.validators, step.variables, self.__project_meta.functions
+            )
             save_run_request_retry(
                 step,
                 self.__project_meta.functions,
                 self.__session.data,
                 resp_obj,
-                step_data.export_vars,
+                step_data,
+                extract_mapping,
+                step_context_variables,
+                self.__session_variables,
                 self.__session.data.stat.content_size,
                 None,
             )
@@ -316,7 +316,10 @@ class HttpRunner(object):
                 self.__project_meta.functions,
                 self.__session.data,
                 resp_obj,
-                step_data.export_vars,
+                step_data,
+                extract_mapping,
+                step_context_variables,
+                self.__session_variables,
                 self.__session.data.stat.content_size,
                 e,
             )
@@ -336,7 +339,8 @@ class HttpRunner(object):
         step_variables = step.variables
         step_export = step.export
 
-        # setup hooks
+        # setup hooks,
+        # variables added by setup hooks will be part of nested testcase's session variables.
         if step.setup_hooks:
             self.__call_hooks(step.setup_hooks, step_variables, "setup testcase")
 
@@ -359,9 +363,9 @@ class HttpRunner(object):
                     ref_testcase_path = os.path.join(
                         self.__project_meta.httprunner_root_path, step.testcase
                     )
-
                 (
-                    httprunner_obj.set_continue_on_failure(self.__continue_on_failure)
+                    (httprunner_obj := HttpRunner())
+                    .set_continue_on_failure(self.__continue_on_failure)
                     .with_session(self.__session)
                     .with_case_id(self.__case_id)
                     .with_variables(step_variables)
@@ -372,34 +376,71 @@ class HttpRunner(object):
                 raise exceptions.ParamsError(
                     f"Invalid teststep referenced testcase: {step.model_dump()}"
                 )
-        finally:
+
+            # teardown hooks.
+            # variables added by teardown hooks will be part of nested testcase's session variables.
+            if step.teardown_hooks:
+                self.__call_hooks(
+                    step.teardown_hooks, step.variables, "teardown testcase"
+                )
+
             # list of step data
             step_data.data = httprunner_obj.get_step_datas()
 
-            step_data.export_vars = httprunner_obj.get_export_variables()
+            # step.variables and variables added by hooks will be part of nested testcase's session variables,
+            # and thus can be exported.
+            extract_mapping = httprunner_obj.get_export_variables()
 
+            export_extracted_variables(
+                step_data,
+                step_context_variables,
+                self.__session_variables,
+                extract_mapping,
+            )
+
+            self.__step_datas.append(step_data)
+        except Exception:
+            # list of step data
+            step_data.data = httprunner_obj.get_step_datas()
+
+            # when testcase step failed, there are two cases:
+            #   1. continue_on_failure was set to True, then exporting variables is expected
+            #   2. continue_on_failure was set to False, then the entire testcase failed, showing exporting variables in
+            #       allure report is OK
+            try:
+                extract_mapping = httprunner_obj.get_export_variables()
+            except Exception as e:
+                logger.warning(
+                    f"failed to get exported variables from failed testcase step: {repr(e)}"
+                )
+                extract_mapping = {}
+
+            export_extracted_variables(
+                step_data,
+                step_context_variables,
+                self.__session_variables,
+                extract_mapping,
+            )
+
+            self.__step_datas.append(step_data)
+
+            # re-raise exception
+            raise
+        finally:
             try:
                 # save exported variables to allure report for RunTestCase step
                 save_export_vars(step_data.export_vars)
             except KeyError:
                 logger.warning("Allure data was not saved.")
 
-            # update step context variables with new extracted variables
-            step_context_variables.update(step_data.export_vars)
-
-            # put extracted variables to session variables for later exporting
-            self.__session_variables.update(step_data.export_vars)
-
-            self.__step_datas.append(step_data)
-
-        # teardown hooks
-        if step.teardown_hooks:
-            self.__call_hooks(step.teardown_hooks, step.variables, "teardown testcase")
-
     def __resolve_step_variables(
         self, step: TStep, step_context_variables: dict
     ) -> NoReturn:
         """Parse step variables with step context variables and variables defined by step self."""
+        # skip if variables already resolved
+        if step.is_variables_resolved:
+            return
+
         # step variables set with HttpRunnerRequest.with_variables() > step outside variables
         step.variables = merge_variables(step.variables, step_context_variables)
 
@@ -444,6 +485,8 @@ class HttpRunner(object):
                 step.variables, self.__project_meta.functions
             )
 
+        step.is_variables_resolved = True
+
     def __try_step_once(self, step: TStep, step_context_variables: dict):
         """Core function for running step (maybe a request or referenced testcase)."""
         self.__resolve_step_variables(step, step_context_variables)
@@ -462,6 +505,47 @@ class HttpRunner(object):
         finally:
             logger.info(f"run step end: {step.name} <<<<<<\n")
 
+    def __parse_step_name(self, step: TStep, step_context_variables: dict) -> str:
+        """Parse step name with step context variables and variables defined by step self."""
+        # parse step name with context variables if step is parametrized
+        if step.parametrize:
+            try:
+                return parse_data(
+                    step.name, step_context_variables, self.__project_meta.functions
+                )
+            except VariableNotFound as e:
+                logger.warning(f"error occurred while parsing step name: {repr(e)}")
+                return step.name
+
+        # parsed parametrize variables > extracted variables > testcase config variables.
+        # Note: parsed parametrize variables will be used in skip_if and skip_unless condition
+        step_context_variables.update(step.parsed_parametrize_vars)
+
+        # parse step name with context variables if skip condition was set
+        if step.skip_if_condition is not None or step.skip_unless_condition:
+            try:
+                return parse_data(
+                    step.name, step_context_variables, self.__project_meta.functions
+                )
+            except VariableNotFound as e:
+                logger.warning(f"error occurred while parsing step name: {repr(e)}")
+                return step.name
+
+        # parse step retry args (retry times and retry interval)
+        parse_retry_args(step, step_context_variables, self.__project_meta.functions)
+        # otherwise, parse step name with parsed step variables
+        if step.remaining_retry_times > 0:
+            # if retrying is needed, step variables need to be parsed each time retrying,
+            # so the original step should stay untouched.
+            step_copy = step.model_copy(deep=True)
+            self.__resolve_step_variables(step_copy, step_context_variables)
+            return parse_data(
+                step_copy.name, step_copy.variables, self.__project_meta.functions
+            )
+        else:
+            self.__resolve_step_variables(step, step_context_variables)
+            return parse_data(step.name, step.variables, self.__project_meta.functions)
+
     def __run_step(self, step: TStep, step_context_variables: dict) -> NoReturn:
         """run teststep, teststep maybe a request or referenced testcase"""
         # expand and run parametrized steps
@@ -474,21 +558,16 @@ class HttpRunner(object):
             # important: parametrized step is a step wrapper, codes later was not needed for itself
             return
 
-        # parsed parametrize variables > extracted variables > testcase config variables.
-        # Note: parsed parametrize variables will be used in skip_if and skip_unless condition
-        step_context_variables.update(step.parsed_parametrize_vars)
-
         # skip step if condition is satisfied
         if is_skip_step(step, step_context_variables, self.__project_meta.functions):
             step_data = StepData(name=step.name)
+
             # mark skipped step as success
             step_data.success = True
             self.__step_datas.append(step_data)
-            # important: return directly if step is skipped
-            return
 
-        # parse step retry args (retry times and retry interval)
-        parse_retry_args(step, step_context_variables, self.__project_meta.functions)
+            # important: continue if step is skipped
+            return
 
         # note: skipped step will not be retried
         if step.remaining_retry_times > 0:
@@ -510,7 +589,7 @@ class HttpRunner(object):
                 step.remaining_retry_times -= 1
                 self.__run_step(step, step_context_variables)
         else:
-            self.__try_step_once(step.model_copy(deep=True), step_context_variables)
+            self.__try_step_once(step, step_context_variables)
 
     def __parse_config(self, config: TConfig) -> NoReturn:
         """Parse TConfig instance."""
@@ -529,16 +608,8 @@ class HttpRunner(object):
     def __run_steps(self, steps: list[TStep], step_context_variables) -> NoReturn:
         """Iterate and run steps."""
         for step in steps:
-            # parse step name
             try:
-                step.name = parse_data(
-                    step.name, step_context_variables, self.__project_meta.functions
-                )
-            except VariableNotFound as e:
-                logger.warning(f"error occurred while parsing step name: {repr(e)}")
-
-            try:
-                with allure.step(step.name):
+                with allure.step(self.__parse_step_name(step, step_context_variables)):
                     self.__run_step(step, step_context_variables)
             except (
                 ValidationFailure,
@@ -584,7 +655,7 @@ class HttpRunner(object):
         self.__session = self.__session or HttpSession()
 
         # init step context variables as to testcase config variables (already merged session variables)
-        step_context_variables = deepcopy(self.__config.variables)
+        step_context_variables = copy(self.__config.variables)
         self.__run_steps(self.__teststeps, step_context_variables)
 
         self.__duration = time.time() - self.__start_at

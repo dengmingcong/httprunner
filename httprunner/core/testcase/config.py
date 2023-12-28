@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import (
     Text,
     NoReturn,
@@ -64,7 +65,9 @@ class Config(object):
             name=self.__name,
             base_url=self.__base_url,
             verify=self.__verify,
-            variables=self.__variables,
+            variables=deepcopy(
+                self.__variables
+            ),  # fix: variables are class attribute and will be shared
             export=list(set(self.__export)),
             path=self.__path,
             weight=self.__weight,

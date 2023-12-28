@@ -3,6 +3,7 @@ from typing import NoReturn
 from loguru import logger
 
 from httprunner.configs.emoji import emojis
+from httprunner.exceptions import ValidationFailure
 from httprunner.models import TStep
 from httprunner.parser import parse_data
 
@@ -11,30 +12,26 @@ def parse_retry_args(
     step: TStep, step_context_variables: dict, functions: dict
 ) -> NoReturn:
     """Parse step retry args (retry_times and retry_interval)."""
+    if step.is_retry_args_resolved:
+        return
+
     # parse retry_times
     if isinstance(step.max_retry_times, str):
         parsed_max_retry_times = parse_data(
             step.max_retry_times, step_context_variables, functions
         )
 
-        if not isinstance(parsed_max_retry_times, int):
-            raise ValueError(
-                f"max_retry_times should be int after parsing, but got: {type(parsed_max_retry_times)}"
-            )
-        step.max_retry_times = parsed_max_retry_times
-        step.remaining_retry_times = parsed_max_retry_times
+        step.max_retry_times = int(parsed_max_retry_times)
+        step.remaining_retry_times = int(parsed_max_retry_times)
 
     if isinstance(step.retry_interval, str):
         parsed_retry_interval = parse_data(
             step.retry_interval, step_context_variables, functions
         )
 
-        if not isinstance(parsed_retry_interval, (int, float)):
-            raise ValueError(
-                f"retry_interval should be int or float after parsing, but got: {type(parsed_retry_interval)}"
-            )
+        step.retry_interval = float(parsed_retry_interval)
 
-        step.retry_interval = parsed_retry_interval
+    step.is_retry_args_resolved = True
 
 
 def is_meet_stop_retry_condition(step: TStep, functions: dict) -> bool:
@@ -79,3 +76,24 @@ def gen_retry_step_title(
     title += f"  • Content-Length: {content_length}"
 
     return title
+
+
+def is_final_request(step: TStep, functions: dict, exception: Exception) -> bool:
+    """Return True if this is the final request (no more retrying will be executed)."""
+    # success will stop retrying automatically
+    if not exception:
+        return True
+
+    # exception other than ValidationFailure will stop retrying automatically
+    if not isinstance(exception, ValidationFailure):
+        return True
+
+    # this request will become last retry if stopping retrying condition was met
+    if is_meet_stop_retry_condition(step, functions):
+        return True
+
+    # this request will become last retry if remaining retry times is 0
+    if step.remaining_retry_times == 0:
+        return True
+
+    return False

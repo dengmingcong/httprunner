@@ -101,7 +101,9 @@ class TStep(BaseModel):
     remaining_retry_times: Union[int, str] = 0  # times remaining to retry
     max_retry_times: Union[int, str] = 0  # max retry times
     retry_interval: Union[int, float, str] = 0
+    is_retry_args_resolved: bool = False
     stop_retry_if: Any = None
+    is_relay_export: bool = None
     is_ever_retried: bool = None  # will be set to True when retry occurs
     skip_if_condition: Any = None
     skip_unless_condition: Any = None
@@ -110,6 +112,7 @@ class TStep(BaseModel):
     testcase: Union[Text, Callable, None] = None
     variables: VariablesMapping = {}
     raw_variables: str = None
+    is_variables_resolved: bool = False
     is_deep_parse_raw_variables: bool = None
     private_variables: VariablesMapping = (
         {}
