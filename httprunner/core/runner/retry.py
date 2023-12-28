@@ -84,3 +84,20 @@ def gen_retry_step_title(
     title += f"  • Content-Length: {content_length}"
 
     return title
+
+
+def is_last_retry(step: TStep, is_pass: bool, is_stop_retry: bool) -> bool:
+    """Return True if this is the last retry."""
+    # success will stop retrying automatically
+    if is_pass:
+        return True
+
+    # this request will become last retry if stopping retrying condition was met
+    if is_stop_retry:
+        return True
+
+    # this request will become last retry if remaining retry times is 0
+    if step.remaining_retry_times == 0:
+        return True
+
+    return False

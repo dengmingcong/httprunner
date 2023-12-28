@@ -10,6 +10,7 @@ from httprunner.core.runner.export_request_step_vars import export_request_varia
 from httprunner.core.runner.retry import (
     gen_retry_step_title,
     is_meet_stop_retry_condition,
+    is_last_retry,
 )
 from httprunner.exceptions import RetryInterruptError, ValidationFailure
 from httprunner.models import (
@@ -53,8 +54,7 @@ def save_run_request_retry(
     else:
         is_pass = True
 
-        # export variables only when success,
-        # otherwise do not export variables to avoid polluting the global variables.
+        # always export variables when success
         export_request_variables(
             step_data, step_context_variables, session_variables, extract_mapping
         )
@@ -70,6 +70,19 @@ def save_run_request_retry(
             is_stop_retry = True
         else:
             is_stop_retry = False
+
+        # if step.is_relay_export is True and this request is not the last retry, export variables
+        if (
+            not is_pass
+            and step.is_relay_export
+            and not is_last_retry(step, is_pass, is_stop_retry)
+        ):
+            export_request_variables(
+                step_data,
+                step_context_variables,
+                session_variables,
+                extract_mapping,
+            )
 
         step_title = gen_retry_step_title(
             step,
