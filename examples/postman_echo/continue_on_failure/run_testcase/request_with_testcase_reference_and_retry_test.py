@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
 
-from examples.postman_echo.retry.continue_on_failure.request_with_retry_test import (
+from examples.postman_echo.continue_on_failure.retry.request_with_retry_test import (
     TestCaseRequestWithRetry as RequestWithRetry,
 )
 
