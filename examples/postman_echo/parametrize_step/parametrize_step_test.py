@@ -56,7 +56,7 @@ class TestParametrizeStep(HttpRunner):
         Step(
             RunRequest("parametrize and retry")
             .parametrize("foo,bar", [(1, 1), (2, 2)])
-            .retry_on_failure(3, 0.5)
+            .retry_on_failure(3, 0.5, is_relay_export=True)
             .get("/get")
             .with_params(**{"sum_v": "${sum_two($sum_v, $foo)}"})
             .with_headers(**{"User-Agent": "HttpRunner/${get_httprunner_version()}"})

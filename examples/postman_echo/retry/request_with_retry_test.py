@@ -56,7 +56,7 @@ class TestCaseRequestWithRetry(HttpRunner):
     teststeps = [
         Step(
             RunRequest("get with params and retry 3 times")
-            .retry_on_failure(3, 0.5)
+            .retry_on_failure(3, 0.5, is_relay_export=True)
             .with_variables(**{"foo1": "bar11", "foo2": "bar21"})
             .post("/post")
             .with_json({"foo1": "$foo1", "foo2": "$foo2", "array": "$array"})
