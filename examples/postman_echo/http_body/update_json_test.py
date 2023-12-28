@@ -5,11 +5,7 @@ class TestCaseUpdateJson(HttpRunner):
 
     config = (
         Config("test update json")
-        .variables(**{
-            "foo": 1,
-            "bar": 2,
-            "baz": 3
-        })
+        .variables(**{"foo": 1, "bar": 2, "baz": 3})
         .base_url("https://postman-echo.com")
         .verify(False)
     )
@@ -18,15 +14,8 @@ class TestCaseUpdateJson(HttpRunner):
         Step(
             RunRequest("call once && is_update_before_json = True && both dict")
             .post("/post")
-            .with_json({
-                "foo": 3,
-                "baz": "$invalid_var"
-            })
-            .update_json_object({
-                "foo": "$foo",
-                "bar": "$bar",
-                "baz": "$baz"
-            })
+            .with_json({"foo": 3, "baz": "$invalid_var"})
+            .update_json_object({"foo": "$foo", "bar": "$bar", "baz": "$baz"})
             .validate()
             .assert_equal("body.json.foo", 1)
             .assert_equal("body.json.bar", 2)
@@ -44,18 +33,8 @@ class TestCaseUpdateJson(HttpRunner):
         Step(
             RunRequest("test deep is True")
             .post("/post")
-            .with_json({
-                "data": {
-                    "foo": 3,
-                    "baz": "$baz"
-                }
-            })
-            .update_json_object({
-                "data": {
-                    "foo": "$foo",
-                    "bar": "$bar"
-                }
-            })
+            .with_json({"data": {"foo": 3, "baz": "$baz"}})
+            .update_json_object({"data": {"foo": "$foo", "bar": "$bar"}})
             .validate()
             .assert_equal("body.json.data.foo", 1)
             .assert_equal("body.json.data.bar", 2)
@@ -64,18 +43,8 @@ class TestCaseUpdateJson(HttpRunner):
         Step(
             RunRequest("test deep is False")
             .post("/post")
-            .with_json({
-                "data": {
-                    "foo": 3,
-                    "baz": "$baz"
-                }
-            })
-            .update_json_object({
-                "data": {
-                    "foo": "$foo",
-                    "bar": "$bar"
-                }
-            }, False)
+            .with_json({"data": {"foo": 3, "baz": "$baz"}})
+            .update_json_object({"data": {"foo": "$foo", "bar": "$bar"}}, False)
             .validate()
             .assert_equal("body.json.data.foo", "$foo")
             .assert_equal("body.json.data.bar", "$bar")
@@ -83,20 +52,12 @@ class TestCaseUpdateJson(HttpRunner):
         ),
         Step(
             RunRequest("set json and json_update with variable")
-            .with_variables(**{
-                "init_json": {
-                    "data": {
-                        "foo": 3,
-                        "baz": "$baz"
-                    }
-                },
-                "update_json": {
-                    "data": {
-                        "foo": "$foo",
-                        "bar": "$bar"
-                    }
+            .with_variables(
+                **{
+                    "init_json": {"data": {"foo": 3, "baz": "$baz"}},
+                    "update_json": {"data": {"foo": "$foo", "bar": "$bar"}},
                 }
-            })
+            )
             .post("/post")
             .with_json("$init_json")
             .update_json_object("$update_json", True)
@@ -108,21 +69,9 @@ class TestCaseUpdateJson(HttpRunner):
         Step(
             RunRequest("call twice")
             .post("/post")
-            .with_json({
-                "data": {
-                    "foo": "$foo"
-                }
-            })
-            .update_json_object({
-                "data": {
-                    "bar": "$bar"
-                }
-            })
-            .update_json_object({
-                "data": {
-                    "baz": "$baz"
-                }
-            })
+            .with_json({"data": {"foo": "$foo"}})
+            .update_json_object({"data": {"bar": "$bar"}})
+            .update_json_object({"data": {"baz": "$baz"}})
             .validate()
             .assert_equal("body.json.data.foo", 1)
             .assert_equal("body.json.data.bar", 2)

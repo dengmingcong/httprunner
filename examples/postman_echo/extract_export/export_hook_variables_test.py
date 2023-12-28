@@ -1,9 +1,7 @@
-from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
-
-
-from ..request_methods.base_request import (
+from examples.postman_echo.base_request import (
     TestCaseRequestAndExport as RequestAndExport,
 )
+from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
 
 
 class TestExportHookVariables(HttpRunner):
