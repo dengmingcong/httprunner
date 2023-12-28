@@ -10,12 +10,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
 
-from .request_with_functions_test import (
-    TestCaseRequestWithFunctions as RequestWithFunctions,
+from examples.postman_echo.retry.request_with_retry_test import (
+    TestCaseRequestWithRetry as RequestWithRetry,
 )
 
 
-class TestCaseRequestWithTestcaseReference(HttpRunner):
+class TestCaseRequestWithTestcaseReferenceAndRetry(HttpRunner):
 
     config = (
         Config("request methods testcase: reference testcase")
@@ -28,7 +28,6 @@ class TestCaseRequestWithTestcaseReference(HttpRunner):
         )
         .base_url("https://postman-echo.com")
         .verify(False)
-        .export("foo3")
     )
 
     teststeps = [
@@ -38,7 +37,7 @@ class TestCaseRequestWithTestcaseReference(HttpRunner):
                 **{"foo1": "testcase_ref_bar1", "expect_foo1": "testcase_ref_bar1"}
             )
             .setup_hook("${sleep(0.1)}")
-            .call(RequestWithFunctions)
+            .call(RequestWithRetry)
             .teardown_hook("${sleep(0.2)}")
             .export(*["foo3"])
         ),
@@ -62,4 +61,4 @@ class TestCaseRequestWithTestcaseReference(HttpRunner):
 
 
 if __name__ == "__main__":
-    TestCaseRequestWithTestcaseReference().test_start()
+    TestCaseRequestWithTestcaseReferenceAndRetry().test_start()

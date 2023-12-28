@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
 from httprunner.exceptions import ParamsError, VariableNotFound
 
-from .base_request import (
+from examples.postman_echo.request_methods.base_request import (
     TestCaseRequestAndExport as RequestAndExport,
 )
 

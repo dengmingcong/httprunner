@@ -13,7 +13,7 @@ from httprunner import HttpRunner, Config, Step, RunRequest
 from .request_with_functions_test import (
     TestCaseRequestWithFunctions as RequestWithFunctions,
 )
-from .request_with_testcase_reference_test import (
+from examples.postman_echo.run_testcase.request_with_testcase_reference_test import (
     TestCaseRequestWithTestcaseReference as RequestWithTestcaseReference,
 )
 
