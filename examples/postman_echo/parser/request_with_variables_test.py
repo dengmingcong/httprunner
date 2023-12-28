@@ -100,7 +100,7 @@ class TestCaseRequestWithVariables(HttpRunner):
                 {
                     "foo": "${pyexp(foo.to_dict())}",
                     "bar": "${pyexp(bar.to_dict())}",
-                    "baz": "$foo"
+                    "baz": "$foo",
                 }
             )
             .export()
