@@ -2,6 +2,22 @@
 
 <!--next-version-placeholder-->
 
+## v3.35.0 (2023-12-28)
+
+### Feature
+
+* Failed steps will not export vars ([`b2987b7`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b2987b764fc602104c5144bf4382eb8933a9deda))
+* Support exporting variables relay when retrying ([`0e4eac7`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/0e4eac77481ea837016ea6c19d73ecfac0ebb117))
+
+### Fix
+
+* Variables in class attribute are changed unexpectedly ([`0d422a4`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/0d422a47f8c954f79322f59c84dac209991edfd1))
+* Deepcopy cause changes applied on compound data lost ([`ba22b19`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ba22b19544384112150b0f00280ba3cfa9be5760))
+* Variables added by teardown hooks cannot be exported ([`627e8d5`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/627e8d5d6399c451ecc875334a91956c1397e4df))
+* Make exported variables show in allure the same with that were actually exported ([`0737377`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/073737740e17cab32d7b52d742ff4838d17cb6d4))
+* Variables exported by intermediate requests when retrying cause surprise ([`ba43758`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ba43758045554dc216576bb2999700529f2492a7))
+* Variables in step name were not parsed ([`8498b31`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/8498b31a28754a037459acb45c978bf8b43d772e))
+
 ## v3.34.1 (2023-12-27)
 
 ### Fix
