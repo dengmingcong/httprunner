@@ -6,7 +6,7 @@ from loguru import logger
 from httprunner.core.allure.runrequest.export_vars import save_extract_export_vars
 from httprunner.core.allure.runrequest.http_session_data import save_http_session_data
 from httprunner.core.allure.runrequest.validation_result import save_validation_result
-from httprunner.core.runner.export_request_step_vars import export_request_variables
+from httprunner.core.runner.export_request_step_vars import export_extracted_variables
 from httprunner.core.runner.retry import (
     gen_retry_step_title,
     is_meet_stop_retry_condition,
@@ -55,7 +55,7 @@ def save_run_request_retry(
         is_pass = True
 
         # always export variables when success
-        export_request_variables(
+        export_extracted_variables(
             step_data, step_context_variables, session_variables, extract_mapping
         )
 
@@ -77,7 +77,16 @@ def save_run_request_retry(
             and step.is_relay_export
             and not is_last_retry(step, is_pass, is_stop_retry)
         ):
-            export_request_variables(
+            export_extracted_variables(
+                step_data,
+                step_context_variables,
+                session_variables,
+                extract_mapping,
+            )
+
+        # if this is the last retry and failed, export variables
+        if not is_pass and is_last_retry(step, is_pass, is_stop_retry):
+            export_extracted_variables(
                 step_data,
                 step_context_variables,
                 session_variables,
@@ -106,6 +115,15 @@ def save_run_request_retry(
                 if is_stop_retry:
                     raise RetryInterruptError(exception)
     else:
+        # export variables even if failed
+        if not is_pass:
+            export_extracted_variables(
+                step_data,
+                step_context_variables,
+                session_variables,
+                extract_mapping,
+            )
+
         save_run_request(
             session_data,
             response_obj,

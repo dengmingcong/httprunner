@@ -75,7 +75,7 @@ def extract_request_variables(
     return extract_mapping
 
 
-def export_request_variables(
+def export_extracted_variables(
     step_data: StepData,
     step_context_variables: dict,
     session_variables: dict,

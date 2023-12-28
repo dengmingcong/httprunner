@@ -18,6 +18,7 @@ from httprunner.core.allure.runrequest.export_vars import save_export_vars
 from httprunner.core.allure.runrequest.runrequest import save_run_request_retry
 from httprunner.core.runner.export_request_step_vars import (
     extract_request_variables,
+    export_extracted_variables,
 )
 from httprunner.core.runner.parametrized_step import expand_parametrized_step
 from httprunner.core.runner.retry import (
@@ -343,10 +344,11 @@ class HttpRunner(object):
         if step.setup_hooks:
             self.__call_hooks(step.setup_hooks, step_variables, "setup testcase")
 
+        httprunner_obj = HttpRunner()
         try:
             if hasattr(step.testcase, "config") and hasattr(step.testcase, "teststeps"):
-                httprunner_obj = (
-                    step.testcase()
+                (
+                    (httprunner_obj := step.testcase())
                     .set_continue_on_failure(self.__continue_on_failure)
                     .with_session(self.__session)
                     .with_case_id(self.__case_id)
@@ -361,9 +363,8 @@ class HttpRunner(object):
                     ref_testcase_path = os.path.join(
                         self.__project_meta.httprunner_root_path, step.testcase
                     )
-
-                httprunner_obj = (
-                    HttpRunner()
+                (
+                    (httprunner_obj := HttpRunner())
                     .set_continue_on_failure(self.__continue_on_failure)
                     .with_session(self.__session)
                     .with_case_id(self.__case_id)
@@ -388,15 +389,43 @@ class HttpRunner(object):
 
             # step.variables and variables added by hooks will be part of nested testcase's session variables,
             # and thus can be exported.
-            step_data.export_vars = httprunner_obj.get_export_variables()
+            extract_mapping = httprunner_obj.get_export_variables()
 
-            # update step context variables with new extracted variables
-            step_context_variables.update(step_data.export_vars)
-
-            # put extracted variables to session variables for later exporting
-            self.__session_variables.update(step_data.export_vars)
+            export_extracted_variables(
+                step_data,
+                step_context_variables,
+                self.__session_variables,
+                extract_mapping,
+            )
 
             self.__step_datas.append(step_data)
+        except Exception:
+            # list of step data
+            step_data.data = httprunner_obj.get_step_datas()
+
+            # when testcase step failed, there are two cases:
+            #   1. continue_on_failure was set to True, then exporting variables is expected
+            #   2. continue_on_failure was set to False, then the entire testcase failed, showing exporting variables in
+            #       allure report is OK
+            try:
+                extract_mapping = httprunner_obj.get_export_variables()
+            except Exception as e:
+                logger.warning(
+                    f"failed to get exported variables from failed testcase step: {repr(e)}"
+                )
+                extract_mapping = {}
+
+            export_extracted_variables(
+                step_data,
+                step_context_variables,
+                self.__session_variables,
+                extract_mapping,
+            )
+
+            self.__step_datas.append(step_data)
+
+            # re-raise exception
+            raise
         finally:
             try:
                 # save exported variables to allure report for RunTestCase step
