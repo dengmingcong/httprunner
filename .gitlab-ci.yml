@@ -87,7 +87,7 @@ smoke test:
   script:
     - |
       cd examples
-      poetry run pytest hardcode_test.py --debugtalk-py-file="debugtalk.py" --disable-warnings --alluredir=allure-results --clean-alluredir
+      poetry run pytest . --debugtalk-py-file="debugtalk.py" --disable-warnings --alluredir=allure-results --clean-alluredir
   after_script:
     - |
       cd examples
