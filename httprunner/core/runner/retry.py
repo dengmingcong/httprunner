@@ -3,6 +3,7 @@ from typing import NoReturn
 from loguru import logger
 
 from httprunner.configs.emoji import emojis
+from httprunner.exceptions import ValidationFailure
 from httprunner.models import TStep
 from httprunner.parser import parse_data
 
@@ -77,14 +78,18 @@ def gen_retry_step_title(
     return title
 
 
-def is_last_retry(step: TStep, is_pass: bool, is_stop_retry: bool) -> bool:
-    """Return True if this is the last retry."""
+def is_final_request(step: TStep, functions: dict, exception: Exception) -> bool:
+    """Return True if this is the final request (no more retrying will be executed)."""
     # success will stop retrying automatically
-    if is_pass:
+    if not exception:
+        return True
+
+    # exception other than ValidationFailure will stop retrying automatically
+    if not isinstance(exception, ValidationFailure):
         return True
 
     # this request will become last retry if stopping retrying condition was met
-    if is_stop_retry:
+    if is_meet_stop_retry_condition(step, functions):
         return True
 
     # this request will become last retry if remaining retry times is 0

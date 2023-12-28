@@ -10,7 +10,7 @@ from httprunner.core.runner.export_request_step_vars import export_extracted_var
 from httprunner.core.runner.retry import (
     gen_retry_step_title,
     is_meet_stop_retry_condition,
-    is_last_retry,
+    is_final_request,
 )
 from httprunner.exceptions import RetryInterruptError, ValidationFailure
 from httprunner.models import (
@@ -54,7 +54,11 @@ def save_run_request_retry(
     else:
         is_pass = True
 
-        # always export variables when success
+    # if retrying is needed and is_relay_export was set to False, do not export variables,
+    # otherwise export variables.
+    if not (
+        not is_final_request(step, functions, exception) and not step.is_relay_export
+    ):
         export_extracted_variables(
             step_data, step_context_variables, session_variables, extract_mapping
         )
@@ -70,28 +74,6 @@ def save_run_request_retry(
             is_stop_retry = True
         else:
             is_stop_retry = False
-
-        # if step.is_relay_export is True and this request is not the last retry, export variables
-        if (
-            not is_pass
-            and step.is_relay_export
-            and not is_last_retry(step, is_pass, is_stop_retry)
-        ):
-            export_extracted_variables(
-                step_data,
-                step_context_variables,
-                session_variables,
-                extract_mapping,
-            )
-
-        # if this is the last retry and failed, export variables
-        if not is_pass and is_last_retry(step, is_pass, is_stop_retry):
-            export_extracted_variables(
-                step_data,
-                step_context_variables,
-                session_variables,
-                extract_mapping,
-            )
 
         step_title = gen_retry_step_title(
             step,
@@ -115,15 +97,6 @@ def save_run_request_retry(
                 if is_stop_retry:
                     raise RetryInterruptError(exception)
     else:
-        # export variables even if failed
-        if not is_pass:
-            export_extracted_variables(
-                step_data,
-                step_context_variables,
-                session_variables,
-                extract_mapping,
-            )
-
         save_run_request(
             session_data,
             response_obj,
