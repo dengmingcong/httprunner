@@ -76,11 +76,12 @@ from request_methods.request_with_functions_test import (
                 content,
             )
             self.assertIn(
-                ".call(RequestWithFunctions)", content,
+                ".call(RequestWithFunctions)",
+                content,
             )
 
     def test_make_testcase_folder(self):
-        path = ["examples/postman_echo/request_methods/"]
+        path = ["examples/postman_echo/parser/"]
         testcase_python_list = main_make(path)
         self.assertIn(
             os.path.join(
@@ -88,7 +89,7 @@ from request_methods.request_with_functions_test import (
                 os.path.join(
                     "examples",
                     "postman_echo",
-                    "request_methods",
+                    "parser",
                     "request_with_functions_test.py",
                 ),
             ),
@@ -105,9 +106,9 @@ from request_methods.request_with_functions_test import (
         loader.project_meta = None
         self.assertEqual(
             ensure_file_abs_path_valid(
-                os.path.join(os.getcwd(), "examples", "postman_echo", "request_methods")
+                os.path.join(os.getcwd(), "examples", "postman_echo")
             ),
-            os.path.join(os.getcwd(), "examples", "postman_echo", "request_methods"),
+            os.path.join(os.getcwd(), "examples", "postman_echo"),
         )
         loader.project_meta = None
         self.assertEqual(
@@ -116,7 +117,8 @@ from request_methods.request_with_functions_test import (
         )
         loader.project_meta = None
         self.assertEqual(
-            ensure_file_abs_path_valid(os.getcwd()), os.getcwd(),
+            ensure_file_abs_path_valid(os.getcwd()),
+            os.getcwd(),
         )
         loader.project_meta = None
         self.assertEqual(
@@ -202,7 +204,11 @@ from request_methods.request_with_functions_test import (
     def test_make_teststep_chain_style(self):
         step = {
             "name": "get with params",
-            "variables": {"foo1": "bar1", "foo2": 123, "sum_v": "${sum_two(1, 2)}", },
+            "variables": {
+                "foo1": "bar1",
+                "foo2": 123,
+                "sum_v": "${sum_two(1, 2)}",
+            },
             "request": {
                 "method": "GET",
                 "url": "/get",

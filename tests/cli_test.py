@@ -53,7 +53,7 @@ class TestCli(unittest.TestCase):
             exit_code = pytest.main(
                 [
                     "-s",
-                    "request_methods/request_with_testcase_reference_test.py",
+                    "run_testcase/request_with_testcase_reference_test.py",
                 ]
             )
             self.assertEqual(exit_code, 0)
