@@ -26,12 +26,13 @@ def save_run_request(
     response_obj: ResponseObject,
     extract_mapping: dict,
     exported_vars: dict,
+    is_export_extract_same,
 ) -> NoReturn:
     """Save RunRequest data to allure report."""
     try:
         save_http_session_data(session_data)
         save_validation_result(response_obj)
-        save_extract_export_vars(extract_mapping, exported_vars)
+        save_extract_export_vars(extract_mapping, exported_vars, is_export_extract_same)
     except KeyError:
         logger.warning("Allure data was not saved.")
 
@@ -56,9 +57,10 @@ def save_run_request_retry(
 
     # if retrying is needed and is_relay_export was set to False, do not export variables,
     # otherwise export variables.
-    if not (
-        not is_final_request(step, functions, exception) and not step.is_relay_export
-    ):
+    if not is_final_request(step, functions, exception) and not step.is_relay_export:
+        is_export_extract_same = False
+    else:
+        is_export_extract_same = True
         export_extracted_variables(
             step_data, step_context_variables, session_variables, extract_mapping
         )
@@ -87,6 +89,7 @@ def save_run_request_retry(
                 response_obj,
                 extract_mapping,
                 step_data.export_vars,
+                is_export_extract_same,
             )
             if not is_pass:
                 # mark step as failed in allure if this is the last retry and exception was raised
@@ -102,6 +105,7 @@ def save_run_request_retry(
             response_obj,
             extract_mapping,
             step_data.export_vars,
+            is_export_extract_same,
         )
 
     # re-raise exception
