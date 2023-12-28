@@ -101,6 +101,7 @@ class TStep(BaseModel):
     remaining_retry_times: Union[int, str] = 0  # times remaining to retry
     max_retry_times: Union[int, str] = 0  # max retry times
     retry_interval: Union[int, float, str] = 0
+    is_retry_args_resolved: bool = False
     stop_retry_if: Any = None
     is_ever_retried: bool = None  # will be set to True when retry occurs
     skip_if_condition: Any = None
