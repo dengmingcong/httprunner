@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
 
-from examples.postman_echo.sub_step import (
+from examples.postman_echo.continue_on_failure.sub_step import (
     TestCaseRequestWithFunctions as RequestWithFunctions,
 )
 
@@ -38,7 +38,7 @@ class TestCaseRequestWithTestcaseReference(HttpRunner):
 
     teststeps = [
         Step(
-            RunTestCase("request with functions")
+            RunTestCase("export even if testcase failed")
             .with_variables(
                 **{"foo1": "testcase_ref_bar1", "expect_foo1": "testcase_ref_bar1"}
             )
@@ -48,7 +48,7 @@ class TestCaseRequestWithTestcaseReference(HttpRunner):
             .export(*["foo3", "app_version_1", "app_version_3"])
         ),
         Step(
-            RunRequest("post form data")
+            RunRequest("export even if request failed")
             .with_variables(**{"foo1": "bar1"})
             .post("/post")
             .with_headers(
@@ -60,6 +60,21 @@ class TestCaseRequestWithTestcaseReference(HttpRunner):
                 {
                     "app_version_1": "$app_version_1",
                     "app_version_3": "$app_version_3",
+                }
+            )
+            .extract()
+            .with_jmespath("body.json.app_version_1", "app_version_1_1")
+            .with_jmespath("body.json.app_version_3", "app_version_3_1")
+            .validate()
+            .assert_equal("status_code", "bad")
+        ),
+        Step(
+            RunRequest("request with previous exported vars")
+            .post("/post")
+            .with_json(
+                {
+                    "app_version_1": "$app_version_1_1",
+                    "app_version_3": "$app_version_3_1",
                 }
             )
             .validate()

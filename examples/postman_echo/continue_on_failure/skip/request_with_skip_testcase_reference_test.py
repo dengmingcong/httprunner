@@ -13,7 +13,7 @@ from httprunner.exceptions import MultiStepsFailedError
 
 from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
 
-from examples.postman_echo.sub_step import (
+from examples.postman_echo.continue_on_failure.sub_step import (
     TestCaseRequestWithFunctions as RequestWithFunctions,
 )
 
