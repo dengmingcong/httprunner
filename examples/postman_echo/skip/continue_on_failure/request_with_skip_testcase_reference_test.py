@@ -8,19 +8,18 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
-from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
-
-from .request_with_retry_test import (
-    TestCaseRequestWithRetry as RequestWithRetry,
-)
-
-
 import pytest
 from httprunner.exceptions import MultiStepsFailedError
 
+from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
+
+from examples.postman_echo.sub_step import (
+    TestCaseRequestWithFunctions as RequestWithFunctions,
+)
+
 
 @pytest.mark.xfail(raises=MultiStepsFailedError)
-class TestCaseRequestWithTestcaseReferenceAndRetry(HttpRunner):
+class TestCaseRequestWithSkipTestcaseReference(HttpRunner):
 
     config = (
         Config("request methods testcase: reference testcase")
@@ -38,16 +37,6 @@ class TestCaseRequestWithTestcaseReferenceAndRetry(HttpRunner):
 
     teststeps = [
         Step(
-            RunTestCase("request with functions")
-            .with_variables(
-                **{"foo1": "testcase_ref_bar1", "expect_foo1": "testcase_ref_bar1"}
-            )
-            .setup_hook("${sleep(0.1)}")
-            .call(RequestWithRetry)
-            .teardown_hook("${sleep(0.2)}")
-            .export(*["foo3"])
-        ),
-        Step(
             RunRequest("post form data")
             .with_variables(**{"foo1": "bar1"})
             .post("/post")
@@ -57,14 +46,32 @@ class TestCaseRequestWithTestcaseReferenceAndRetry(HttpRunner):
                     "Content-Type": "application/x-www-form-urlencoded",
                 }
             )
-            .with_data("foo1=$foo1&foo2=$foo3")
+            .with_data("foo1=$foo1")
+            .extract()
+            .with_jmespath("status_code", "status_code")
             .validate()
-            .assert_equal("status_code", 200)
-            .assert_equal("body.form.foo1", "bad")
-            .assert_equal("body.form.foo2", "bar21")
+            .assert_equal("status_code", "bad")
+        ),
+        Step(
+            RunTestCase("skip request with functions")
+            .skip_if("$status_code==200")
+            .with_variables(**{"expect_foo1": "testcase_ref_bar1"})
+            .setup_hook("${sleep(0.1)}")
+            .call(RequestWithFunctions)
+            .teardown_hook("${sleep(0.2)}")
+            .export(*["foo3"])
+        ),
+        Step(
+            RunTestCase("do not skip")
+            .skip_if("$status_code!=200")
+            .with_variables(**{"expect_foo1": "testcase_ref_bar1"})
+            .setup_hook("${sleep(0.1)}")
+            .call(RequestWithFunctions)
+            .teardown_hook("${sleep(0.2)}")
+            .export(*["foo3"])
         ),
     ]
 
 
 if __name__ == "__main__":
-    TestCaseRequestWithTestcaseReferenceAndRetry().test_start()
+    TestCaseRequestWithSkipTestcaseReference().test_start()

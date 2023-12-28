@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from httprunner import HttpRunner, Config, Step, RunRequest, RunTestCase
 
-from .sub_step import (
+from examples.postman_echo.sub_step import (
     TestCaseRequestWithFunctions as RequestWithFunctions,
 )
 
