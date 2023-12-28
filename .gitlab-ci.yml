@@ -87,7 +87,9 @@ smoke test:
   script:
     - |
       cd examples
-      poetry run pytest . --debugtalk-py-file="debugtalk.py" --disable-warnings
+      poetry run pytest . --debugtalk-py-file="debugtalk.py" --disable-warnings --alluredir=allure-results --clean-alluredir
+      allure generate -c -o /opt/lampp/htdocs/reports/httprunner/smoketest
+      echo "smoke test report: http://nexus-testteam.vesync.co/reports/httprunner/smoketest"
 
 semantic release:
   stage: publish
