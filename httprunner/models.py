@@ -1,5 +1,7 @@
 import os
+from copy import deepcopy
 from enum import Enum
+from types import ModuleType
 from typing import Any, Optional, IO
 from typing import Dict, Text, Union, Callable
 from typing import List
@@ -27,6 +29,31 @@ Validators = List[Dict]
 Env = Dict[Text, Any]
 
 
+class StableDeepCopyDict(dict):
+    """
+    Custom dict that can handle unpicklable objects properly.
+
+    Reference:
+        builtin module copy.py, function _deepcopy_dict
+    """
+
+    def __deepcopy__(self, memo) -> "StableDeepCopyDict":
+        """deepcopy that can handle unpicklable object properly."""
+        # try deepcopy with builtin deepcopy first
+        cls = type(self)
+        d = cls.__new__(cls)
+        memo[id(self)] = d
+
+        for key, value in self.items():
+            # do not deepcopy if value is a module object
+            if isinstance(value, ModuleType):
+                d[deepcopy(key, memo)] = value
+            else:
+                d[deepcopy(key, memo)] = deepcopy(value, memo)
+
+        return d
+
+
 class MethodEnum(Text, Enum):
     GET = "GET"
     POST = "POST"
@@ -42,8 +69,8 @@ class TConfig(BaseModel):
     verify: Verify = False
     base_url: BaseUrl = ""
     # Text: prepare variables in debugtalk.py, ${gen_variables()}
-    variables: Union[VariablesMapping, Text] = {}
-    parameters: Union[VariablesMapping, Text] = {}
+    variables: Union[StableDeepCopyDict, Text] = StableDeepCopyDict()
+    parameters: Union[StableDeepCopyDict, Text] = StableDeepCopyDict()
     # setup_hooks: Hooks = []
     # teardown_hooks: Hooks = []
     export: ConfigExport = []
@@ -51,10 +78,14 @@ class TConfig(BaseModel):
     weight: int = 1
     continue_on_failure: bool = False
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
 
 class TRequestConfig(BaseModel):
     name: Name
-    variables: Union[VariablesMapping, Text] = {}
+    variables: Union[StableDeepCopyDict, Text] = StableDeepCopyDict()
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class TRequest(BaseModel):
@@ -110,12 +141,12 @@ class TStep(BaseModel):
     skip_reason: Union[str, None] = None
     request: Union[TRequest, None] = None
     testcase: Union[Text, Callable, None] = None
-    variables: VariablesMapping = {}
+    variables: StableDeepCopyDict = StableDeepCopyDict()
     raw_variables: str = None
     is_variables_resolved: bool = False
     is_deep_parse_raw_variables: bool = None
-    private_variables: VariablesMapping = (
-        {}
+    private_variables: StableDeepCopyDict = (
+        StableDeepCopyDict()
     )  # variables set by HttRunnerRequest request
     setup_hooks: Hooks = []
     teardown_hooks: Hooks = []
@@ -135,6 +166,8 @@ class TStep(BaseModel):
 
     # HttpRunnerRequest config
     request_config: TRequestConfig = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class TestCase(BaseModel):

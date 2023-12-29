@@ -12,7 +12,7 @@ from sentry_sdk import capture_exception
 
 from httprunner import loader, utils, exceptions
 from httprunner.exceptions import VariableNotFound
-from httprunner.models import VariablesMapping, FunctionsMapping
+from httprunner.models import VariablesMapping, FunctionsMapping, StableDeepCopyDict
 
 absolute_http_url_regexp = re.compile(r"^https?://", re.I)
 
@@ -588,7 +588,7 @@ def parse_data(
 
 def parse_variables_mapping(
     variables_mapping: VariablesMapping, functions_mapping: FunctionsMapping = None
-) -> VariablesMapping:
+) -> StableDeepCopyDict:
     """
     All variables specified in argument 'variables_mapping' must be parsed on variables_mapping and functions_mapping.
 
@@ -596,7 +596,7 @@ def parse_variables_mapping(
         Variables whose name starting with '_r_' will be marked as parsed and the value will be kept as is.
     """
 
-    parsed_variables: VariablesMapping = {}
+    parsed_variables: StableDeepCopyDict = StableDeepCopyDict()
     not_found_variables: set = set()
 
     start = time.time()
