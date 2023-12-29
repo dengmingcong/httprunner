@@ -17,6 +17,7 @@ variables:
   IS_RUN_SMOKE_TEST: "true"
   POETRY_INSTALL_COMMAND: poetry install --without dev
   NEXUS_HOST: 10.40.9.73
+  REPORT_HOST: nexus-testteam.vesync.co
 
 cache:
   key:
@@ -91,8 +92,8 @@ smoke test:
   after_script:
     - |
       cd examples
-      allure generate -c -o /opt/lampp/htdocs/reports/httprunner/smoketest
-      echo "smoke test report: http://nexus-testteam.vesync.co/reports/httprunner/smoketest"
+      allure generate -c -o /opt/lampp/htdocs/reports/$CI_PROJECT_NAME/smoketest
+      echo "smoke test report: http://$REPORT_HOST/reports/$CI_PROJECT_NAME/smoketest"
 
 semantic release:
   stage: publish
