@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v3.36.0 (2023-12-29)
+
+### Feature
+
+* Add validator assert_lambda to support validating with custom validators ([`8e4bc84`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/8e4bc84d1c835f03f4f521fdd5116225839ae987))
+
+### Fix
+
+* TypeError: cannot pickle 'module' object ([`681833b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/681833b69c30f34848a653b5373cbaee581e36c2))
+
 ## v3.35.0 (2023-12-28)
 
 ### Feature
