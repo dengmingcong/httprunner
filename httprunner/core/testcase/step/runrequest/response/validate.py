@@ -447,5 +447,32 @@ class StepRequestValidation(object):
         )
         return self
 
+    def assert_lambda(
+        self,
+        jmespath_expression: Text,
+        expected_value: Union[Callable, tuple[Callable, dict]],
+        message: Text = "",
+    ):
+        """
+        Assert with custom validator.
+
+        The `expected_value` can be a callable or a tuple.
+            1. if `expected_value` is callable, the callable should accept only one positional argument.
+                the jmespath searching result will be passed to the callable as the first positional argument.
+                >>> def custom_validator(response_data: dict):
+                ...     assert response_data["foo"] == "bar"
+                >>> StepRequestValidation().assert_lambda("body.result", custom_validator)
+            2. if `expected_value` is a tuple, the first element must be callable, the second element must a dict.
+                the jmespath searching result will be pass to the callable as the first positional argument,
+                the second dict element will be passed as keyword arguments to the callable.
+                >>> def custom_validator(response_data: dict, **kwargs):
+                ...     assert response_data["foo"] == kwargs["expected_value"]
+                >>> StepRequestValidation().assert_lambda("body.result", (custom_validator, {"expected_value": "bar"}))
+        """
+        self._step_context.validators.append(
+            {"assert_lambda": [jmespath_expression, expected_value, message]}
+        )
+        return self
+
     def perform(self) -> TStep:
         return self._step_context

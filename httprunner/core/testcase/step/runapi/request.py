@@ -21,6 +21,7 @@ from httprunner.core.testcase.step.runrequest.response.validate import (
 )
 from httprunner.models import (
     TStep,
+    StableDeepCopyDict,
 )
 
 
@@ -68,7 +69,7 @@ class HttpRunnerRequest(
 
         # move variables from step.variables to step.private_variables
         step.private_variables = step.variables
-        step.variables = {}
+        step.variables = StableDeepCopyDict()
         self._step_context = step
 
         # update name with data of config

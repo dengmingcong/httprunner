@@ -6,13 +6,14 @@ from typing import (
 
 from httprunner.models import (
     TConfig,
+    StableDeepCopyDict,
 )
 
 
 class Config(object):
     def __init__(self, name: Text):
         self.__name = name
-        self.__variables = {}
+        self.__variables = StableDeepCopyDict()
         self.__base_url = ""
         self.__verify = False
         self.__continue_on_failure = False
