@@ -312,3 +312,23 @@ def is_truthy(check_value: Any, expect_value: Any, message: Text = ""):  # noqa
 def is_falsy(check_value: Any, expect_value: Any, message: Text = ""):  # noqa
     """Assert value is falsy."""
     assert not bool(check_value), message
+
+
+def assert_lambda(
+    check_value: Any,
+    expect_value: Union[Callable, tuple[Callable, dict]],
+    message: Text = "",
+):
+    """Assert with custom validator."""
+    try:
+        if isinstance(expect_value, Callable):
+            expect_value(check_value)
+        elif isinstance(expect_value, tuple):
+            function, kwargs = expect_value
+            function(check_value, **kwargs)
+        else:
+            raise ParamsError(
+                f"expect_value should be callable or a tuple, but got {type(expect_value)}"
+            )
+    except AssertionError as e:
+        raise AssertionError(f"{message}\n{e}")
