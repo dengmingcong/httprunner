@@ -40,5 +40,10 @@ class TestHttpRunnerRequestConfigContainModule(HttpRunner):
     )
 
     teststeps = [
-        Step(BaseRequest()),
+        Step(
+            BaseRequest()
+            .validate()
+            .assert_equal("status_code", 200)
+            .assert_equal("body.json.data", '{"1": 1}')
+        ),
     ]
