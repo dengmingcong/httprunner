@@ -1,7 +1,6 @@
 import os
 from copy import deepcopy
 from enum import Enum
-from types import ModuleType
 from typing import Any, Optional, IO
 from typing import Dict, Text, Union, Callable
 from typing import List
@@ -39,17 +38,19 @@ class StableDeepCopyDict(dict):
 
     def __deepcopy__(self, memo) -> "StableDeepCopyDict":
         """deepcopy that can handle unpicklable object properly."""
-        # try deepcopy with builtin deepcopy first
         cls = type(self)
         d = cls.__new__(cls)
         memo[id(self)] = d
 
         for key, value in self.items():
-            # do not deepcopy if value is a module object
-            if isinstance(value, ModuleType):
-                d[deepcopy(key, memo)] = value
-            else:
-                d[deepcopy(key, memo)] = deepcopy(value, memo)
+            try:
+                # try deepcopy with builtin deepcopy first
+                value_copy = deepcopy(value, memo)
+            except TypeError:
+                # do not deepcopy if value is unpicklable
+                value_copy = value
+
+            d[deepcopy(key, memo)] = value_copy
 
         return d
 
