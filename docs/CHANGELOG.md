@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.36.1 (2024-01-05)
+
+### Fix
+
+* No sleep between two retries ([`08087db`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/08087dbfff0feb667d5ce00544df1063c51ed2c0))
+
 ## v3.36.0 (2023-12-29)
 
 ### Feature
