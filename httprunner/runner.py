@@ -586,6 +586,10 @@ class HttpRunner(object):
                 logger.info(
                     f"step '{step.name}' validation failed, wait {step.retry_interval} seconds and try again"
                 )
+
+                # fix: no sleep between two retries
+                time.sleep(step.retry_interval)
+
                 step.remaining_retry_times -= 1
                 self.__run_step(step, step_context_variables)
         else:
