@@ -4,7 +4,7 @@ from httprunner.models import TStep
 from httprunner.parser import parse_data
 
 
-def is_skip_step(step: TStep, step_context_variables: dict, functions: dict) -> bool:
+def is_skip_step(step: TStep, step_shell_variables: dict, functions: dict) -> bool:
     """Handle when skip_if or skip_unless was set."""
     # skip_if and skip_unless can not be set at the same time
     if step.skip_if_condition is not None and step.skip_unless_condition is not None:
@@ -18,7 +18,7 @@ def is_skip_step(step: TStep, step_context_variables: dict, functions: dict) -> 
     if step.skip_if_condition is not None:
         parsed_skip_condition = parse_data(
             step.skip_if_condition,
-            step_context_variables,
+            step_shell_variables,
             functions,
         )
         logger.debug(
@@ -32,7 +32,7 @@ def is_skip_step(step: TStep, step_context_variables: dict, functions: dict) -> 
         if parsed_skip_condition:
             parsed_skip_reason = parse_data(
                 step.skip_reason,
-                step_context_variables,
+                step_shell_variables,
                 functions,
             )
             logger.info(f"skip condition was met, reason: {parsed_skip_reason}")
@@ -45,7 +45,7 @@ def is_skip_step(step: TStep, step_context_variables: dict, functions: dict) -> 
     if step.skip_unless_condition is not None:
         parsed_run_condition = parse_data(
             step.skip_unless_condition,
-            step_context_variables,
+            step_shell_variables,
             functions,
         )
         logger.debug(
@@ -59,7 +59,7 @@ def is_skip_step(step: TStep, step_context_variables: dict, functions: dict) -> 
         if not parsed_run_condition:
             parsed_skip_reason = parse_data(
                 step.skip_reason,
-                step_context_variables,
+                step_shell_variables,
                 functions,
             )
             logger.info(f"skip condition was met, reason: {parsed_skip_reason}")
