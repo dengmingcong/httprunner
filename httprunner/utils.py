@@ -1,5 +1,4 @@
 import collections
-import copy
 import itertools
 import json
 import os.path
@@ -191,20 +190,16 @@ class ExtendJSONEncoder(json.JSONEncoder):
 
 
 def merge_variables(
-    variables: VariablesMapping, variables_to_be_overridden: VariablesMapping
+    variables: VariablesMapping, *variables_to_be_overridden: VariablesMapping
 ) -> StableDeepCopyDict:
-    """merge two variables mapping, the first variables have higher priority"""
-    step_new_variables = StableDeepCopyDict()
-    for key, value in variables.items():
-        if f"${key}" == value or "${" + key + "}" == value:
-            # e.g. {"base_url": "$base_url"}
-            # or {"base_url": "${base_url}"}
-            continue
+    """merge two variables mapping, the first one have the highest priority, the last one have the lowest priority."""
+    merged_variables = StableDeepCopyDict()
 
-        step_new_variables[key] = value
+    [merged_variables.update(var) for var in reversed(variables_to_be_overridden)]
 
-    merged_variables = StableDeepCopyDict(copy.copy(variables_to_be_overridden))
-    merged_variables.update(step_new_variables)
+    # the first variable mapping have the highest priority
+    merged_variables.update(variables)
+
     return merged_variables
 
 

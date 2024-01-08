@@ -595,6 +595,14 @@ def parse_variables_mapping(
     Note:
         Variables whose name starting with '_r_' will be marked as parsed and the value will be kept as is.
     """
+    # ignore variables that reference to itself
+    # e.g. {"base_url": "$base_url"}
+    # or {"base_url": "${base_url}"}
+    variables_mapping = {
+        key: value
+        for key, value in variables_mapping.items()
+        if not (f"${key}" == value or "${" + key + "}" == value)
+    }
 
     parsed_variables: StableDeepCopyDict = StableDeepCopyDict()
     not_found_variables: set = set()
