@@ -75,9 +75,6 @@ class HttpRunner(object):
     __step_datas: List[StepData] = []
     __session: HttpSession = None
 
-    # only variables in __session_variables can be exported,
-    # __session_variables will be set to step variables when running testcase step
-    __session_variables: VariablesMapping = {}
     # time
     __start_at: float = 0
     __duration: float = 0
@@ -110,6 +107,21 @@ class HttpRunner(object):
 
         # update config.path
         cls.config.path = inspect.getfile(cls)
+
+    def __getattr__(self, item):
+        """Make sure attribute `_session_variables` can be accessed.
+
+        Notes about self._session_variables:
+            1. self._session_variables are variables shared by all steps
+            2. only variables in self._session_variables can be exported
+            3. word `session` in self._session_variables means from the first step to the last step
+            4. in fact, only when calling `run()` method, self._session_variables may be initialized as non-empty dict
+        """
+        if item == "_session_variables":
+            setattr(self, "_session_variables", {})
+            return self._session_variables
+        else:
+            raise AttributeError(f"{self.__class__.__name__} has no attribute {item}")
 
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
@@ -146,7 +158,7 @@ class HttpRunner(object):
         return self
 
     def with_variables(self, variables: VariablesMapping) -> "HttpRunner":
-        self.__session_variables = variables
+        self._session_variables.update(variables)
         return self
 
     def set_continue_on_failure(self, is_continue_on_failure: bool) -> "HttpRunner":
@@ -304,7 +316,7 @@ class HttpRunner(object):
                 step_data,
                 extract_mapping,
                 step_context_variables,
-                self.__session_variables,
+                self._session_variables,
                 self.__session.data.stat.content_size,
                 None,
             )
@@ -317,7 +329,7 @@ class HttpRunner(object):
                 step_data,
                 extract_mapping,
                 step_context_variables,
-                self.__session_variables,
+                self._session_variables,
                 self.__session.data.stat.content_size,
                 e,
             )
@@ -392,7 +404,7 @@ class HttpRunner(object):
             export_extracted_variables(
                 step_data,
                 step_context_variables,
-                self.__session_variables,
+                self._session_variables,
                 extract_mapping,
             )
 
@@ -416,7 +428,7 @@ class HttpRunner(object):
             export_extracted_variables(
                 step_data,
                 step_context_variables,
-                self.__session_variables,
+                self._session_variables,
                 extract_mapping,
             )
 
@@ -596,7 +608,7 @@ class HttpRunner(object):
     def __parse_config(self, config: TConfig) -> NoReturn:
         """Parse TConfig instance."""
         # session variables > config variables
-        config.variables.update(self.__session_variables)
+        config.variables.update(self._session_variables)
         config.variables = parse_variables_mapping(
             config.variables, self.__project_meta.functions
         )
@@ -715,7 +727,7 @@ class HttpRunner(object):
                 set(self.__export.var_names).union(
                     set(self.__export.var_alias_mapping.keys())
                 )
-                - set(self.__session_variables.keys())
+                - set(self._session_variables.keys())
             ):
                 raise VariableNotFound(
                     f"fail to export variables {non_exist_vars} from session variables"
@@ -724,7 +736,7 @@ class HttpRunner(object):
         elif isinstance(self.__export, list):
             # Make sure variables specified exist in session variables.
             if non_exist_vars := set(self.__export) - set(
-                self.__session_variables.keys()
+                self._session_variables.keys()
             ):
                 raise VariableNotFound(
                     f"fail to export variables {non_exist_vars} from session variables."
@@ -753,16 +765,16 @@ class HttpRunner(object):
             for var_name in var_alias_mapping_keys_set:
                 var_alias = self.__export.var_alias_mapping[var_name]
                 export_vars_mapping[var_name] = (
-                    var_value := self.__session_variables[var_name]
+                    var_value := self._session_variables[var_name]
                 )
                 export_vars_mapping[var_alias] = var_value
 
             # export variable as var_name only
             for var_name in var_names_only_set:
-                export_vars_mapping[var_name] = self.__session_variables[var_name]
+                export_vars_mapping[var_name] = self._session_variables[var_name]
         else:
             for var_name in self.__export:
-                export_vars_mapping[var_name] = self.__session_variables[var_name]
+                export_vars_mapping[var_name] = self._session_variables[var_name]
 
         return export_vars_mapping
 
@@ -820,14 +832,12 @@ class HttpRunner(object):
         )
 
         # parse config name
-        config_variables = self.__config.variables
         if args:
-            config_variables.update(args[0])
+            self.__config.variables.update(args[0])
 
-        # override config variables with session variables, just for parsing config name
-        config_variables.update(self.__session_variables)
+        # note: self._session_variables is still an empty dict here, so no need to merge it.
         self.__config.name = parse_data(
-            self.__config.name, config_variables, self.__project_meta.functions
+            self.__config.name, self.__config.variables, self.__project_meta.functions
         )
 
         # update allure report meta
