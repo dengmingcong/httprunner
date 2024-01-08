@@ -9,7 +9,7 @@ from httprunner.parser import parse_data
 
 
 def parse_retry_args(
-    step: TStep, step_context_variables: dict, functions: dict
+    step: TStep, step_shell_variables: dict, functions: dict
 ) -> NoReturn:
     """Parse step retry args (retry_times and retry_interval)."""
     if step.is_retry_args_resolved:
@@ -18,7 +18,7 @@ def parse_retry_args(
     # parse retry_times
     if isinstance(step.max_retry_times, str):
         parsed_max_retry_times = parse_data(
-            step.max_retry_times, step_context_variables, functions
+            step.max_retry_times, step_shell_variables, functions
         )
 
         step.max_retry_times = int(parsed_max_retry_times)
@@ -26,7 +26,7 @@ def parse_retry_args(
 
     if isinstance(step.retry_interval, str):
         parsed_retry_interval = parse_data(
-            step.retry_interval, step_context_variables, functions
+            step.retry_interval, step_shell_variables, functions
         )
 
         step.retry_interval = float(parsed_retry_interval)
