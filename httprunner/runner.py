@@ -781,14 +781,6 @@ class HttpRunner(object):
 
         return export_vars_mapping
 
-    def get_failed_steps(self) -> List[TStep]:
-        """
-        Returns failed steps.
-
-        self.__failed_steps is a private attribute and cannot be accessed by instance directly.
-        """
-        return self.__failed_steps
-
     def get_summary(self) -> TestCaseSummary:
         """get testcase result summary"""
         start_at_timestamp = self.__start_at
