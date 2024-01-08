@@ -24,6 +24,7 @@ from httprunner.core.runner.retry import (
     parse_retry_args,
 )
 from httprunner.core.runner.skip_step import is_skip_step
+from httprunner.core.runner.step_shell_variables import get_step_shell_variables
 from httprunner.core.runner.update_form import update_form
 from httprunner.core.runner.update_json import update_json
 from httprunner.exceptions import (
@@ -436,16 +437,16 @@ class HttpRunner(object):
             except KeyError:
                 logger.warning("Allure data was not saved.")
 
-    def __resolve_step_variables(
-        self, step: TStep, step_shell_variables: dict
-    ) -> NoReturn:
+    def __resolve_step_variables(self, step: TStep) -> NoReturn:
         """Parse step variables with step context variables and variables defined by step self."""
         # skip if variables already resolved
         if step.is_variables_resolved:
             return
 
         # step variables set with HttpRunnerRequest.with_variables() > step outside variables
-        step.variables = merge_variables(step.variables, step_shell_variables)
+        step.variables = merge_variables(
+            step.variables, step.parsed_parametrize_vars, self._session_variables
+        )
 
         # parse variables
         step.variables = parse_variables_mapping(
@@ -490,9 +491,9 @@ class HttpRunner(object):
 
         step.is_variables_resolved = True
 
-    def __try_step_once(self, step: TStep, step_shell_variables: dict):
+    def __try_step_once(self, step: TStep):
         """Core function for running step (maybe a request or referenced testcase)."""
-        self.__resolve_step_variables(step, step_shell_variables)
+        self.__resolve_step_variables(step)
 
         try:
             logger.info(f"run step begin: {step.name} >>>>>>")
@@ -508,17 +509,19 @@ class HttpRunner(object):
         finally:
             logger.info(f"run step end: {step.name} <<<<<<\n")
 
-    def __parse_step_name(self, step: TStep, step_shell_variables) -> str:
+    def __parse_step_name(self, step: TStep) -> str:
         """Parse step name with step context variables and variables defined by step self."""
         # parse step name with context variables if step is parametrized
         if step.parametrize:
             try:
                 return parse_data(
-                    step.name, step_shell_variables, self.__project_meta.functions
+                    step.name, self._session_variables, self.__project_meta.functions
                 )
             except VariableNotFound as e:
                 logger.warning(f"error occurred while parsing step name: {repr(e)}")
                 return step.name
+
+        step_shell_variables = get_step_shell_variables(step, self._session_variables)
 
         # parse step name with context variables if skip condition was set
         if step.skip_if_condition is not None or step.skip_unless_condition:
@@ -537,15 +540,15 @@ class HttpRunner(object):
             # if retrying is needed, step variables need to be parsed each time retrying,
             # so the original step should stay untouched.
             step_copy = step.model_copy(deep=True)
-            self.__resolve_step_variables(step_copy, step_shell_variables)
+            self.__resolve_step_variables(step_copy)
             return parse_data(
                 step_copy.name, step_copy.variables, self.__project_meta.functions
             )
         else:
-            self.__resolve_step_variables(step, step_shell_variables)
+            self.__resolve_step_variables(step)
             return parse_data(step.name, step.variables, self.__project_meta.functions)
 
-    def __run_step(self, step: TStep, step_shell_variables: dict) -> NoReturn:
+    def __run_step(self, step: TStep) -> NoReturn:
         """run teststep, teststep maybe a request or referenced testcase"""
         # expand and run parametrized steps
         if step.parametrize:
@@ -556,6 +559,8 @@ class HttpRunner(object):
 
             # important: parametrized step is a step wrapper, codes later was not needed for itself
             return
+
+        step_shell_variables = get_step_shell_variables(step, self._session_variables)
 
         # skip step if condition is satisfied
         if is_skip_step(step, step_shell_variables, self.__project_meta.functions):
@@ -576,7 +581,7 @@ class HttpRunner(object):
             try:
                 # retain raw step info to enable parsing step again.
                 # fix: trace id is always the same when retrying step.
-                self.__try_step_once(step.model_copy(deep=True), step_shell_variables)
+                self.__try_step_once(step.model_copy(deep=True))
             except RetryInterruptError as e:
                 logger.info("The condition to stop retrying was met, stop retrying.")
                 # re-raise ValidationFailure to stop retrying
@@ -590,9 +595,9 @@ class HttpRunner(object):
                 time.sleep(step.retry_interval)
 
                 step.remaining_retry_times -= 1
-                self.__run_step(step, step_shell_variables)
+                self.__run_step(step)
         else:
-            self.__try_step_once(step, step_shell_variables)
+            self.__try_step_once(step)
 
     def __parse_config(self, config: TConfig) -> NoReturn:
         """Parse TConfig instance."""
@@ -606,20 +611,9 @@ class HttpRunner(object):
     def __run_steps(self, steps: list[TStep]) -> NoReturn:
         """Iterate and run steps."""
         for step in steps:
-            # parsed parametrize variables > extracted variables > testcase config variables.
-            # Note: parsed parametrize variables will be used in skip_if and skip_unless condition
-            # fix: variables added by parametrized step should not be exported
-            if step.parsed_parametrize_vars:
-                # word 'shell' is relative to 'core'
-                step_shell_variables = merge_variables(
-                    step.parsed_parametrize_vars, self._session_variables
-                )
-            else:
-                step_shell_variables = self._session_variables
-
             try:
-                with allure.step(self.__parse_step_name(step, step_shell_variables)):
-                    self.__run_step(step, step_shell_variables)
+                with allure.step(self.__parse_step_name(step)):
+                    self.__run_step(step)
             except (
                 ValidationFailure,
                 VariableNotFound,
