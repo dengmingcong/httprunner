@@ -113,9 +113,7 @@ class HttpRunner(object):
 
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
-        self.__teststeps = []
-        for step in self.teststeps:
-            self.__teststeps.append(step.perform())
+        self.__teststeps = [step.perform() for step in self.teststeps]
         self.__failed_steps: list[TStep] = []
 
     def set_use_allure(self, is_use_allure: bool) -> "HttpRunner":
