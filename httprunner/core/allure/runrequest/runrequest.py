@@ -44,7 +44,6 @@ def save_run_request_retry(
     response_obj: ResponseObject,
     step_data: StepData,
     extract_mapping: dict,
-    step_context_variables: dict,
     session_variables: dict,
     content_size: int,
     exception: Optional[Exception],
@@ -61,9 +60,7 @@ def save_run_request_retry(
         is_export_extract_same = False
     else:
         is_export_extract_same = True
-        export_extracted_variables(
-            step_data, step_context_variables, session_variables, extract_mapping
-        )
+        export_extracted_variables(step_data, session_variables, extract_mapping)
 
     if step.is_ever_retried:
         # success will stop retrying automatically.

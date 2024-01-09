@@ -33,7 +33,7 @@ class TestCaseRequestWithRetry(HttpRunner):
     teststeps = [
         Step(
             RunRequest("retry and success")
-            .retry_on_failure(3, 0.5)
+            .retry_on_failure(3, 0.5, is_relay_export=True)
             .with_variables(**{"foo1": "bar11", "foo2": "bar21"})
             .get("/get")
             .with_params(

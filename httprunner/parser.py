@@ -595,7 +595,6 @@ def parse_variables_mapping(
     Note:
         Variables whose name starting with '_r_' will be marked as parsed and the value will be kept as is.
     """
-
     parsed_variables: StableDeepCopyDict = StableDeepCopyDict()
     not_found_variables: set = set()
 

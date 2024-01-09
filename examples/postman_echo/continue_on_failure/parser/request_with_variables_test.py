@@ -21,7 +21,14 @@ class TestCaseRequestWithVariables(HttpRunner):
 
     teststeps = [
         Step(
-            RunRequest("continue on VariableNotFound")
+            RunRequest("continue on VariableNotFound in with_variables")
+            .with_variables(**{"foo": "$not_found"})
+            .get("/get")
+            .validate()
+            .assert_equal("status_code", 200)
+        ),
+        Step(
+            RunRequest("continue on VariableNotFound in http request")
             .get("/get")
             .with_params(**{"foo": "$not_found", "foo2": "$foo2"})
             .validate()
