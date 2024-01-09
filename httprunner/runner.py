@@ -631,7 +631,16 @@ class HttpRunner(object):
         """Iterate and run steps."""
         for step in steps:
             try:
-                with allure.step(self.__parse_step_name(step)):
+                step_name = step.name
+
+                try:
+                    step_name = self.__parse_step_name(step)
+                except Exception as e:
+                    # fix: steps were missing in allure report when exception occurred while parsing step name
+                    with allure.step(step_name):
+                        raise e
+
+                with allure.step(step_name):
                     self.__run_step(step)
             except (
                 ValidationFailure,
