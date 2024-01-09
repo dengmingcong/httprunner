@@ -13,7 +13,7 @@ from loguru import logger
 
 from httprunner import __version__
 from httprunner import exceptions
-from httprunner.models import VariablesMapping, StableDeepCopyDict
+from httprunner.models import VariablesMapping
 
 
 def init_sentry_sdk():
@@ -190,17 +190,36 @@ class ExtendJSONEncoder(json.JSONEncoder):
 
 
 def merge_variables(
-    variables: VariablesMapping, *variables_to_be_overridden: VariablesMapping
-) -> StableDeepCopyDict:
-    """merge two variables mapping, the first one have the highest priority, the last one have the lowest priority."""
-    merged_variables = StableDeepCopyDict()
+    variables: VariablesMapping,
+    *variables_to_be_overridden: VariablesMapping,
+    is_create_new_mapping: bool = True,
+) -> dict:
+    """Merge variable mappings.
 
-    [merged_variables.update(var) for var in reversed(variables_to_be_overridden)]
+    The first one have the highest priority, the last one have the lowest priority, and so on.
+    """
+    # the returned dict is a new dict, not the first one
+    if is_create_new_mapping:
+        merged_variables = {}
+        [merged_variables.update(var) for var in reversed(variables_to_be_overridden)]
 
-    # the first variable mapping have the highest priority
-    merged_variables.update(variables)
+        # the first variable mapping have the highest priority
+        merged_variables.update(variables)
+        return merged_variables
+    # the returned dict is the same object as the dict specified by the first argument
+    else:
+        # merge variables that to be overridden first
+        if len(variables_to_be_overridden) > 1:
+            merged_overriden_vars = merge_variables(
+                *variables_to_be_overridden, is_create_new_mapping=True
+            )
+        else:
+            merged_overriden_vars = variables_to_be_overridden[0]
 
-    return merged_variables
+        for key in set(merged_overriden_vars.keys()) - set(variables.keys()):
+            variables[key] = merged_overriden_vars[key]
+
+        return variables
 
 
 def is_support_multiprocessing() -> bool:
