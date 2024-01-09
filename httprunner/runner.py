@@ -842,12 +842,6 @@ class HttpRunner(object):
         # for project meta would usually be located once
         self.__project_meta = self.__project_meta or load_project_meta()
 
-        self.__log_path = self.__log_path or os.path.join(
-            self.__project_meta.httprunner_root_path,
-            "logs",
-            f"{self.__case_id}.run.log",
-        )
-
         # parse config name
         if args:
             self.__config.variables.update(args[0])
@@ -861,9 +855,7 @@ class HttpRunner(object):
         allure.dynamic.title(self.__config.name)
         allure.dynamic.description(type(self).__doc__)
 
-        logger.info(
-            f"Start to run testcase: {self.__config.name}, TestCase ID: {self.__case_id}"
-        )
+        logger.info(f"Start to run testcase: {self.__config.name}")
 
         case_result = self.run_testcase(
             TestCase(config=self.__config, teststeps=self.__teststeps)
