@@ -185,6 +185,9 @@ class HttpRunner(object):
     ) -> dict:
         """call hook actions.
 
+        Note:
+            Variables added by hooks will be updated to step variables.
+
         Args:
             hooks (list): each hook in hooks list maybe in two format.
 
@@ -224,6 +227,9 @@ class HttpRunner(object):
                 )
                 logger.debug(f"assign variable: {var_name} = {hook_content_eval}")
 
+                # update step.variables with hook variables, otherwise next hooks may not be able to use them.
+                step_variables[var_name] = hook_content_eval
+
                 # remember the variable name and value
                 variables[var_name] = hook_content_eval
             else:
@@ -259,9 +265,7 @@ class HttpRunner(object):
 
         # setup hooks (variables added by setup hooks will be updated to step variables)
         if step.setup_hooks:
-            step.variables.update(
-                self.__call_hooks(step.setup_hooks, step.variables, "setup request")
-            )
+            self.__call_hooks(step.setup_hooks, step.variables, "setup request")
 
         # prepare arguments
         method = parsed_request_dict.pop("method")
@@ -290,11 +294,7 @@ class HttpRunner(object):
 
         # teardown hooks (variables added by teardown hooks will be updated to step variables)
         if step.teardown_hooks:
-            step.variables.update(
-                self.__call_hooks(
-                    step.teardown_hooks, step.variables, "teardown request"
-                )
-            )
+            self.__call_hooks(step.teardown_hooks, step.variables, "teardown request")
 
     def __run_step_request(self, step: TStep) -> NoReturn:
         """run teststep: request"""
@@ -365,9 +365,7 @@ class HttpRunner(object):
         # setup hooks,
         # variables added by setup hooks will be part of nested testcase's session variables.
         if step.setup_hooks:
-            step.variables.update(
-                self.__call_hooks(step.setup_hooks, step.variables, "setup testcase")
-            )
+            self.__call_hooks(step.setup_hooks, step.variables, "setup testcase")
 
         httprunner_obj = HttpRunner()
         try:
@@ -407,7 +405,6 @@ class HttpRunner(object):
                 variables_teardown_hooks = self.__call_hooks(
                     step.teardown_hooks, step.variables, "teardown testcase"
                 )
-                step.variables.update(variables_teardown_hooks)
 
                 # variables added by teardown hooks will be part of nested testcase's session variables.
                 httprunner_obj.update_variables(variables_teardown_hooks)
