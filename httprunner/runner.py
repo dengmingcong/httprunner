@@ -525,6 +525,10 @@ class HttpRunner(object):
                 raise ParamsError(
                     f"teststep is neither a request nor a referenced testcase: {step.model_dump()}"
                 )
+        except Exception as e:
+            if not isinstance(e, ValidationFailure):
+                logger.warning(f"step failed for: {repr(e)}")
+            raise e
         finally:
             logger.info(f"run step end: {step.name} <<<<<<\n")
 
@@ -636,8 +640,11 @@ class HttpRunner(object):
                 try:
                     step_name = self.__parse_step_name(step)
                 except Exception as e:
+                    logger.info(f"run step begin: {step.name} >>>>>>")
                     # fix: steps were missing in allure report when exception occurred while parsing step name
                     with allure.step(step_name):
+                        logger.warning(f"step failed for: {repr(e)}")
+                        logger.info(f"run step end: {step.name} <<<<<<\n")
                         raise e
 
                 with allure.step(step_name):
