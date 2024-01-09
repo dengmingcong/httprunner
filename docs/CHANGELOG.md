@@ -2,6 +2,27 @@
 
 <!--next-version-placeholder-->
 
+## v3.37.0 (2024-01-09)
+
+### Feature
+
+* Print failing reason in log between the beginning of the step and the end of the step ([`85f64b6`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/85f64b68174d88b5d0faf16cbe9d064d2929ef74))
+* Add new argument `is_create_new_mapping` to enable returning the same object as the one specified by the first argument ([`8f0bf87`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/8f0bf871a6f5d170c3291a45beea128d74577afd))
+
+### Fix
+
+* Teardown hooks cannot use variables exported by nested testcase ([`7f1e69c`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/7f1e69c46955ffb3705883ef7333b0e336460e33))
+* Steps were missing in allure report when exception occurred while parsing step name ([`51c1854`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/51c185483153a99bfaa4cb286d1e4e9901ff5fbb))
+* Step.variables containing self-referenced variables cause VariableNotFound ([`1b7fe85`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1b7fe8550ab3ff380b44bb39bde227f14a592d2e))
+* Update step.variables with hook variables, otherwise next hooks may not use them ([`5d8c940`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5d8c9403c3003237d3254573a0f9cff3a58a4b43))
+* Update session variables of nested testcase with the ones added by teardown hooks ([`dc28b95`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/dc28b95d16bbd964d6029596f5604c0504ad89ea))
+* Is_relay_export did not take effect ([`c7e3065`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c7e30656e27a701c4319453e43904f272c7e9a93))
+* Vars added by parametrized steps override context vars ([`80e785d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/80e785d88fb78fcd81ed8a92b7859427e783f12d))
+
+### Performance
+
+* Increase the performance of merging variables ([`9867d65`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9867d656dbee396c3e5c1246203e1ce2bb48e00a))
+
 ## v3.36.1 (2024-01-05)
 
 ### Fix
