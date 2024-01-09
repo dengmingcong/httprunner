@@ -402,8 +402,11 @@ class HttpRunner(object):
 
             # teardown hooks.
             if step.teardown_hooks:
+                # fix: teardown hooks cannot use variables exported by nested testcase
                 variables_teardown_hooks = self.__call_hooks(
-                    step.teardown_hooks, step.variables, "teardown testcase"
+                    step.teardown_hooks,
+                    getattr(httprunner_obj, "_session_variables"),
+                    "teardown testcase",
                 )
 
                 # variables added by teardown hooks will be part of nested testcase's session variables.
