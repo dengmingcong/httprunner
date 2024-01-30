@@ -5,6 +5,7 @@ import time
 import uuid
 from typing import Union
 
+from dotwiz import DotWiz
 from loguru import logger
 
 from httprunner import __version__
@@ -227,24 +228,24 @@ def modify_obj_attr(obj: CustomClass):
 
 def mimic_api():
     """Mimic api docs object."""
-    return {
-        "name": "foo",
-        "variables": [
-            {"identifier": "foo", "value": "foo"},
-            {"identifier": "bar", "value": "bar"},
-            {"identifier": "baz", "value": "baz"},
-        ],
-        "preset_json": {
-            "FOO": "$foo",
-            "BAR": "$bar",
-        },
-    }
+    return DotWiz(
+        {
+            "name": "apiName",
+            "method": "POST",
+            "variables": [
+                {"identifier": "foo", "value": "foo"},
+                {"identifier": "bar", "value": "bar"},
+                {"identifier": "baz", "value": "baz"},
+            ],
+            "preset_json": {"FOO": "$foo", "BAR": "$bar", "method": "${api['method']}"},
+        }
+    )
 
 
-def extract_variables_from_api(api: dict) -> dict:
+def extract_variables_from_api(api: DotWiz) -> dict:
     """Extract variables from api."""
     variables = {
         variable["identifier"]: variable["value"] for variable in api["variables"]
     }
-    variables["__preset_json"] = api["preset_json"]
+    variables["__preset_json"] = api["preset_json"].to_dict()
     return variables

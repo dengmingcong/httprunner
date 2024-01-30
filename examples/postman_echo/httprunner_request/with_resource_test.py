@@ -4,9 +4,9 @@ from httprunner.testcase import HttpRunnerRequest, RequestConfig
 
 class PostmanEchoPost(HttpRunnerRequest):
     config = (
-        RequestConfig("${__api['name']}")
+        RequestConfig("${api['name']}")
         .with_resource(
-            "__api",
+            "api",
             "${mimic_api()}",
             "extract_variables_from_api",
         )
@@ -34,5 +34,6 @@ class TestWithResource(HttpRunner):
             .assert_equal("body.json.FOO", "foo_new")
             .assert_equal("body.json.BAR", "bar")
             .assert_equal("body.json.BAZ", "baz")
+            .assert_equal("body.json.method", "POST")
         ),
     ]
