@@ -85,6 +85,9 @@ class TConfig(BaseModel):
 class TRequestConfig(BaseModel):
     name: Name
     variables: Union[StableDeepCopyDict, Text] = StableDeepCopyDict()
+    api: Any = None
+    variable_extractor: Optional[str] = None
+    preset_json_extractor: Optional[str] = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
