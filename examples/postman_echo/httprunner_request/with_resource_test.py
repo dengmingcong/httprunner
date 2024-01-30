@@ -5,10 +5,10 @@ from httprunner.testcase import HttpRunnerRequest, RequestConfig
 class PostmanEchoPost(HttpRunnerRequest):
     config = (
         RequestConfig("${__api['name']}")
-        .with_api(
+        .with_resource(
+            "__api",
             "${mimic_api()}",
             "extract_variables_from_api",
-            "extract_preset_json_from_api",
         )
         .variables(
             **{
