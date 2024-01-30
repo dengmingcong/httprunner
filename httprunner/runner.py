@@ -27,6 +27,7 @@ from httprunner.core.runner.skip_step import is_skip_step
 from httprunner.core.runner.step_shell_variables import get_step_shell_variables
 from httprunner.core.runner.update_form import update_form
 from httprunner.core.runner.update_json import update_json
+from httprunner.core.runner.with_api import evaluate_with_api
 from httprunner.exceptions import (
     ValidationFailure,
     ParamsError,
@@ -490,6 +491,16 @@ class HttpRunner(object):
 
         # for HttpRunnerRequest step
         if step.request_config:
+            # evaluate method with_api()
+            api_preset_variables = evaluate_with_api(
+                step, self.__project_meta.functions
+            )
+
+            # merge api_preset_variables into step.variables
+            step.request_config.variables = merge_variables(
+                step.request_config.variables, api_preset_variables
+            )
+
             # step variables set with HttpRunnerRequest.with_variables() >
             # extracted variables > testcase config variables > HttpRunnerRequest config variables
             step.variables = merge_variables(
