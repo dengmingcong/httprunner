@@ -19,7 +19,7 @@ class PostmanEchoPost(HttpRunnerRequest):
             }
         )
     )
-    request = RunRequest("").post("/post").with_json("${eval_var($__preset_json)}")
+    request = RunRequest("").post("/post").with_json("$__preset_json")
 
 
 class TestWithResource(HttpRunner):
