@@ -223,3 +223,28 @@ class CustomClass(ParseMe):
 
 def modify_obj_attr(obj: CustomClass):
     obj.id = 100
+
+
+def mimic_api():
+    """Mimic api docs object."""
+    return {
+        "name": "foo",
+        "variables": [
+            {"identifier": "foo", "value": "foo"},
+            {"identifier": "bar", "value": "bar"},
+        ],
+        "preset_json": {
+            "FOO": "$foo",
+            "BAR": "$bar",
+        },
+    }
+
+
+def extract_variables_from_api(api: dict) -> dict:
+    """Extract variables from api."""
+    return {variable["identifier"]: variable["value"] for variable in api["variables"]}
+
+
+def extract_preset_json_from_api(api: dict) -> dict:
+    """Extract preset json from api."""
+    return api["preset_json"]
