@@ -76,6 +76,10 @@ class VariableNotFound(NotFoundError):
     pass
 
 
+class OverrideReservedVariableError(MyBaseError):
+    pass
+
+
 class EnvNotFound(NotFoundError):
     pass
 

@@ -34,6 +34,7 @@ from httprunner.exceptions import (
     VariableNotFound,
     RetryInterruptError,
     MultiStepsFailedError,
+    OverrideReservedVariableError,
 )
 from httprunner.ext.uploader import prepare_upload_step
 from httprunner.loader import load_project_meta, load_testcase_file
@@ -495,6 +496,22 @@ class HttpRunner(object):
             resource_preset_variables = evaluate_with_resource(
                 step, self.__project_meta.functions
             )
+
+            # prevent variable with the name specified by `resource_name` from being overwritten
+            if (resource_name := step.request_config.resource_name) in step.variables:
+                raise OverrideReservedVariableError(
+                    f"variable name `{resource_name}` is reserved, cannot override it (from outer scope)"
+                )
+
+            if resource_name in step.request_config.variables:
+                raise OverrideReservedVariableError(
+                    f"variable name `{resource_name}` is reserved, cannot override it (from request config)"
+                )
+
+            if resource_name in step.private_variables:
+                raise OverrideReservedVariableError(
+                    f"variable name `{resource_name}` is reserved, cannot override it (from step private variables)"
+                )
 
             # merge api_preset_variables into step.variables
             step.request_config.variables = merge_variables(
