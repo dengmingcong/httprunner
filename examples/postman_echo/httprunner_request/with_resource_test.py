@@ -19,9 +19,11 @@ class PostmanEchoPost(HttpRunnerRequest):
     request = RunRequest("").post("/post").with_json("${eval_var($__preset_json)}")
 
 
-class TestWithApi(HttpRunner):
+class TestWithResource(HttpRunner):
     config = (
-        Config("test with_api()").base_url("https://postman-echo.com").verify(False)
+        Config("test with_resource()")
+        .base_url("https://postman-echo.com")
+        .verify(False)
     )
 
     teststeps = [
