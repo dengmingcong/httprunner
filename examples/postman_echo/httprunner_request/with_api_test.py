@@ -4,7 +4,7 @@ from httprunner.testcase import HttpRunnerRequest, RequestConfig
 
 class PostmanEchoPost(HttpRunnerRequest):
     config = (
-        RequestConfig("${api['name']}")
+        RequestConfig("${__api['name']}")
         .with_api(
             "${mimic_api()}",
             "extract_variables_from_api",
@@ -16,7 +16,7 @@ class PostmanEchoPost(HttpRunnerRequest):
             }
         )
     )
-    request = RunRequest("").post("/post").with_json("${eval_var($preset_json)}")
+    request = RunRequest("").post("/post").with_json("${eval_var($__preset_json)}")
 
 
 class TestWithApi(HttpRunner):
