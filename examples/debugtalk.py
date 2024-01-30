@@ -232,6 +232,7 @@ def mimic_api():
         "variables": [
             {"identifier": "foo", "value": "foo"},
             {"identifier": "bar", "value": "bar"},
+            {"identifier": "baz", "value": "baz"},
         ],
         "preset_json": {
             "FOO": "$foo",
