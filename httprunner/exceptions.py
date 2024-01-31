@@ -19,6 +19,10 @@ class MultiStepsFailedError(MyBaseFailure):
     pass
 
 
+class MultiValidationFailure(ValidationFailure, MultiStepsFailedError):
+    pass
+
+
 class RetryInterruptError(AssertionError):
     pass
 
