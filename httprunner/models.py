@@ -85,7 +85,7 @@ class TConfig(BaseModel):
 class TRequestConfig(BaseModel):
     name: Name
     variables: Union[StableDeepCopyDict, Text] = StableDeepCopyDict()
-    resource_name: str = None
+    resource_name: Optional[str] = None
     resource: Any = None
     extractor: Optional[str] = None
 
