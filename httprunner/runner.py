@@ -496,7 +496,7 @@ class HttpRunner(object):
                 step, self.__project_meta.functions
             )
 
-            # merge api_preset_variables into step.variables
+            # step.request_config.variables > resource_preset_variables
             step.request_config.variables = merge_variables(
                 step.request_config.variables, resource_preset_variables
             )
