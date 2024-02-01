@@ -242,6 +242,27 @@ def mimic_api():
     )
 
 
+def mimic_another_api():
+    """Mimic api docs object."""
+    return DotWiz(
+        {
+            "name": "anotherApiName",
+            "method": "GET",
+            "variables": [
+                {"identifier": "foo", "value": "foo"},
+                {"identifier": "bar", "value": "bar-another"},
+                {"identifier": "quu", "value": "quu"},
+            ],
+            "preset_json": {
+                "FOO": "$foo",
+                "BAR": "$bar",
+                "method": "${api['method']}",
+                "QUU": "$quu",
+            },
+        }
+    )
+
+
 def extract_variables_from_api(api: DotWiz) -> dict:
     """Extract variables from api."""
     variables = {
