@@ -28,8 +28,9 @@ class RequestConfig(object):
         """
         Specify resource, extracting variables from the resource evaluated.
 
-        Multiple resources can be specified by calling this method multiple times, variables extracted from latter
-        resources will override those extracted from previous resources.
+        Note:
+            1. Multiple resources can be specified by calling this method multiple times.
+            2. Variables extracted from latter resources will override those extracted from previous resources.
 
         :param name: name of the resource, one variable with the same name will be set,
             and its value is the evaluated resource.

@@ -27,7 +27,7 @@ from httprunner.core.runner.skip_step import is_skip_step
 from httprunner.core.runner.step_shell_variables import get_step_shell_variables
 from httprunner.core.runner.update_form import update_form
 from httprunner.core.runner.update_json import update_json
-from httprunner.core.runner.with_resource import evaluate_with_resource
+from httprunner.core.runner.with_resource import evaluate_resources
 from httprunner.exceptions import (
     ValidationFailure,
     ParamsError,
@@ -493,7 +493,7 @@ class HttpRunner(object):
         # for HttpRunnerRequest step
         if step.request_config:
             # evaluate method with_resource()
-            resource_preset_variables = evaluate_with_resource(
+            resource_preset_variables = evaluate_resources(
                 step, self.__project_meta.functions
             )
 
