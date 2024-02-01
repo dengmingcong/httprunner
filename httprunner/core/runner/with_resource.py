@@ -20,7 +20,7 @@ def evaluate_resource(
     # preset variables set by resource
     resource_variables = {}
 
-    resource_name, resource, extractor = resource_tuple
+    resource_name, resource, variable_extractor = resource_tuple
 
     # avoid variable with the name specified by `resource_name` being overwritten
     if resource_name in step.variables:
@@ -48,7 +48,7 @@ def evaluate_resource(
     resource_variables[resource_name] = resource_object
 
     # extract variables from api docs object
-    if variable_extractor := step.request_config.extractor:
+    if variable_extractor:
         # variable_extractor must be a function defined in debugtalk.py if set
         if variable_extractor not in debugtalk_functions:
             raise exceptions.FunctionNotFound(
