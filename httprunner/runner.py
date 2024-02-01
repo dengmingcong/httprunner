@@ -27,12 +27,14 @@ from httprunner.core.runner.skip_step import is_skip_step
 from httprunner.core.runner.step_shell_variables import get_step_shell_variables
 from httprunner.core.runner.update_form import update_form
 from httprunner.core.runner.update_json import update_json
+from httprunner.core.runner.with_resource import evaluate_resources
 from httprunner.exceptions import (
     ValidationFailure,
     ParamsError,
     VariableNotFound,
     RetryInterruptError,
     MultiStepsFailedError,
+    MultiValidationFailure,
 )
 from httprunner.ext.uploader import prepare_upload_step
 from httprunner.loader import load_project_meta, load_testcase_file
@@ -126,7 +128,7 @@ class HttpRunner(object):
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
         self.__teststeps = [step.perform() for step in self.teststeps]
-        self.__failed_steps: list[TStep] = []
+        self.__failed_steps: list[tuple[TStep, Exception]] = []
 
     def set_use_allure(self, is_use_allure: bool) -> "HttpRunner":  # noqa
         """
@@ -490,6 +492,16 @@ class HttpRunner(object):
 
         # for HttpRunnerRequest step
         if step.request_config:
+            # evaluate method with_resource()
+            resource_preset_variables = evaluate_resources(
+                step, self.__project_meta.functions
+            )
+
+            # step.request_config.variables > resource_preset_variables
+            step.request_config.variables = merge_variables(
+                step.request_config.variables, resource_preset_variables
+            )
+
             # step variables set with HttpRunnerRequest.with_variables() >
             # extracted variables > testcase config variables > HttpRunnerRequest config variables
             step.variables = merge_variables(
@@ -501,15 +513,16 @@ class HttpRunner(object):
                 step.variables, self.__project_meta.functions
             )
 
-            # final priority order:
-            # step private variables > step variables set with HttpRunnerRequest.with_variables() >
-            # extracted variables > testcase config variables > HttpRunnerRequest config variables
-            step.variables = merge_variables(step.private_variables, step.variables)
+            if step.private_variables:
+                # final priority order:
+                # step private variables > step variables set with HttpRunnerRequest.with_variables() >
+                # extracted variables > testcase config variables > HttpRunnerRequest config variables
+                step.variables = merge_variables(step.private_variables, step.variables)
 
-            # parse variables
-            step.variables = parse_variables_mapping(
-                step.variables, self.__project_meta.functions
-            )
+                # parse variables
+                step.variables = parse_variables_mapping(
+                    step.variables, self.__project_meta.functions
+                )
 
         step.is_variables_resolved = True
 
@@ -657,10 +670,10 @@ class HttpRunner(object):
                 VariableNotFound,
                 JMESPathError,
                 MultiStepsFailedError,
-            ):
+            ) as exc:
                 # record failed step for later raising MultiStepsFailedError.
                 # self.__failed_steps will keep intouch until self.__continue_on_failure is set to True.
-                self.__failed_steps.append(step)
+                self.__failed_steps.append((step, exc))
 
                 # continue to run next step if continue_on_failure was set to True
                 if self.__continue_on_failure:
@@ -673,9 +686,17 @@ class HttpRunner(object):
 
         # raise MultiStepsFailedError to mark testcase or RunTestCase step as failed
         if self.__failed_steps:
-            raise MultiStepsFailedError(
-                f"continue_on_failure was set to True and {len(self.__failed_steps)} steps failed."
-            )
+            # raise MultiValidationFailure if all exceptions are ValidationFailure
+            if all(
+                isinstance(exc, ValidationFailure) for _, exc in self.__failed_steps
+            ):
+                raise MultiValidationFailure(
+                    f"continue_on_failure was set to True and {len(self.__failed_steps)} steps failed.",
+                )
+            else:
+                raise MultiStepsFailedError(
+                    f"continue_on_failure was set to True and {len(self.__failed_steps)} steps failed."
+                )
 
     def run_testcase(self, testcase: TestCase) -> "HttpRunner":
         """run specified testcase

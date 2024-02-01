@@ -19,6 +19,10 @@ class MultiStepsFailedError(MyBaseFailure):
     pass
 
 
+class MultiValidationFailure(ValidationFailure, MultiStepsFailedError):
+    pass
+
+
 class RetryInterruptError(AssertionError):
     pass
 
@@ -73,6 +77,10 @@ class FunctionNotFound(NotFoundError):
 
 
 class VariableNotFound(NotFoundError):
+    pass
+
+
+class OverrideReservedVariableError(MyBaseError):
     pass
 
 

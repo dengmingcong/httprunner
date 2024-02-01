@@ -85,6 +85,7 @@ class TConfig(BaseModel):
 class TRequestConfig(BaseModel):
     name: Name
     variables: Union[StableDeepCopyDict, Text] = StableDeepCopyDict()
+    resources: List[tuple[Text, Any, Optional[Text]]] = []
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
