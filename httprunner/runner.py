@@ -513,15 +513,16 @@ class HttpRunner(object):
                 step.variables, self.__project_meta.functions
             )
 
-            # final priority order:
-            # step private variables > step variables set with HttpRunnerRequest.with_variables() >
-            # extracted variables > testcase config variables > HttpRunnerRequest config variables
-            step.variables = merge_variables(step.private_variables, step.variables)
+            if step.private_variables:
+                # final priority order:
+                # step private variables > step variables set with HttpRunnerRequest.with_variables() >
+                # extracted variables > testcase config variables > HttpRunnerRequest config variables
+                step.variables = merge_variables(step.private_variables, step.variables)
 
-            # parse variables
-            step.variables = parse_variables_mapping(
-                step.variables, self.__project_meta.functions
-            )
+                # parse variables
+                step.variables = parse_variables_mapping(
+                    step.variables, self.__project_meta.functions
+                )
 
         step.is_variables_resolved = True
 
