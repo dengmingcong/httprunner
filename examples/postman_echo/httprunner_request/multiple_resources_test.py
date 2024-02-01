@@ -12,7 +12,7 @@ class PostmanEchoPost(HttpRunnerRequest):
         )
         .with_resource(
             "another_api",
-            "${mimic_api()}",
+            "${mimic_another_api()}",
             "extract_variables_from_api",
         )
         .variables(
