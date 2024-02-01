@@ -17,9 +17,7 @@ class RequestConfig(object):
     def __init__(self, name: Text):
         self.__name = name
         self.__variables = StableDeepCopyDict()
-        self.__resource_name = None  # type: Optional[str]
-        self.__resource = None  # type: Optional[Any]
-        self.__extractor = None  # type: Optional[str]
+        self.__resources = []  # type: list[tuple[str, Any, Optional[str]]]
 
     def with_resource(
         self,
@@ -30,6 +28,9 @@ class RequestConfig(object):
         """
         Specify resource, extracting variables from the resource evaluated.
 
+        Multiple resources can be specified by calling this method multiple times, variables extracted from latter
+        resources will override those extracted from previous resources.
+
         :param name: name of the resource, one variable with the same name will be set,
             and its value is the evaluated resource.
         :param resource: resource to evaluate.
@@ -38,9 +39,7 @@ class RequestConfig(object):
             (have lower priority than those set by self.variables()).
             The value of this parameter must be a string and correspond to a debugtalk function.
         """
-        self.__resource_name = name
-        self.__resource = resource
-        self.__extractor = extractor
+        self.__resources.append((name, resource, extractor))
         return self
 
     def variables(self, **variables) -> "RequestConfig":
@@ -51,7 +50,5 @@ class RequestConfig(object):
         return TRequestConfig(
             name=self.__name,
             variables=self.__variables,
-            resource_name=self.__resource_name,
-            resource=self.__resource,
-            extractor=self.__extractor,
+            resources=self.__resources,
         )
