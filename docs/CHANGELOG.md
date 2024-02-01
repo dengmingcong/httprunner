@@ -2,6 +2,24 @@
 
 <!--next-version-placeholder-->
 
+## v3.38.0 (2024-02-01)
+
+### Feature
+
+* Evaluate multiple resources ([`057a60b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/057a60ba89344cd0f31011855d99bf7d3346bb43))
+* Multiple resources can be specified by calling `with_resource()` multiple times ([`c8d0a19`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c8d0a19282379706846fa8ca538fb392639852a5))
+* Raise MultiValidationFailure when all exceptions are instance of ValidationFailure ([`68f9c68`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/68f9c68b5a87ec212e65b2f1af2e28ecbeff3896))
+* Add function `evaluate_with_api()` ([`abc8052`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/abc80520de874472bc6593968ad9825e8def4a4d))
+* Add method RequestConfig.with_api() to specify api docs ([`254a812`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/254a812307eb93a477f5169dbe50ceb0bd99c569))
+
+### Fix
+
+* Step.request_config has no property `extractor` ([`ffdb77d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/ffdb77dc40a4dbc425139cbe401522329c5043d3))
+
+### Performance
+
+* Reduce one parsing process if no private variables found ([`07b9a27`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/07b9a273821e7060b9ff6c8e216aa3c9c08d87bb))
+
 ## v3.37.0 (2024-01-09)
 
 ### Feature
