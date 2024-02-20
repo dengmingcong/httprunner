@@ -28,7 +28,7 @@ class TestCaseUpload(HttpRunner):
         Step(
             RunRequest("upload file with multipart/form")
             .post("/post")
-            .upload(**{"file": "test.env"})
+            .upload(**{"file": "test.env", "foo": "foo"})
             .validate()
             .assert_equal("status_code", 200)
             .assert_startswith("body.files.file", "UserName=test")
