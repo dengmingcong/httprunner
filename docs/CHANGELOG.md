@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.38.1 (2024-02-20)
+
+### Fix
+
+* Plain string cannot be posted together with file in one multipart body ([`833ad33`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/833ad3397d19e73981451d3ec84223e01e6cac1e))
+
 ## v3.38.0 (2024-02-01)
 
 ### Feature
