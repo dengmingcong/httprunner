@@ -125,8 +125,17 @@ class JMESPathExtractor(BaseModel):
 
 
 class Validator(BaseModel):
+    """Validator model.
+
+    :param method: also known as comparator, e.g. "equal", "contains"
+    :param expression: this field can be a JMESPath expression or a check item.
+    :param expect: expected value
+    :param message: optional, error message
+    :param config: validator config
+    """
+
     method: str
-    expression: str
+    expression: Any
     expect: Any
     message: Optional[str] = None
     config: dict = {}
