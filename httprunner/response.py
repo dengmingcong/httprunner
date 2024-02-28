@@ -11,7 +11,7 @@ from httprunner.configs.validation import validation_settings
 from httprunner.exceptions import ValidationFailure, ParamsError
 from httprunner.models import (
     VariablesMapping,
-    Validators,
+    Validator,
     FunctionsMapping,
     JMESPathExtractor,
 )
@@ -190,7 +190,7 @@ class ResponseObject(object):
 
     def validate(
         self,
-        validators: Validators,
+        validators: list[Validator],
         variables_mapping: VariablesMapping = None,
         functions_mapping: FunctionsMapping = None,
     ) -> NoReturn:

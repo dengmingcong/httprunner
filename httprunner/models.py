@@ -24,7 +24,6 @@ Verify = bool
 Hooks = List[Union[Text, Dict[Text, Text]]]
 GlobalVars = List[Union[Text, Dict[Text, Text]]]  # added by @deng at 2022.2.9
 ConfigExport = List[Text]
-Validators = List[Dict]
 Env = Dict[Text, Any]
 
 
@@ -125,6 +124,14 @@ class JMESPathExtractor(BaseModel):
     sub_extractor: Optional[Callable] = None
 
 
+class Validator(BaseModel):
+    method: str
+    jmespath_expression: str
+    expect: Any
+    error_message: Optional[str] = None
+    config: dict = {}
+
+
 class TStep(BaseModel):
     name: Name
     parametrize: tuple = None
@@ -163,7 +170,7 @@ class TStep(BaseModel):
     # used to export session variables from referenced testcase, only take effect for RunTestCase step
     export: StepExport = None
 
-    validators: Validators = Field([], alias="validate")
+    validators: list[Validator] = []
     validate_script: List[Text] = []
 
     # HttpRunnerRequest config
