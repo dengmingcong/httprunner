@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from httprunner.core.testcase.config import Config  # noqa
 from httprunner.models import (
     TStep,
+    Validator,
 )
 
 Number = Union[int, float]
@@ -33,7 +34,12 @@ class StepRequestValidation(object):
         self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"equal": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="equal",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -41,7 +47,12 @@ class StepRequestValidation(object):
         self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"not_equal": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="not_equal",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -52,7 +63,12 @@ class StepRequestValidation(object):
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"greater_than": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="greater_than",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -63,7 +79,12 @@ class StepRequestValidation(object):
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"less_than": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="less_than",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -74,7 +95,12 @@ class StepRequestValidation(object):
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"greater_or_equals": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="greater_or_equals",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -85,7 +111,12 @@ class StepRequestValidation(object):
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"less_or_equals": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="less_or_equals",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -96,7 +127,12 @@ class StepRequestValidation(object):
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"length_equal": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="length_equal",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -107,7 +143,12 @@ class StepRequestValidation(object):
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"length_greater_than": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="length_greater_than",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -118,7 +159,12 @@ class StepRequestValidation(object):
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"length_less_than": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="length_less_than",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -129,7 +175,12 @@ class StepRequestValidation(object):
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"length_greater_or_equals": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="length_greater_or_equals",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -140,7 +191,12 @@ class StepRequestValidation(object):
         message: Text = "",
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"length_less_or_equals": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="length_less_or_equals",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -148,7 +204,12 @@ class StepRequestValidation(object):
         self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"string_equals": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="string_equals",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -156,7 +217,12 @@ class StepRequestValidation(object):
         self, jmespath_expression: Text, expected_value: Text, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"startswith": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="startswith",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -164,7 +230,12 @@ class StepRequestValidation(object):
         self, jmespath_expression: Text, expected_value: Text, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"endswith": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="endswith",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -172,7 +243,12 @@ class StepRequestValidation(object):
         self, jmespath_expression: Text, expected_value: Text, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"regex_match": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="regex_match",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -180,7 +256,12 @@ class StepRequestValidation(object):
         self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"contains": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="contains",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -188,7 +269,12 @@ class StepRequestValidation(object):
         self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"not_contain": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="not_contain",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -196,7 +282,12 @@ class StepRequestValidation(object):
         self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"not_contained_by": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="not_contained_by",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -207,7 +298,12 @@ class StepRequestValidation(object):
         Assert no duplicates in the list specified by jmespath_expression.
         """
         self._step_context.validators.append(
-            {"no_keys_duplicate": [jmespath_expression, None, message]}
+            Validator(
+                method="no_keys_duplicate",
+                expression=jmespath_expression,
+                expect=None,
+                message=message,
+            )
         )
         return self
 
@@ -215,7 +311,12 @@ class StepRequestValidation(object):
         self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"contained_by": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="contained_by",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -223,7 +324,12 @@ class StepRequestValidation(object):
         self, jmespath_expression: Text, expected_value: Any, message: Text = ""
     ) -> "StepRequestValidation":
         self._step_context.validators.append(
-            {"type_match": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="type_match",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -251,7 +357,12 @@ class StepRequestValidation(object):
             reference: https://zepworks.com/deepdiff/current/ignore_types_or_values.html
         """
         self._step_context.validators.append(
-            {"json_contains": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="json_contains",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -279,7 +390,12 @@ class StepRequestValidation(object):
             reference: https://zepworks.com/deepdiff/current/ignore_types_or_values.html
         """
         self._step_context.validators.append(
-            {"json_equal": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="json_equal",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -291,7 +407,12 @@ class StepRequestValidation(object):
     ) -> "StepRequestValidation":
         """Equivalent to the JSONassert non-strict mode with java version."""
         self._step_context.validators.append(
-            {"json_contains_with_java": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="json_contains_with_java",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -303,7 +424,12 @@ class StepRequestValidation(object):
     ) -> "StepRequestValidation":
         """Equivalent to the JSONassert strict mode with java version."""
         self._step_context.validators.append(
-            {"json_equal_with_java": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="json_equal_with_java",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -323,7 +449,12 @@ class StepRequestValidation(object):
         reference list.sort() for more information.
         """
         self._step_context.validators.append(
-            {"list_sorted_in": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="list_sorted_in",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -344,7 +475,12 @@ class StepRequestValidation(object):
         :param message: error message
         """
         self._step_context.validators.append(
-            {"is_close": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="is_close",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -371,7 +507,12 @@ class StepRequestValidation(object):
         Reference: https://docs.python.org/3/library/functions.html#all
         """
         self._step_context.validators.append(
-            {"all_": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="all_",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -394,7 +535,12 @@ class StepRequestValidation(object):
         >>> StepRequestValidation().assert_match_json_schema("body.result", schema)
         """
         self._step_context.validators.append(
-            {"match_json_schema": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="match_json_schema",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -421,7 +567,12 @@ class StepRequestValidation(object):
         >>> StepRequestValidation().assert_match_pydantic_model("body.result", Student)
         """
         self._step_context.validators.append(
-            {"match_pydantic_model": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="match_pydantic_model",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 
@@ -432,7 +583,12 @@ class StepRequestValidation(object):
         Reference: https://docs.python.org/3/library/stdtypes.html#truth-value-testing
         """
         self._step_context.validators.append(
-            {"is_truthy": [jmespath_expression, None, message]}
+            Validator(
+                method="is_truthy",
+                expression=jmespath_expression,
+                expect=None,
+                message=message,
+            )
         )
         return self
 
@@ -443,7 +599,12 @@ class StepRequestValidation(object):
         Reference: https://docs.python.org/3/library/stdtypes.html#truth-value-testing
         """
         self._step_context.validators.append(
-            {"is_falsy": [jmespath_expression, None, message]}
+            Validator(
+                method="is_falsy",
+                expression=jmespath_expression,
+                expect=None,
+                message=message,
+            )
         )
         return self
 
@@ -470,7 +631,12 @@ class StepRequestValidation(object):
                 >>> StepRequestValidation().assert_lambda("body.result", (custom_validator, {"expected_value": "bar"}))
         """
         self._step_context.validators.append(
-            {"assert_lambda": [jmespath_expression, expected_value, message]}
+            Validator(
+                method="assert_lambda",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
         )
         return self
 

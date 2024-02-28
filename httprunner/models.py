@@ -126,9 +126,9 @@ class JMESPathExtractor(BaseModel):
 
 class Validator(BaseModel):
     method: str
-    jmespath_expression: str
+    expression: str
     expect: Any
-    error_message: Optional[str] = None
+    message: Optional[str] = None
     config: dict = {}
 
 
