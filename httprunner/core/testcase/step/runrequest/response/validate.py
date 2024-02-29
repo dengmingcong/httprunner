@@ -376,7 +376,7 @@ class StepRequestValidation(object):
         *,
         ignore_string_type_changes: bool = False,
         ignore_numeric_type_changes: bool = False,
-        ignore_type_in_groups: list = None,
+        ignore_type_in_groups: Union[tuple, list[tuple]] = None,
         **other_deepdiff_kwargs,
     ) -> "StepRequestValidation":
         """
@@ -432,7 +432,7 @@ class StepRequestValidation(object):
         *,
         ignore_string_type_changes: bool = False,
         ignore_numeric_type_changes: bool = False,
-        ignore_type_in_groups: list = None,
+        ignore_type_in_groups: Union[tuple, list[tuple]] = None,
         **other_deepdiff_kwargs,
     ) -> "StepRequestValidation":
         """
