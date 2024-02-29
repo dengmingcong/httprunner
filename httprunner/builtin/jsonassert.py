@@ -73,11 +73,16 @@ def json_contains(
     *,
     ignore_string_type_changes: bool = False,
     ignore_numeric_type_changes: bool = False,
-    ignore_type_in_groups: list = None,
+    ignore_type_in_groups: Union[tuple, list[tuple]] = None,
     **other_deepdiff_kwargs,
 ) -> None:
     """Equivalent to the non-strict mode of java unit test lib JSONassert."""
-    deepdiff_kwargs = {}
+    deepdiff_kwargs = {
+        "ignore_string_type_changes": ignore_string_type_changes,
+        "ignore_numeric_type_changes": ignore_numeric_type_changes,
+        "ignore_type_in_groups": ignore_type_in_groups,
+        **other_deepdiff_kwargs,
+    }
 
     # note: specifying deepdiff arguments in tuple is not recommended, keep it for compatibility
     if isinstance(expect_value, tuple):
@@ -85,17 +90,8 @@ def json_contains(
             raise TypeError(
                 "the second element must be a dict if `expect_value` is a tuple"
             )
-        expect_value, deepdiff_kwargs = expect_value  # the real expect_value
-
-    # merge deepdiff keyword arguments
-    deepdiff_kwargs.update(
-        {
-            "ignore_string_type_changes": ignore_string_type_changes,
-            "ignore_numeric_type_changes": ignore_numeric_type_changes,
-            "ignore_type_in_groups": ignore_type_in_groups or [],
-            **other_deepdiff_kwargs,
-        }
-    )
+        expect_value, deepdiff_args = expect_value  # the real expect_value
+        deepdiff_kwargs.update(deepdiff_args)
 
     return json_assert(
         check_value, expect_value, message, strict=False, **deepdiff_kwargs
@@ -109,11 +105,16 @@ def json_equal(
     *,
     ignore_string_type_changes: bool = False,
     ignore_numeric_type_changes: bool = False,
-    ignore_type_in_groups: list = None,
+    ignore_type_in_groups: Union[tuple, list[tuple]] = None,
     **other_deepdiff_kwargs,
 ) -> None:
     """Equivalent to the strict mode of java unit test lib JSONassert."""
-    deepdiff_kwargs = {}
+    deepdiff_kwargs = {
+        "ignore_string_type_changes": ignore_string_type_changes,
+        "ignore_numeric_type_changes": ignore_numeric_type_changes,
+        "ignore_type_in_groups": ignore_type_in_groups,
+        **other_deepdiff_kwargs,
+    }
 
     # note: specifying deepdiff arguments in tuple is not recommended, keep it for compatibility
     if isinstance(expect_value, tuple):
@@ -121,17 +122,8 @@ def json_equal(
             raise TypeError(
                 "the second element must be a dict if `expect_value` is a tuple"
             )
-        expect_value, deepdiff_kwargs = expect_value  # the real expect_value
-
-    # merge deepdiff keyword arguments
-    deepdiff_kwargs.update(
-        {
-            "ignore_string_type_changes": ignore_string_type_changes,
-            "ignore_numeric_type_changes": ignore_numeric_type_changes,
-            "ignore_type_in_groups": ignore_type_in_groups or [],
-            **other_deepdiff_kwargs,
-        }
-    )
+        expect_value, deepdiff_args = expect_value  # the real expect_value
+        deepdiff_kwargs.update(deepdiff_args)
 
     return json_assert(
         check_value, expect_value, message, strict=True, **deepdiff_kwargs
