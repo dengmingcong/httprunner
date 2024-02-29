@@ -35,7 +35,8 @@ def json_assert(
 
     ignore_type_in_groups = [(dict, DotWiz)]
     if "ignore_type_in_groups" in deepdiff_kwargs:
-        ignore_type_in_groups.extend(deepdiff_kwargs.pop("ignore_type_in_groups"))
+        user_ignore_type_in_groups = deepdiff_kwargs.pop("ignore_type_in_groups") or []
+        ignore_type_in_groups.extend(user_ignore_type_in_groups)
 
     ddiff = DeepDiff(
         expect_value,
@@ -69,27 +70,28 @@ def json_contains(
     check_value: Union[dict, list],
     expect_value: Union[tuple, dict, list],
     message: str = "",
+    *,
+    ignore_string_type_changes: bool = False,
+    ignore_numeric_type_changes: bool = False,
+    ignore_type_in_groups: Union[tuple, list[tuple]] = None,
+    **other_deepdiff_kwargs,
 ) -> None:
-    """
-    Equivalent to the non-strict mode of java unit test lib JSONassert.
+    """Equivalent to the non-strict mode of java unit test lib JSONassert."""
+    deepdiff_kwargs = {
+        "ignore_string_type_changes": ignore_string_type_changes,
+        "ignore_numeric_type_changes": ignore_numeric_type_changes,
+        "ignore_type_in_groups": ignore_type_in_groups,
+        **other_deepdiff_kwargs,
+    }
 
-    Note:
-        `expect_value` 支持以元组的形式向 DeepDiff 传入额外的参数，但需要满足如下规则:
-            1. 元组的第 1 个元素表示真正的预期值
-            2. 元组的第 2 个元素必须是一个字典。字典的键必须和 `DeepDiff` 的参数一致，当前只支持这些参数：
-                * ignore_string_type_changes - 忽略字符串类型变更
-                * ignore_numeric_type_changes - 忽略数字类型变更
-                * ignore_type_in_groups - 忽略类型变更
-
-        reference: https://zepworks.com/deepdiff/current/ignore_types_or_values.html
-    """
-    deepdiff_kwargs = {}
+    # note: specifying deepdiff arguments in tuple is not recommended, keep it for compatibility
     if isinstance(expect_value, tuple):
         if not isinstance(expect_value[1], dict):
             raise TypeError(
                 "the second element must be a dict if `expect_value` is a tuple"
             )
-        expect_value, deepdiff_kwargs = expect_value  # the real expect_value
+        expect_value, deepdiff_args = expect_value  # the real expect_value
+        deepdiff_kwargs.update(deepdiff_args)
 
     return json_assert(
         check_value, expect_value, message, strict=False, **deepdiff_kwargs
@@ -100,27 +102,28 @@ def json_equal(
     check_value: Union[dict, list],
     expect_value: Union[tuple, dict, list],
     message: str = "",
+    *,
+    ignore_string_type_changes: bool = False,
+    ignore_numeric_type_changes: bool = False,
+    ignore_type_in_groups: Union[tuple, list[tuple]] = None,
+    **other_deepdiff_kwargs,
 ) -> None:
-    """
-    Equivalent to the strict mode of java unit test lib JSONassert.
+    """Equivalent to the strict mode of java unit test lib JSONassert."""
+    deepdiff_kwargs = {
+        "ignore_string_type_changes": ignore_string_type_changes,
+        "ignore_numeric_type_changes": ignore_numeric_type_changes,
+        "ignore_type_in_groups": ignore_type_in_groups,
+        **other_deepdiff_kwargs,
+    }
 
-    Note:
-        `expect_value` 支持以元组的形式向 DeepDiff 传入额外的参数，但需要满足如下规则:
-            1. 元组的第 1 个元素表示真正的预期值
-            2. 元组的第 2 个元素必须是一个字典。字典的键必须和 `DeepDiff` 的参数一致，当前只支持这些参数：
-                * ignore_string_type_changes - 忽略字符串类型变更
-                * ignore_numeric_type_changes - 忽略数字类型变更
-                * ignore_type_in_groups - 忽略类型变更
-
-        reference: https://zepworks.com/deepdiff/current/ignore_types_or_values.html
-    """
-    deepdiff_kwargs = {}
+    # note: specifying deepdiff arguments in tuple is not recommended, keep it for compatibility
     if isinstance(expect_value, tuple):
         if not isinstance(expect_value[1], dict):
             raise TypeError(
                 "the second element must be a dict if `expect_value` is a tuple"
             )
-        expect_value, deepdiff_kwargs = expect_value  # the real expect_value
+        expect_value, deepdiff_args = expect_value  # the real expect_value
+        deepdiff_kwargs.update(deepdiff_args)
 
     return json_assert(
         check_value, expect_value, message, strict=True, **deepdiff_kwargs

@@ -11,7 +11,7 @@ from httprunner.configs.validation import validation_settings
 from httprunner.exceptions import ValidationFailure, ParamsError
 from httprunner.models import (
     VariablesMapping,
-    Validators,
+    Validator,
     FunctionsMapping,
     JMESPathExtractor,
 )
@@ -20,7 +20,11 @@ from httprunner.utils import omit_long_data
 
 
 def get_uniform_comparator(comparator: Text):
-    """convert comparator alias to uniform name"""
+    """convert comparator alias to uniform name.
+
+    Note:
+        This function is deprecated and will be removed in the future.
+    """
     if comparator in ["eq", "equals", "equal"]:
         return "equal"
     elif comparator in ["lt", "less_than"]:
@@ -60,6 +64,9 @@ def get_uniform_comparator(comparator: Text):
 
 def uniform_validator(validator):
     """unify validator
+
+    Note:
+        This function is deprecated and will be removed in the future.
 
     Args:
         validator (dict): validator maybe in two formats:
@@ -190,7 +197,7 @@ class ResponseObject(object):
 
     def validate(
         self,
-        validators: Validators,
+        validators: list[Validator],
         variables_mapping: VariablesMapping = None,
         functions_mapping: FunctionsMapping = None,
     ) -> NoReturn:
@@ -205,15 +212,13 @@ class ResponseObject(object):
         validate_pass = True
         failures = []
 
-        for v in validators:
+        for validator in validators:
 
             if "validate_extractor" not in self.validation_results:
                 self.validation_results["validate_extractor"] = []
 
-            u_validator = uniform_validator(v)
-
             # check item (jmespath)
-            check_item = u_validator["check"]
+            check_item = validator.expression
             if isinstance(check_item, Text) and "$" in check_item:
                 # check_item is variable or function
                 check_item = parse_data(
@@ -227,25 +232,31 @@ class ResponseObject(object):
                 # variable or function evaluation result is "" or not text
                 check_value = check_item
 
-            # omit check value
+            # stringify check value and omit long text
             omitted_check_value = omit_long_data(str(check_value))
 
             # comparator
-            assert_method = u_validator["assert"]
+            assert_method = validator.method
+
             # functions found in package httprunner.builtin will be added to functions mapping too
             assert_func = get_mapping_function(assert_method, functions_mapping)
 
             # expect item
-            expect_item = u_validator["expect"]
+            expect_item = validator.expect
             # parse expected value with config/teststep/extracted variables
             expect_value = parse_data(expect_item, variables_mapping, functions_mapping)
             # omit expect value
             omitted_expect_value = omit_long_data(str(expect_value))
 
             # message
-            message = u_validator["message"]
+            message = validator.message
             # parse message with config/teststep/extracted variables
             message = parse_data(message, variables_mapping, functions_mapping)
+
+            # parse validator config
+            validator.config = parse_data(
+                validator.config, variables_mapping, functions_mapping
+            )
 
             validate_msg = f"assert {check_item} {assert_method} {omitted_expect_value}({type(expect_value).__name__})"
 
@@ -257,12 +268,13 @@ class ResponseObject(object):
                     validation_settings.content.keys.expect_value: expect_value,
                 },
                 validation_settings.content.keys.message: message,
+                validation_settings.content.keys.validator_config: validator.config,
                 validation_settings.content.keys.jmespath_: check_item,
                 validation_settings.content.keys.raw_expect_value: expect_item,
             }
 
             try:
-                assert_func(check_value, expect_value, message)
+                assert_func(check_value, expect_value, message, **validator.config)
                 validate_msg += "\t==> pass"
                 logger.info(validate_msg)
                 validator_dict["Result"] = emojis.success
@@ -271,7 +283,7 @@ class ResponseObject(object):
                 validator_dict["Result"] = emojis.failure
                 validate_msg += "\t==> fail"
                 allure_failure_message = f"""\
-* JMESPath 及对比方法
+* JMESPath 及断言方法
 {check_item} -> {assert_method}
 
 * 预期值 ({type(expect_value).__name__})
@@ -294,9 +306,9 @@ class ResponseObject(object):
             # add headers for each element if more than 1 exist
             if len(failures) > 1:
                 indexed_failures = []
-                for i, v in enumerate(failures, start=1):
-                    v = f"第 {i} 个失败的断言\n---------------\n" + v
-                    indexed_failures.append(v)
+                for i, validator in enumerate(failures, start=1):
+                    validator = f"第 {i} 个失败的断言\n---------------\n" + validator
+                    indexed_failures.append(validator)
             else:
                 indexed_failures = failures
 

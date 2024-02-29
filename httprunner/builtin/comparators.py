@@ -20,8 +20,44 @@ from httprunner.exceptions import ParamsError
 Number = Union[int, float]
 
 
-def equal(check_value: Any, expect_value: Any, message: Text = ""):
+def equal(
+    check_value: Any,
+    expect_value: Any,
+    message: Text = "",
+):
+    """Assert check_value equals to expect_value."""
     assert check_value == expect_value, message
+
+
+def each_equal(
+    check_value: Union[list, tuple],
+    expect_value: Any,
+    message: Text = "",
+    *,
+    is_not_empty: bool,
+):
+    """Assert each item of check_value equals to expect_value.
+
+    If is_not_empty is True, check_value should not be empty.
+    """
+    # check_value should be list or tuple
+    assert isinstance(
+        check_value, (list, tuple)
+    ), "check_value must be list or tuple type"
+
+    # if is_not_empty is True, check_value should not be empty
+    if is_not_empty:
+        assert check_value, "check_value should not be empty when is_not_empty is True"
+
+    # assert each item in check_value equals to expect_value, record the index and value of all the different items
+    diff_items = [
+        (index, item) for index, item in enumerate(check_value) if item != expect_value
+    ]
+
+    # if diff_items is not empty, raise AssertionError
+    assert (
+        not diff_items
+    ), f"{message}\n预期列表中每一个值都等于 {repr(expect_value)}，但下面这些值不等于预期值，显示格式为 (index, value): \n{repr(diff_items)}"
 
 
 def greater_than(
@@ -253,23 +289,29 @@ def all_(
     check_value: Iterable,
     expect_value: Optional[Union[Callable, tuple[Callable, dict]]],
     message: Text = "",
+    *,
+    preprocessor_kwargs: dict = None,
 ):
     """Pass `check_value` to builtin function `all`.
 
     If `expect_value` is callable, `check_value` will be passed to it first, then pass the result to `all`.
     """
-    if expect_value is not None and (
-        not callable(expect_value) and not isinstance(expect_value, tuple)
-    ):
-        raise ParamsError(
-            f"if expected_value is not None, it should be callable or a tuple, but got {type(expect_value)}"
-        )
+    preprocessor_kwargs = preprocessor_kwargs or {}
 
-    if callable(expect_value):
-        check_value = expect_value(check_value)
-    elif isinstance(expect_value, tuple):
-        function, kwargs = expect_value
-        check_value = function(check_value, **kwargs)
+    preprocessor = None
+    if expect_value:
+        if callable(expect_value):
+            preprocessor = expect_value
+        elif isinstance(expect_value, tuple):
+            preprocessor, kwargs = expect_value
+            preprocessor_kwargs.update(kwargs)
+        else:
+            raise ParamsError(
+                f"if expected_value is not None, it should be callable or a tuple, but got {type(expect_value)}"
+            )
+
+    if preprocessor:
+        check_value = preprocessor(check_value, **preprocessor_kwargs)
 
     assert all(check_value), message
 
@@ -318,17 +360,23 @@ def assert_lambda(
     check_value: Any,
     expect_value: Union[Callable, tuple[Callable, dict]],
     message: Text = "",
+    *,
+    validator_kwargs: dict = None,
 ):
     """Assert with custom validator."""
+    validator_kwargs = validator_kwargs or {}
+
     try:
         if isinstance(expect_value, Callable):
-            expect_value(check_value)
+            validator = expect_value
         elif isinstance(expect_value, tuple):
-            function, kwargs = expect_value
-            function(check_value, **kwargs)
+            validator, kwargs = expect_value
+            validator_kwargs.update(kwargs)
         else:
             raise ParamsError(
                 f"expect_value should be callable or a tuple, but got {type(expect_value)}"
             )
+
+        validator(check_value, **validator_kwargs)
     except AssertionError as e:
         raise AssertionError(f"{message}\n{e}")

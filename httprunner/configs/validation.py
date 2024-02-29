@@ -10,6 +10,7 @@ class ContentKeys(BaseSettings):
     comparator: str = "Comparator"
     expect_value: str = "ExpectValue"
     message: str = "Message"
+    validator_config: str = "ValidatorConfig"
     jmespath_: str = "JMESPath"
     raw_expect_value: str = "RawExpectValue"
     model_config = SettingsConfigDict(env_prefix="httprunner_validation_")
