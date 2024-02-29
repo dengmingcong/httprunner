@@ -568,22 +568,21 @@ class StepRequestValidation(object):
     def assert_all(
         self,
         jmespath_expression: Text,
-        expected_value: Optional[Union[Callable, tuple[Callable, dict], str]] = None,
+        preprocessor: Optional[Union[Callable, str]] = None,
         message: Text = "",
+        *,
+        preprocessor_kwargs: Optional[dict] = None,
     ):
-        """
-        Pass `jmespath_expression` searching result to builtin function `all` and assert the result.
+        """Pass `jmespath_expression` searching result to builtin function `all`.
 
-        If `expected_value` is callable, searching result will be passed to it first, then pass the result to `all`.
-        The callable accepts only one positional argument.
-        >>> StepRequestValidation().assert_all("body.result", lambda x: [v is not None for k, v in x.items()])  # noqa
-
-        If `expected_value` is a tuple, the first element must be callable, the second element must a dict.
+        If `expected_value` is callable, it will be treated as a preprocessor,
         `jmespath_expression` searching result will be pass to the callable as the first positional argument,
-        the second dict element will be passed as keyword arguments to the callable.
+        `preprocessor_kwargs` specifies the other arguments,
+        and finally the result of the callable will be used as the expected value.
+
         >>> def iterable_to_bool(iterable: dict, ignored: list):
         ...    return [v is not None for k, v in iterable.items() if v not in ignored]  # noqa
-        >>> StepRequestValidation().assert_all("body.result", (iterable_to_bool, {"ignored": ["foo", "bar"]}))
+        >>> StepRequestValidation().assert_all("body.result", iterable_to_bool, preprocessor_kwargs={"ignored": ["foo", "bar"]})
 
         Reference: https://docs.python.org/3/library/functions.html#all
         """
@@ -591,8 +590,9 @@ class StepRequestValidation(object):
             Validator(
                 method="all_",
                 expression=jmespath_expression,
-                expect=expected_value,
+                expect=preprocessor,
                 message=message,
+                config={"preprocessor_kwargs": preprocessor_kwargs},
             )
         )
         return self

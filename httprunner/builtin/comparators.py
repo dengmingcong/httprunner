@@ -289,23 +289,29 @@ def all_(
     check_value: Iterable,
     expect_value: Optional[Union[Callable, tuple[Callable, dict]]],
     message: Text = "",
+    *,
+    preprocessor_kwargs: dict = None,
 ):
     """Pass `check_value` to builtin function `all`.
 
     If `expect_value` is callable, `check_value` will be passed to it first, then pass the result to `all`.
     """
-    if expect_value is not None and (
-        not callable(expect_value) and not isinstance(expect_value, tuple)
-    ):
-        raise ParamsError(
-            f"if expected_value is not None, it should be callable or a tuple, but got {type(expect_value)}"
-        )
+    preprocessor_kwargs = preprocessor_kwargs or {}
 
-    if callable(expect_value):
-        check_value = expect_value(check_value)
-    elif isinstance(expect_value, tuple):
-        function, kwargs = expect_value
-        check_value = function(check_value, **kwargs)
+    preprocessor = None
+    if expect_value:
+        if callable(expect_value):
+            preprocessor = expect_value
+        elif isinstance(expect_value, tuple):
+            preprocessor, kwargs = expect_value
+            preprocessor_kwargs.update(kwargs)
+        else:
+            raise ParamsError(
+                f"if expected_value is not None, it should be callable or a tuple, but got {type(expect_value)}"
+            )
+
+    if preprocessor:
+        check_value = preprocessor(check_value, **preprocessor_kwargs)
 
     assert all(check_value), message
 
