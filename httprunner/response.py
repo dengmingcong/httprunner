@@ -253,6 +253,11 @@ class ResponseObject(object):
             # parse message with config/teststep/extracted variables
             message = parse_data(message, variables_mapping, functions_mapping)
 
+            # parse validator config
+            validator.config = parse_data(
+                validator.config, variables_mapping, functions_mapping
+            )
+
             validate_msg = f"assert {check_item} {assert_method} {omitted_expect_value}({type(expect_value).__name__})"
 
             validator_dict = {
