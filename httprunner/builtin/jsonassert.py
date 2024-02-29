@@ -35,7 +35,8 @@ def json_assert(
 
     ignore_type_in_groups = [(dict, DotWiz)]
     if "ignore_type_in_groups" in deepdiff_kwargs:
-        ignore_type_in_groups.extend(deepdiff_kwargs.pop("ignore_type_in_groups"))
+        user_ignore_type_in_groups = deepdiff_kwargs.pop("ignore_type_in_groups") or []
+        ignore_type_in_groups.extend(user_ignore_type_in_groups)
 
     ddiff = DeepDiff(
         expect_value,
