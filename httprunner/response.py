@@ -268,6 +268,7 @@ class ResponseObject(object):
                     validation_settings.content.keys.expect_value: expect_value,
                 },
                 validation_settings.content.keys.message: message,
+                validation_settings.content.keys.validator_config: validator.config,
                 validation_settings.content.keys.jmespath_: check_item,
                 validation_settings.content.keys.raw_expect_value: expect_item,
             }
