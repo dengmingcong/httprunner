@@ -360,17 +360,23 @@ def assert_lambda(
     check_value: Any,
     expect_value: Union[Callable, tuple[Callable, dict]],
     message: Text = "",
+    *,
+    validator_kwargs: dict = None,
 ):
     """Assert with custom validator."""
+    validator_kwargs = validator_kwargs or {}
+
     try:
         if isinstance(expect_value, Callable):
-            expect_value(check_value)
+            validator = expect_value
         elif isinstance(expect_value, tuple):
-            function, kwargs = expect_value
-            function(check_value, **kwargs)
+            validator, kwargs = expect_value
+            validator_kwargs.update(kwargs)
         else:
             raise ParamsError(
                 f"expect_value should be callable or a tuple, but got {type(expect_value)}"
             )
+
+        validator(check_value, **validator_kwargs)
     except AssertionError as e:
         raise AssertionError(f"{message}\n{e}")

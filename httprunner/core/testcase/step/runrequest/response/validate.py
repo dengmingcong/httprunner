@@ -575,8 +575,8 @@ class StepRequestValidation(object):
     ):
         """Pass `jmespath_expression` searching result to builtin function `all`.
 
-        If `expected_value` is callable, it will be treated as a preprocessor,
-        `jmespath_expression` searching result will be pass to the callable as the first positional argument,
+        If `preprocessor` is callable,
+        the jmespath searching result will be pass to the callable as the first positional argument,
         `preprocessor_kwargs` specifies the other arguments,
         and finally the result of the callable will be used as the expected value.
 
@@ -692,31 +692,30 @@ class StepRequestValidation(object):
     def assert_lambda(
         self,
         jmespath_expression: Text,
-        expected_value: Union[Callable, tuple[Callable, dict]],
+        custom_validator: Union[Callable, str],
         message: Text = "",
+        *,
+        validator_kwargs: Optional[dict] = None,
     ):
         """
         Assert with custom validator.
 
-        The `expected_value` can be a callable or a tuple.
-            1. if `expected_value` is callable, the callable should accept only one positional argument.
-                the jmespath searching result will be passed to the callable as the first positional argument.
-                >>> def custom_validator(response_data: dict):
-                ...     assert response_data["foo"] == "bar"
-                >>> StepRequestValidation().assert_lambda("body.result", custom_validator)
-            2. if `expected_value` is a tuple, the first element must be callable, the second element must a dict.
-                the jmespath searching result will be pass to the callable as the first positional argument,
-                the second dict element will be passed as keyword arguments to the callable.
-                >>> def custom_validator(response_data: dict, **kwargs):
-                ...     assert response_data["foo"] == kwargs["expected_value"]
-                >>> StepRequestValidation().assert_lambda("body.result", (custom_validator, {"expected_value": "bar"}))
+        The `custom_validator` must be a callable and call `assert` to make the assertion,
+        the jmespath searching result will be pass to the callable as the first positional argument,
+        `validator_kwargs` specifies the other arguments.
+
+        >>> def custom_validator_(response_data: dict, **kwargs):
+        ...     assert response_data["foo"] == kwargs["expected_value"]
+        >>> StepRequestValidation().assert_lambda(
+        ...     "body.result", custom_validator_, validator_kwargs={"expected_value": "bar"})
         """
         self._step_context.validators.append(
             Validator(
                 method="assert_lambda",
                 expression=jmespath_expression,
-                expect=expected_value,
+                expect=custom_validator,
                 message=message,
+                config={"validator_kwargs": validator_kwargs},
             )
         )
         return self
