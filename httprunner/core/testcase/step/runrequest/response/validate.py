@@ -31,14 +31,29 @@ class StepRequestValidation(object):
         return self
 
     def assert_equal(
-        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
+        self,
+        jmespath_expression: Text,
+        expected_value: Any,
+        message: Text = "",
+        *,
+        is_each_item: bool = False,
+        is_not_empty: bool = True
     ) -> "StepRequestValidation":
+        """Assert the value is equal to the expected value.
+
+        :param jmespath_expression: JMESPath expression
+        :param expected_value: expected value
+        :param message: error message
+        :param is_each_item: whether to assert each item in the list
+        :param is_not_empty: whether to assert the list is not empty, only take effect when is_each_item is True
+        """
         self._step_context.validators.append(
             Validator(
                 method="equal",
                 expression=jmespath_expression,
                 expect=expected_value,
                 message=message,
+                config={"is_each_item": is_each_item, "is_not_empty": is_not_empty},
             )
         )
         return self

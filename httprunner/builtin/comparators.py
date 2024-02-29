@@ -20,8 +20,44 @@ from httprunner.exceptions import ParamsError
 Number = Union[int, float]
 
 
-def equal(check_value: Any, expect_value: Any, message: Text = ""):
-    assert check_value == expect_value, message
+def equal(
+    check_value: Any,
+    expect_value: Any,
+    message: Text = "",
+    *,
+    is_each_item: bool,
+    is_not_empty: bool,
+):
+    """Assert check_value equals to expect_value.
+
+    If is_each_item is True, check each item in check_value.
+    If is_not_empty is True, check_value should not be empty.
+    """
+    # if is_each_item is True, check each item in check_value
+    if is_each_item:
+        # check_value should be list or tuple
+        assert isinstance(
+            check_value, (list, tuple)
+        ), "check_value should be list or tuple type when is_each_item is True"
+
+        # if is_not_empty is True, check_value should not be empty
+        if is_not_empty:
+            assert (
+                check_value
+            ), "check_value should not be empty when is_not_empty is True"
+
+        # assert each item in check_value equals to expect_value, record the index and value of all the different items
+        diff_items = [
+            (index, item)
+            for index, item in enumerate(check_value)
+            if item != expect_value
+        ]
+
+        # if diff_items is not empty, raise AssertionError
+        assert not diff_items, f"{message}\ndifferent items: {diff_items}"
+    else:
+        # if is_each_item is False, assert check_value equals to expect_value
+        assert check_value == expect_value, message
 
 
 def greater_than(
