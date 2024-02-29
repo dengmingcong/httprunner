@@ -5,7 +5,6 @@ from httprunner.exceptions import ValidationFailure
 
 
 class TestValidatorJsonAssert(HttpRunner):
-
     config = (
         Config("validate with json assert")
         .base_url("https://postman-echo.com")
@@ -37,13 +36,26 @@ class TestValidatorJsonAssert(HttpRunner):
                     {"ignore_numeric_type_changes": True},
                 ),
             )
+            .assert_json_contains(
+                "body.json",
+                {"foo": "foo", "bar": [4, 3, 2, 1], "baz": 1.0},
+                ignore_numeric_type_changes=True,
+            )
+            .assert_json_equal(
+                "body.json",
+                {
+                    "foo": "foo",
+                    "bar": [1, 2, 3, 4],
+                    "baz": 1.0,
+                },
+                ignore_numeric_type_changes=True,
+            )
         ),
     ]
 
 
 @pytest.mark.xfail(raises=ValidationFailure)
 class TestValidatorIsCloseFail(HttpRunner):
-
     config = (
         Config("validate with json assert")
         .base_url("https://postman-echo.com")
