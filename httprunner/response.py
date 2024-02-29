@@ -20,7 +20,11 @@ from httprunner.utils import omit_long_data
 
 
 def get_uniform_comparator(comparator: Text):
-    """convert comparator alias to uniform name"""
+    """convert comparator alias to uniform name.
+
+    Note:
+        This function is deprecated and will be removed in the future.
+    """
     if comparator in ["eq", "equals", "equal"]:
         return "equal"
     elif comparator in ["lt", "less_than"]:
@@ -60,6 +64,9 @@ def get_uniform_comparator(comparator: Text):
 
 def uniform_validator(validator):
     """unify validator
+
+    Note:
+        This function is deprecated and will be removed in the future.
 
     Args:
         validator (dict): validator maybe in two formats:
