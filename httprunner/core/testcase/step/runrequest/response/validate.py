@@ -369,67 +369,113 @@ class StepRequestValidation(object):
         return self
 
     def assert_json_contains(
-        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
+        self,
+        jmespath_expression: Text,
+        expected_value: Any,
+        message: Text = "",
+        *,
+        ignore_string_type_changes: bool = False,
+        ignore_numeric_type_changes: bool = False,
+        ignore_type_in_groups: list = None,
+        **other_deepdiff_kwargs,
     ) -> "StepRequestValidation":
         """
         Equivalent to the JSONassert non-strict mode.
 
-        Note:
-            `expected_value` 支持以元组的形式向 DeepDiff 传入额外的参数，但需要满足如下规则:
-                1. 元组的第 1 个元素表示真正的预期值
-                2. 元组的第 2 个元素必须是一个字典。字典的键必须和 `DeepDiff` 的参数一致，当前只支持这些参数：
-                    * ignore_string_type_changes - 忽略字符串类型变更
-                    * ignore_numeric_type_changes - 忽略数字类型变更
-                    * ignore_type_in_groups - 忽略类型变更
-
-            >>> StepRequestValidation.assert_json_contains(
-            ...     "body.result", (
-            ...         {"foo", "foo", "bar": "bar"},
-            ...         {"ignore_string_type_changes": True, "ignore_numeric_type_changes": True}
-            ...     )
-            ... )
-
-            reference: https://zepworks.com/deepdiff/current/ignore_types_or_values.html
+        :param jmespath_expression: JMESPath expression
+        :param expected_value: expected value
+        :param message: error message
+        :param ignore_string_type_changes: whether to ignore string type changes or not.
+            For example b”Hello” vs. “Hello” are considered the same if ignore_string_type_changes is set to True.
+        :param ignore_numeric_type_changes: whether to ignore numeric type changes or not.
+            For example 10 vs. 10.0 are considered the same if ignore_numeric_type_changes is set to True.
+        :param ignore_type_in_groups: ignores types when t1 and t2 are both within the same type group.
+            ref: https://zepworks.com/deepdiff/current/ignore_types_or_values.html
+        :param other_deepdiff_kwargs: other kwargs supported by DeepDiff except:
+            view, ignore_order, report_repetition, cutoff_intersection_for_pairs, cutoff_distance_for_pairs
         """
+        # raise exception if these keys are in other_deepdiff_kwargs
+        if other_deepdiff_kwargs:
+            for key in (
+                "view",
+                "ignore_order",
+                "report_repetition",
+                "cutoff_intersection_for_pairs",
+                "cutoff_distance_for_pairs",
+            ):
+                if key in other_deepdiff_kwargs:
+                    raise ValueError(
+                        f"the keyword argument {key} cannot be used in assert_json_contains."
+                    )
+
         self._step_context.validators.append(
             Validator(
                 method="json_contains",
                 expression=jmespath_expression,
                 expect=expected_value,
                 message=message,
+                config={
+                    "ignore_string_type_changes": ignore_string_type_changes,
+                    "ignore_numeric_type_changes": ignore_numeric_type_changes,
+                    "ignore_type_in_groups": ignore_type_in_groups,
+                    **other_deepdiff_kwargs,
+                },
             )
         )
         return self
 
     def assert_json_equal(
-        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
+        self,
+        jmespath_expression: Text,
+        expected_value: Any,
+        message: Text = "",
+        *,
+        ignore_string_type_changes: bool = False,
+        ignore_numeric_type_changes: bool = False,
+        ignore_type_in_groups: list = None,
+        **other_deepdiff_kwargs,
     ) -> "StepRequestValidation":
         """
         Equivalent to the JSONassert strict mode.
 
-        Note:
-            `expected_value` 支持以元组的形式向 DeepDiff 传入额外的参数，但需要满足如下规则:
-                1. 元组的第 1 个元素表示真正的预期值
-                2. 元组的第 2 个元素必须是一个字典。字典的键必须和 `DeepDiff` 的参数一致，当前只支持这些参数：
-                    * ignore_string_type_changes - 忽略字符串类型变更
-                    * ignore_numeric_type_changes - 忽略数字类型变更
-                    * ignore_type_in_groups - 忽略类型变更
-
-            >>> StepRequestValidation.assert_json_equal(
-            ...     "body.result", (
-            ...         {"foo", "foo", "bar": "bar"},
-            ...         {"ignore_string_type_changes": True, "ignore_numeric_type_changes": True}
-            ...     )
-            ... )
-
-            reference: https://zepworks.com/deepdiff/current/ignore_types_or_values.html
+        :param jmespath_expression: JMESPath expression
+        :param expected_value: expected value
+        :param message: error message
+        :param ignore_string_type_changes: whether to ignore string type changes or not.
+            For example b”Hello” vs. “Hello” are considered the same if ignore_string_type_changes is set to True.
+        :param ignore_numeric_type_changes: whether to ignore numeric type changes or not.
+            For example 10 vs. 10.0 are considered the same if ignore_numeric_type_changes is set to True.
+        :param ignore_type_in_groups: ignores types when t1 and t2 are both within the same type group.
+            ref: https://zepworks.com/deepdiff/current/ignore_types_or_values.html
+        :param other_deepdiff_kwargs: other kwargs supported by DeepDiff except:
+            view, ignore_order, report_repetition, cutoff_intersection_for_pairs, cutoff_distance_for_pairs
         """
+        # raise exception if these keys are in other_deepdiff_kwargs
+        if other_deepdiff_kwargs:
+            for key in (
+                "view",
+                "ignore_order",
+                "report_repetition",
+                "cutoff_intersection_for_pairs",
+                "cutoff_distance_for_pairs",
+            ):
+                if key in other_deepdiff_kwargs:
+                    raise ValueError(
+                        f"the keyword argument {key} cannot be used in assert_json_contains."
+                    )
+
         self._step_context.validators.append(
             Validator(
                 method="json_equal",
                 expression=jmespath_expression,
                 expect=expected_value,
                 message=message,
+                config={
+                    "ignore_string_type_changes": ignore_string_type_changes,
+                    "ignore_numeric_type_changes": ignore_numeric_type_changes,
+                    "ignore_type_in_groups": ignore_type_in_groups,
+                    **other_deepdiff_kwargs,
+                },
             )
         )
         return self
