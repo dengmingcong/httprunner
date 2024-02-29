@@ -35,17 +35,12 @@ class StepRequestValidation(object):
         jmespath_expression: Text,
         expected_value: Any,
         message: Text = "",
-        *,
-        is_each_item: bool = False,
-        is_not_empty: bool = True
     ) -> "StepRequestValidation":
         """Assert the value is equal to the expected value.
 
         :param jmespath_expression: JMESPath expression
         :param expected_value: expected value
         :param message: error message
-        :param is_each_item: whether to assert each item in the list
-        :param is_not_empty: whether to assert the list is not empty, only take effect when is_each_item is True
         """
         self._step_context.validators.append(
             Validator(
@@ -53,7 +48,32 @@ class StepRequestValidation(object):
                 expression=jmespath_expression,
                 expect=expected_value,
                 message=message,
-                config={"is_each_item": is_each_item, "is_not_empty": is_not_empty},
+            )
+        )
+        return self
+
+    def assert_each_equal(
+        self,
+        jmespath_expression: Text,
+        expected_value: Any,
+        message: Text = "",
+        *,
+        is_not_empty: bool = True,
+    ) -> "StepRequestValidation":
+        """Assert each value is equal to the expected value.
+
+        :param jmespath_expression: JMESPath expression
+        :param expected_value: expected value
+        :param message: error message
+        :param is_not_empty: if True, the list must not be empty
+        """
+        self._step_context.validators.append(
+            Validator(
+                method="each_equal",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+                config={"is_not_empty": is_not_empty},
             )
         )
         return self
