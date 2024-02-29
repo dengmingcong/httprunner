@@ -57,7 +57,7 @@ def each_equal(
     # if diff_items is not empty, raise AssertionError
     assert (
         not diff_items
-    ), f"{message}\n列表中每一个值都应该等于 {repr(expect_value)}，下面这些值为错误的值，显示格式为 (index, value): \n{repr(diff_items)}"
+    ), f"{message}\n预期列表中每一个值都等于 {repr(expect_value)}，但下面这些值不等于预期值，显示格式为 (index, value): \n{repr(diff_items)}"
 
 
 def greater_than(
