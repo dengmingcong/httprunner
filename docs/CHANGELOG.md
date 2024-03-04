@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.39.1 (2024-03-04)
+
+### Performance
+
+* Change poetry source to speed up dependency resolving ([`dc8f8bb`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/dc8f8bbc14b5471c67e1017b9bfe52ef5206cab0))
+
 ## v3.39.0 (2024-02-29)
 
 ### Feature
