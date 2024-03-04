@@ -2,6 +2,23 @@
 
 <!--next-version-placeholder-->
 
+## v3.39.0 (2024-02-29)
+
+### Feature
+
+* Add validator `assert_each_equal` ([`de5907c`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/de5907c718a556ce8f1b40a5a24233d400e918b4))
+* Add config to support asserting each item of list equals to the expected value ([`c3ff285`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c3ff285ccc1bc54b8e331f2445c67a870a15cac8))
+
+### Fix
+
+* Deepdiff kwargs specified in tuple should have higher priority than those specified in function keyword arguments ([`5a07e25`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5a07e25ce894900f5bdee8ad909d42f77fac448a))
+* Pass None to extend() raise error ([`376b67e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/376b67eaa2866129100be1146f50e071d8529bd7))
+
+### Documentation
+
+* Denote deprecated functions ([`29a8a24`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/29a8a245d09b4fb4b555b57cbfc8890b1f385329))
+* Add docs for fields ([`b6e213a`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b6e213a31c17fa4a63df34c18c532b90e6ec612d))
+
 ## v3.38.1 (2024-02-20)
 
 ### Fix

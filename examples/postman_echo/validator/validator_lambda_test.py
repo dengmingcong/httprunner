@@ -34,6 +34,12 @@ class TestValidatorLambda(HttpRunner):
             .assert_equal("status_code", 200)
             .assert_lambda(
                 "body.form.foo",
+                assert_value_plus_equal_three,
+                "value is not 1",
+                validator_kwargs={"addition": 2},
+            )
+            .assert_lambda(
+                "body.form.foo",
                 (assert_value_plus_equal_three, {"addition": 2}),
                 "value is not 1",
             )

@@ -35,6 +35,11 @@ class TestValidatorAll(HttpRunner):
             .assert_equal("status_code", 200)
             .assert_all(
                 "body.json",
+                lambda x, keys: [v is not None for k, v in x.items() if v in keys],
+                preprocessor_kwargs={"keys": ["foo", "bar"]},
+            )
+            .assert_all(
+                "body.json",
                 (
                     lambda x, keys: [v is not None for k, v in x.items() if v in keys],
                     {"keys": ["foo", "bar"]},

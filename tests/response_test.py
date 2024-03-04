@@ -2,7 +2,7 @@ import unittest
 
 import requests
 
-from httprunner.models import JMESPathExtractor
+from httprunner.models import JMESPathExtractor, Validator
 from httprunner.response import ResponseObject
 
 
@@ -39,8 +39,16 @@ class TestResponse(unittest.TestCase):
     def test_validate(self):
         self.resp_obj.validate(
             [
-                {"eq": ["body.json.locations[0].name", "Seattle"]},
-                {"eq": ["body.json.locations[0]", {"name": "Seattle", "state": "WA"}]},
+                Validator(
+                    method="equal",
+                    expression="body.json.locations[0].name",
+                    expect="Seattle",
+                ),
+                Validator(
+                    method="equal",
+                    expression="body.json.locations[0]",
+                    expect={"name": "Seattle", "state": "WA"},
+                ),
             ],
         )
 
@@ -48,8 +56,12 @@ class TestResponse(unittest.TestCase):
         variables_mapping = {"index": 1, "var_empty": ""}
         self.resp_obj.validate(
             [
-                {"eq": ["body.json.locations[$index].name", "New York"]},
-                {"eq": ["$var_empty", ""]},
+                Validator(
+                    method="equal",
+                    expression="body.json.locations[$index].name",
+                    expect="New York",
+                ),
+                Validator(method="equal", expression="$var_empty", expect=""),
             ],
             variables_mapping=variables_mapping,
         )
@@ -59,8 +71,8 @@ class TestResponse(unittest.TestCase):
         functions_mapping = {"get_num": lambda x: x}
         self.resp_obj.validate(
             [
-                {"eq": ["${get_num(0)}", 0]},
-                {"eq": ["${get_num($index)}", 1]},
+                Validator(method="equal", expression="${get_num(0)}", expect=0),
+                Validator(method="equal", expression="${get_num($index)}", expect=1),
             ],
             variables_mapping=variables_mapping,
             functions_mapping=functions_mapping,
