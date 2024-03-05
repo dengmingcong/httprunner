@@ -7,6 +7,7 @@ from typing import (
 
 from httprunner.core.testcase.beforestep.param import ParametrizeStepMixin
 from httprunner.core.testcase.beforestep.skip import SkipStepMixin
+from httprunner.core.testcase.beforestep.timer import TimerMixin
 from httprunner.core.testcase.beforestep.variable import StepVariableMixin
 from httprunner.core.testcase.config import Config  # noqa
 from httprunner.core.testcase.step.hook.setup import SetupHookMixin
@@ -20,6 +21,7 @@ class RunTestCase(
     ParametrizeStepMixin,
     SkipStepMixin,
     SetupHookMixin,
+    TimerMixin,
     StepVariableMixin,
 ):
     """
