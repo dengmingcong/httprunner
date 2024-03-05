@@ -11,11 +11,11 @@ class TimerMixin:
     _step_context: TStep
 
     def with_pre_delay(self, seconds: Union[int, float, str]):
-        """Delay before executing the step."""
-        self._step_context.pre_delay = seconds
+        """Delay (in seconds) before executing the step."""
+        self._step_context.pre_delay_seconds = seconds
         return self
 
     def with_post_delay(self, seconds: Union[int, float, str]):
-        """Delay after executing the step."""
-        self._step_context.post_delay = seconds
+        """Delay (in seconds) after executing the step."""
+        self._step_context.post_delay_seconds = seconds
         return self
