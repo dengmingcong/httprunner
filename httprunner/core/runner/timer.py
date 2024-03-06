@@ -19,7 +19,7 @@ def display_delay_in_step_name(step: TStep, functions: dict) -> NoReturn:
             )
 
         if step.pre_delay_seconds:
-            delay_messages.append(f"Delay Before: {step.pre_delay_seconds} seconds")
+            delay_messages.append(f"Sleep Before: {step.pre_delay_seconds} seconds")
 
     # display delay after running step
     if step.post_delay_seconds:
@@ -32,8 +32,8 @@ def display_delay_in_step_name(step: TStep, functions: dict) -> NoReturn:
             )
 
         if step.post_delay_seconds:
-            delay_messages.append(f"Delay After: {step.post_delay_seconds} seconds")
+            delay_messages.append(f"Sleep After: {step.post_delay_seconds} seconds")
 
     # join delay messages with '/', and display at the end of step name (separated by icon ⏱️)
     if delay_messages:
-        step.name = f"{step.name} ⏱️ {' / '.join(delay_messages)}"
+        step.name = f"{step.name} ⏳ {' / '.join(delay_messages)}"
