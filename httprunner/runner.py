@@ -25,6 +25,7 @@ from httprunner.core.runner.retry import (
 )
 from httprunner.core.runner.skip_step import is_skip_step
 from httprunner.core.runner.step_shell_variables import get_step_shell_variables
+from httprunner.core.runner.timer import display_delay_in_step_name
 from httprunner.core.runner.update_form import update_form
 from httprunner.core.runner.update_json import update_json
 from httprunner.core.runner.with_resource import evaluate_resources
@@ -580,11 +581,13 @@ class HttpRunner(object):
             # so the original step should stay untouched.
             step_copy = step.model_copy(deep=True)
             self.__resolve_step_variables(step_copy)
+            display_delay_in_step_name(step_copy, self.__project_meta.functions)
             return parse_data(
                 step_copy.name, step_copy.variables, self.__project_meta.functions
             )
         else:
             self.__resolve_step_variables(step)
+            display_delay_in_step_name(step, self.__project_meta.functions)
             return parse_data(step.name, step.variables, self.__project_meta.functions)
 
     def __run_step(self, step: TStep) -> NoReturn:
