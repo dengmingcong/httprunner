@@ -2,6 +2,23 @@
 
 <!--next-version-placeholder-->
 
+## v3.40.0 (2024-03-06)
+
+### Feature
+
+* Sleep before and after step ([`88aac9d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/88aac9dd3ce5fb562da33a4b7dfb644c372c572b))
+* Add function to parse and display delay info in step name ([`a5efa10`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a5efa10150fe3fe1aa91b03479ee1d48bd05b033))
+* Add function to parse and display delay info in step name ([`3d5ca5d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/3d5ca5d9a9fa5f6ee578b51315ebb3738af9bdf7))
+* (deprecated) remove TimerMixin from RunTestCase ([`5ebe009`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5ebe009d97b64af982044532e5b904d48926d74f))
+* Add TimerMixin to RunTestCase ([`f1c01a4`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/f1c01a48cff5dc09cf9be69bb58db0484bc40456))
+* Add TimerMixin to RunRequest and HttpRunnerRequest ([`338468d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/338468dd67abfbd0ddf55c85d7d105f16eaf8888))
+* Add fields for timer ([`a394cbd`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a394cbdef3a34483fcc9f3ab9ef3fb7011df51a8))
+* Add TimerMixin ([`5096fc8`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5096fc8ce3750de2bf8328e86fe51de0312faea2))
+
+### Documentation
+
+* Unit is second ([`2c307d1`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/2c307d1c6ebc960384661277a7ebde197fbf597f))
+
 ## v3.39.1 (2024-03-04)
 
 ### Performance
