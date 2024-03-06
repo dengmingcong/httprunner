@@ -531,6 +531,10 @@ class HttpRunner(object):
         """Core function for running step (maybe a request or referenced testcase)."""
         self.__resolve_step_variables(step)
 
+        if step.pre_delay_seconds:
+            logger.info(f"Sleep Before: {step.pre_delay_seconds} seconds")
+            time.sleep(step.pre_delay_seconds)
+
         try:
             logger.info(f"run step begin: {step.name} >>>>>>")
 
@@ -548,6 +552,10 @@ class HttpRunner(object):
             raise e
         finally:
             logger.info(f"run step end: {step.name} <<<<<<\n")
+
+        if step.post_delay_seconds:
+            logger.info(f"Sleep After: {step.post_delay_seconds} seconds")
+            time.sleep(step.post_delay_seconds)
 
     def __parse_step_name(self, step: TStep) -> str:
         """Parse step name with step context variables and variables defined by step self."""
