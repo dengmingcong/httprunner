@@ -15,9 +15,7 @@ class TestRunRequest(HttpRunner):
             **{
                 "datetime": datetime,
                 "delay": 5,
-                "before_post_delay": datetime.datetime.now(
-                    tz=datetime.timezone.utc
-                ).isoformat(),
+                "before_post_delay": "${pyexp(datetime.datetime.now(tz=datetime.timezone.utc).isoformat())}",
             }
         )
     )

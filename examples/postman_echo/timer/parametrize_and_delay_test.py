@@ -11,7 +11,13 @@ class TestRunRequest(HttpRunner):
         Config("test pre post delay")
         .base_url("https://postman-echo.com")
         .verify(False)
-        .variables(**{"datetime": datetime, "delay": 1})
+        .variables(
+            **{
+                "datetime": datetime,
+                "delay": 1,
+                "config_parse_time": "${pyexp(datetime.datetime.now(tz=datetime.timezone.utc).isoformat())}",
+            }
+        )
     )
 
     teststeps = [
@@ -22,20 +28,18 @@ class TestRunRequest(HttpRunner):
             .post("/post")
             .with_json(
                 {
-                    "import_time": datetime.datetime.now(
-                        tz=datetime.timezone.utc
-                    ).isoformat(),
-                    "parse_time": "${pyexp(datetime.datetime.now(tz=datetime.timezone.utc).isoformat())}",
+                    "config_parse_time": "$config_parse_time",
+                    "step_parse_time": "${pyexp(datetime.datetime.now(tz=datetime.timezone.utc).isoformat())}",
                 }
             )
             .extract()
-            .with_jmespath("body.json.import_time", "import_time")
-            .with_jmespath("body.json.parse_time", "parse_time")
+            .with_jmespath("body.json.step_parse_time", "step_parse_time")
             .validate()
             .assert_greater_than(
                 (
                     "${pyexp("
-                    "(datetime.datetime.fromisoformat(parse_time) - datetime.datetime.fromisoformat(import_time))"
+                    "(datetime.datetime.fromisoformat(step_parse_time) - "
+                    "datetime.datetime.fromisoformat(config_parse_time))"
                     ".total_seconds()"
                     ")}"
                 ),
