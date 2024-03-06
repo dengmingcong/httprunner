@@ -10,7 +10,9 @@ def display_delay_in_step_name(step: TStep, functions: dict) -> NoReturn:
 
     # display delay before running step
     if step.pre_delay_seconds:
-        step.pre_delay_seconds = parse_data(step.pre_delay_seconds, functions)
+        step.pre_delay_seconds = parse_data(
+            step.pre_delay_seconds, step.variables, functions
+        )
 
         # pre_delay_seconds must be int or float
         if not isinstance(step.pre_delay_seconds, (int, float)):
@@ -23,7 +25,9 @@ def display_delay_in_step_name(step: TStep, functions: dict) -> NoReturn:
 
     # display delay after running step
     if step.post_delay_seconds:
-        step.post_delay_seconds = parse_data(step.post_delay_seconds, functions)
+        step.post_delay_seconds = parse_data(
+            step.post_delay_seconds, step.variables, functions
+        )
 
         # post_delay_seconds must be int or float
         if not isinstance(step.post_delay_seconds, (int, float)):
