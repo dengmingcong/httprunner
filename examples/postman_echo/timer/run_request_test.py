@@ -17,7 +17,7 @@ class TestRunRequest(HttpRunner):
     teststeps = [
         Step(
             RunRequest("pre delay")
-            .with_pre_delay(2)
+            .with_pre_delay(1)
             .post("/post")
             .with_json(
                 {
@@ -40,10 +40,10 @@ class TestRunRequest(HttpRunner):
                     ".total_seconds()"
                     ")}"
                 ),
-                2,
+                1,
             )
         ),
-        Step(RunRequest("post delay").with_post_delay(2).post("/post")),
+        Step(RunRequest("post delay").with_post_delay(1).post("/post")),
         Step(
             RunRequest("request after post delay")
             .post("/post")
@@ -63,7 +63,7 @@ class TestRunRequest(HttpRunner):
                     ".total_seconds()"
                     ")}"
                 ),
-                2,
+                1,
             )
         ),
     ]
