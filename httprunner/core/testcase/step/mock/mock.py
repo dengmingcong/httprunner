@@ -1,5 +1,3 @@
-from typing import Union
-
 from httprunner.models import TStep
 
 

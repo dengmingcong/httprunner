@@ -19,7 +19,7 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         "--mock-mode",
-        action="store",
+        action="store_true",
         help="mock mode test",
     )
 
