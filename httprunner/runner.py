@@ -305,8 +305,7 @@ class HttpRunner(object):
 
         method, url, parsed_request_dict = self.__prepare_step_request(step)
         # mock data
-        # 如果有全局mock模式的配置
-        if mock_settings.mode is True:
+        if mock_settings.mode is True and step.mock_body:
             mock_body_dict = parse_data(
                 step.mock_body, step.variables, self.__project_meta.functions
             )
