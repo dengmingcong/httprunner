@@ -1,5 +1,4 @@
 import json
-import pickle
 import time
 from datetime import datetime, timedelta, timezone
 from typing import NoReturn
@@ -14,10 +13,8 @@ from requests.exceptions import (
     MissingSchema,
     RequestException,
 )
-from requests.models import CONTENT_CHUNK_SIZE
 
 from httprunner.builtin import expand_nested_json
-from httprunner.builtin.dictionary import get_sub_dict
 from httprunner.models import RequestData, ResponseData
 from httprunner.models import SessionData, ReqRespData
 from httprunner.utils import lower_dict_keys, omit_long_data
@@ -33,7 +30,6 @@ class ApiResponse(Response):
 
 
 class MockResponse(Response):
-
     def __init__(self, content=None):
         super().__init__()
         # set mock response status code 200
@@ -205,7 +201,9 @@ class HttpSession(requests.Session):
         now = datetime.now(timezone(timedelta(hours=8)))
         kwargs["headers"].update({"Date": now.strftime("%Y-%m-%d %H:%M:%S %Z")})
 
-        requests_response = self._send_request_safe_mode(method, url, mock_body, **kwargs)
+        requests_response = self._send_request_safe_mode(
+            method, url, mock_body, **kwargs
+        )
         response_time_ms = round((time.time() - start_timestamp) * 1000, 2)
 
         # get length of the response content
@@ -244,7 +242,9 @@ class HttpSession(requests.Session):
 
         return requests_response
 
-    def _send_request_safe_mode(self, method, url, mock_body=None, **kwargs) -> Response:
+    def _send_request_safe_mode(
+        self, method, url, mock_body=None, **kwargs
+    ) -> Response:
         """
         Send a HTTP request, and catch any exception that might occur due to connection problems.
         Safe mode has been removed from requests 1.x.
@@ -252,9 +252,7 @@ class HttpSession(requests.Session):
         # mock mode
         if mock_body:
             resp = MockResponse(mock_body)
-            resp.request = (
-                Request(method, url).prepare()
-            )
+            resp.request = Request(method, url).prepare()
             return resp
         try:
             return requests.Session.request(self, method, url, **kwargs)

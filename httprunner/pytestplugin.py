@@ -1,6 +1,6 @@
 import pytest
 
-from httprunner import Config, HttpRunner, Step
+from httprunner import Config, HttpRunner
 
 
 def pytest_addoption(parser):
