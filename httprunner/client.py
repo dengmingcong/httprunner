@@ -1,4 +1,5 @@
 import json
+import pickle
 import time
 from datetime import datetime, timedelta, timezone
 from typing import NoReturn
@@ -13,8 +14,10 @@ from requests.exceptions import (
     MissingSchema,
     RequestException,
 )
+from requests.models import CONTENT_CHUNK_SIZE
 
 from httprunner.builtin import expand_nested_json
+from httprunner.builtin.dictionary import get_sub_dict
 from httprunner.models import RequestData, ResponseData
 from httprunner.models import SessionData, ReqRespData
 from httprunner.utils import lower_dict_keys, omit_long_data
@@ -27,6 +30,24 @@ class ApiResponse(Response):
         if hasattr(self, "error") and self.error:
             raise self.error
         Response.raise_for_status(self)
+
+
+class MockResponse(Response):
+
+    def __init__(self, content=None):
+        super().__init__()
+        # set mock response status code 200
+        self.status_code = 200
+        if content:
+            self._content = content
+
+    def raise_for_status(self):
+        if hasattr(self, "error") and self.error:
+            raise self.error
+        Response.raise_for_status(self)
+
+    def json(self):
+        return self._content
 
 
 def get_req_resp_record(requests_response: Response, **kwargs) -> ReqRespData:
@@ -128,7 +149,7 @@ class HttpSession(requests.Session):
         self.data.req_resps.pop()
         self.data.req_resps.append(get_req_resp_record(requests_response))
 
-    def request(self, method, url, name=None, **kwargs) -> Response:
+    def request(self, method, url, name=None, mock_body=None, **kwargs) -> Response:
         """
         Constructs and sends a :py:class:`requests.Request`.
         Returns :py:class:`requests.Response` object.
@@ -139,6 +160,8 @@ class HttpSession(requests.Session):
             URL for the new :class:`Request` object.
         :param name: (optional)
             Placeholder, make compatible with Locust's HttpSession
+        :param mock_body: (optional)
+            mock response body.
         :param params: (optional)
             Dictionary or bytes to be sent in the query string for the :class:`Request`.
         :param data: (optional)
@@ -182,7 +205,7 @@ class HttpSession(requests.Session):
         now = datetime.now(timezone(timedelta(hours=8)))
         kwargs["headers"].update({"Date": now.strftime("%Y-%m-%d %H:%M:%S %Z")})
 
-        requests_response = self._send_request_safe_mode(method, url, **kwargs)
+        requests_response = self._send_request_safe_mode(method, url, mock_body, **kwargs)
         response_time_ms = round((time.time() - start_timestamp) * 1000, 2)
 
         # get length of the response content
@@ -221,11 +244,18 @@ class HttpSession(requests.Session):
 
         return requests_response
 
-    def _send_request_safe_mode(self, method, url, **kwargs) -> Response:
+    def _send_request_safe_mode(self, method, url, mock_body=None, **kwargs) -> Response:
         """
         Send a HTTP request, and catch any exception that might occur due to connection problems.
         Safe mode has been removed from requests 1.x.
         """
+        # mock mode
+        if mock_body:
+            resp = MockResponse(mock_body)
+            resp.request = (
+                Request(method, url).prepare()
+            )
+            return resp
         try:
             return requests.Session.request(self, method, url, **kwargs)
         except (MissingSchema, InvalidSchema, InvalidURL):

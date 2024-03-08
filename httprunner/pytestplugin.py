@@ -1,6 +1,6 @@
 import pytest
 
-from httprunner import Config, HttpRunner
+from httprunner import Config, HttpRunner, Step
 
 
 def pytest_addoption(parser):
@@ -16,6 +16,11 @@ def pytest_addoption(parser):
         "--debugtalk-py-file",
         action="store",
         help="load debugtalk functions from `FILE` instead of trying to locate one debugtalk.py file",
+    )
+    parser.addoption(
+        "--mock-mode",
+        action="store",
+        help="mock mode test",
     )
 
 
@@ -39,6 +44,17 @@ def continue_on_failure(request, is_httprunner_test):
     if request.config.getoption("--continue-on-failure"):
         config: Config = request.cls.config
         config.continue_on_failure()
+
+
+@pytest.fixture(scope="function", autouse=True)
+def mock_mode(request, is_httprunner_test):
+    """Continue running next steps if one step did not pass validation."""
+    if not is_httprunner_test:
+        return
+
+    if request.config.getoption("--mock-mode"):
+        config: Config = request.cls.config
+        config.mock_mode()
 
 
 @pytest.fixture(scope="function", autouse=True)

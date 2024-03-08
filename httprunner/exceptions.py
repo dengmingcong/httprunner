@@ -19,6 +19,10 @@ class MultiStepsFailedError(MyBaseFailure):
     pass
 
 
+class MockFailedError(MyBaseFailure):
+    pass
+
+
 class MultiValidationFailure(ValidationFailure, MultiStepsFailedError):
     pass
 

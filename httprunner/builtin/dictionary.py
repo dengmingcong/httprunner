@@ -19,3 +19,10 @@ def get_from_nested_dict(target_dict: dict, *keys) -> Any:
         raise AttributeError("get_from_nested_dict() expects at least two arguments.")
 
     return reduce(operator.getitem, keys, target_dict)
+
+
+def get_sub_dict(d: dict, *keys) -> dict:
+    """
+    Get a sub-set of dictionary.
+    """
+    return {key: d[key] for key in keys if key in d}

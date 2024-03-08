@@ -77,6 +77,7 @@ class TConfig(BaseModel):
     path: Text = None
     weight: int = 1
     continue_on_failure: bool = False
+    mock_mode: bool = False
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -168,6 +169,7 @@ class TStep(BaseModel):
     )  # variables set by HttRunnerRequest request
     setup_hooks: Hooks = []
     teardown_hooks: Hooks = []
+    mock_body: Union[dict, str] = None
 
     extract: list[
         Union[JMESPathExtractor]

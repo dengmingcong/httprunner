@@ -4,6 +4,7 @@ from typing import (
 
 from httprunner.builtin import update_dict_recursively
 from httprunner.core.testcase.step.hook.teardown import TeardownHookMixin
+from httprunner.core.testcase.step.mock.mock import MockMixin
 from httprunner.core.testcase.step.runrequest.export import StepRequestExport
 from httprunner.core.testcase.step.runrequest.response.extract import (
     StepRequestExtraction,
@@ -16,7 +17,10 @@ from httprunner.models import (
 )
 
 
-class RequestWithOptionalArgs(TeardownHookMixin):
+class RequestWithOptionalArgs(
+    TeardownHookMixin,
+    MockMixin
+):
     """Mixin representing arguments for RunRequest."""
 
     def __init__(self, step_context: TStep):

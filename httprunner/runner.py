@@ -303,9 +303,28 @@ class HttpRunner(object):
         step_data = StepData(name=step.name)  # noqa
 
         method, url, parsed_request_dict = self.__prepare_step_request(step)
-
+        # mock data
+        mock_body_dict = None
+        # 如果有全局mock模式的配置
+        if self.__config.mock_mode is True:
+            # 使用 api 表中的默认 mock 配置
+            if step.mock_body == {}:
+                if api := step.variables.get('api', None):
+                    if not api.mock:
+                        raise exceptions.MockFailedError(
+                            f"api mock config must not be None, api: {api}"
+                        )
+                    step.mock_body = api.mock
+                else:
+                    raise exceptions.MockFailedError(
+                        f"use default api mock config，step variables must contains 'api', "
+                        f"step.variables: {step.variables}"
+                    )
+            mock_body_dict = parse_data(
+                step.mock_body, step.variables, self.__project_meta.functions
+            )
         # request
-        resp = self.__session.request(method, url, **parsed_request_dict)
+        resp = self.__session.request(method, url, mock_body=mock_body_dict, **parsed_request_dict)
         resp_obj = ResponseObject(resp)
 
         # preprocess before extracting and validating
