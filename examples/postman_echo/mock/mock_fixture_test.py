@@ -3,6 +3,9 @@
 import pytest
 
 from httprunner import HttpRunner, Config, Step, RunRequest
+from httprunner.configs.mock import mock_settings
+
+mock_settings.mode = True
 
 
 @pytest.fixture(autouse=True)

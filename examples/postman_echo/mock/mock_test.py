@@ -3,6 +3,9 @@
 
 
 from httprunner import HttpRunner, Config, Step, RunRequest
+from httprunner.configs.mock import mock_settings
+
+mock_settings.mode = True
 
 
 class TestCaseRequestWithFunctions(HttpRunner):
@@ -19,7 +22,6 @@ class TestCaseRequestWithFunctions(HttpRunner):
         )
         .base_url("https://postman-echo.com")
         .verify(False)
-        .export(*["foo3"])
         .locust_weight(2)
     )
 
@@ -45,7 +47,7 @@ class TestCaseRequestWithFunctions(HttpRunner):
             )
             .validate()
             .assert_equal("status_code", 200, "response status code should be 200")
-            .assert_equal("body.form.foo2", "bar23")
+            .assert_equal("body.form.mock", "mock")
         ),
     ]
 
