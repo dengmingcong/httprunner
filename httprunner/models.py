@@ -77,7 +77,6 @@ class TConfig(BaseModel):
     path: Text = None
     weight: int = 1
     continue_on_failure: bool = False
-    mock_mode: bool = False
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 

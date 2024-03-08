@@ -51,11 +51,11 @@ class BaseExportWithMock(HttpRunner):
                 }
             )
             .extract()
-            .with_jmespath("body.result.mock", "mock")
+            .with_jmespath("body.form.mock", "mock")
             .validate()
             .assert_equal("status_code", 200, "response status code should be 200")
             .assert_equal("body.form.foo2", "bar23")
-            .assert_equal("body.mock", "mock_data")
+            .assert_equal("body.form.mock", "mock_data")
         ),
     ]
 

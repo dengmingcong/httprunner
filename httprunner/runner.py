@@ -13,6 +13,7 @@ from requests import RequestException
 from httprunner import exceptions
 from httprunner.builtin import expand_nested_json
 from httprunner.client import HttpSession
+from httprunner.configs.mock import mock_settings
 from httprunner.core.allure.runrequest.export_vars import save_export_vars
 from httprunner.core.allure.runrequest.runrequest import save_run_request_retry
 from httprunner.core.runner.export_request_step_vars import (
@@ -305,7 +306,7 @@ class HttpRunner(object):
         method, url, parsed_request_dict = self.__prepare_step_request(step)
         # mock data
         # 如果有全局mock模式的配置
-        if self.__config.mock_mode is True:
+        if mock_settings.mode is True:
             mock_body_dict = parse_data(
                 step.mock_body, step.variables, self.__project_meta.functions
             )

@@ -17,7 +17,6 @@ class Config(object):
         self.__base_url = ""
         self.__verify = False
         self.__continue_on_failure = False
-        self.__mock_mode = False
         self.__export = []
         self.__weight = 1
         self.__path = None
@@ -54,10 +53,6 @@ class Config(object):
         self.__continue_on_failure = True
         return self
 
-    def mock_mode(self) -> "Config":
-        self.__mock_mode = True
-        return self
-
     def export(self, *export_var_name: Text) -> "Config":
         self.__export.extend(export_var_name)
         return self
@@ -71,7 +66,6 @@ class Config(object):
             name=self.__name,
             base_url=self.__base_url,
             verify=self.__verify,
-            mock_mode=self.__mock_mode,
             variables=deepcopy(
                 self.__variables
             ),  # fix: variables are class attribute and will be shared
