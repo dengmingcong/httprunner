@@ -13,6 +13,7 @@ from requests import RequestException
 from httprunner import exceptions
 from httprunner.builtin import expand_nested_json
 from httprunner.client import HttpSession
+from httprunner.configs.mock import mock_settings
 from httprunner.core.allure.runrequest.export_vars import save_export_vars
 from httprunner.core.allure.runrequest.runrequest import save_run_request_retry
 from httprunner.core.runner.export_request_step_vars import (
@@ -250,6 +251,15 @@ class HttpRunner(object):
         # refer: https://docs.pydantic.dev/2.5/concepts/serialization/#dictmodel-and-iteration
         request_dict = dict(step.request)
         request_dict.pop("upload", None)
+        # prepare mock response
+        if not mock_settings.is_enabled or request_dict["raw_mock_response"] is None:
+            request_dict.pop("raw_mock_response")
+        else:
+            request_dict["raw_mock_response"] = request_dict[
+                "raw_mock_response"
+            ].model_dump()
+        # mock data
+
         parsed_request_dict = parse_data(
             request_dict, step.variables, self.__project_meta.functions
         )
@@ -304,7 +314,6 @@ class HttpRunner(object):
         step_data = StepData(name=step.name)  # noqa
 
         method, url, parsed_request_dict = self.__prepare_step_request(step)
-
         # request
         resp = self.__session.request(method, url, **parsed_request_dict)
         resp_obj = ResponseObject(resp)

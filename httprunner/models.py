@@ -54,6 +54,12 @@ class StableDeepCopyDict(dict):
         return d
 
 
+class RawMockResponse(BaseModel):
+    content: Union[dict, str]
+    headers: dict = {}
+    status_code: int = 200
+
+
 class MethodEnum(Text, Enum):
     GET = "GET"
     POST = "POST"
@@ -106,6 +112,7 @@ class TRequest(BaseModel):
     allow_redirects: bool = True
     verify: Verify = False
     upload: Dict = {}  # used for upload files
+    raw_mock_response: RawMockResponse = None
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 

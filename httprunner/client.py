@@ -13,6 +13,7 @@ from requests.exceptions import (
     MissingSchema,
     RequestException,
 )
+from requests.structures import CaseInsensitiveDict
 
 from httprunner.builtin import expand_nested_json
 from httprunner.models import RequestData, ResponseData
@@ -27,6 +28,22 @@ class ApiResponse(Response):
         if hasattr(self, "error") and self.error:
             raise self.error
         Response.raise_for_status(self)
+
+
+class MockResponse(Response):
+    def __init__(self, content, headers, status_code):
+        super().__init__()
+        self.status_code = status_code
+        self.headers = CaseInsensitiveDict(headers)
+        self._content = content
+
+    def raise_for_status(self):
+        if hasattr(self, "error") and self.error:
+            raise self.error
+        Response.raise_for_status(self)
+
+    def json(self):
+        return self._content
 
 
 def get_req_resp_record(requests_response: Response, **kwargs) -> ReqRespData:
@@ -166,6 +183,8 @@ class HttpSession(requests.Session):
             if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
         :param cert: (optional)
             if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+        :param raw_mock_response: (optional)
+            raw_mock_response for mock response prepare.
         """
         # create a new instance of SessionData for each request, to ensure data are isolated
         self.data = SessionData()
@@ -226,6 +245,11 @@ class HttpSession(requests.Session):
         Send a HTTP request, and catch any exception that might occur due to connection problems.
         Safe mode has been removed from requests 1.x.
         """
+        # mock mode
+        if raw_mock_response := kwargs.get("raw_mock_response", None):
+            resp = MockResponse(**raw_mock_response)
+            resp.request = Request(method, url).prepare()
+            return resp
         try:
             return requests.Session.request(self, method, url, **kwargs)
         except (MissingSchema, InvalidSchema, InvalidURL):
