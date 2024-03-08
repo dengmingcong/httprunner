@@ -156,8 +156,6 @@ class HttpSession(requests.Session):
             URL for the new :class:`Request` object.
         :param name: (optional)
             Placeholder, make compatible with Locust's HttpSession
-        :param mock_body: (optional)
-            mock response body.
         :param params: (optional)
             Dictionary or bytes to be sent in the query string for the :class:`Request`.
         :param data: (optional)
@@ -185,6 +183,8 @@ class HttpSession(requests.Session):
             if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
         :param cert: (optional)
             if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+        :param raw_mock_response: (optional)
+            raw_mock_response for mock response prepare.
         """
         # create a new instance of SessionData for each request, to ensure data are isolated
         self.data = SessionData()

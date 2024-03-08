@@ -250,7 +250,8 @@ class HttpRunner(object):
         # refer: https://docs.pydantic.dev/2.5/concepts/serialization/#dictmodel-and-iteration
         request_dict = dict(step.request)
         request_dict.pop("upload", None)
-        if not mock_settings.is_enabled:
+        # prepare mock response
+        if not mock_settings.is_enabled or request_dict["raw_mock_response"] is None:
             request_dict.pop("raw_mock_response")
         else:
             request_dict["raw_mock_response"] = request_dict[
