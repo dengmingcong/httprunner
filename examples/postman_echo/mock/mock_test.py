@@ -35,11 +35,14 @@ class TestCaseRequestWithFunctions(HttpRunner):
                 }
             )
             .with_data("foo2=$foo2")
-            .mock({
-                "form": {
-                    "foo2": "$foo2"
-                },
-            })
+            .mock(
+                {
+                    "form": {
+                        "foo2": "$foo2",
+                        "mock": "mock",
+                    },
+                }
+            )
             .validate()
             .assert_equal("status_code", 200, "response status code should be 200")
             .assert_equal("body.form.foo2", "bar23")
