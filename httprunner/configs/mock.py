@@ -6,7 +6,7 @@ class MockSettings(BaseSettings):
     Settings for localization (shorted as l10n).
     """
 
-    mode: bool = False
+    is_enabled: bool = False
     model_config = SettingsConfigDict(env_prefix="mock_")
 
 

@@ -13,6 +13,7 @@ from requests.exceptions import (
     MissingSchema,
     RequestException,
 )
+from requests.structures import CaseInsensitiveDict
 
 from httprunner.builtin import expand_nested_json
 from httprunner.models import RequestData, ResponseData
@@ -30,12 +31,11 @@ class ApiResponse(Response):
 
 
 class MockResponse(Response):
-    def __init__(self, content=None):
+    def __init__(self, content, headers, status_code):
         super().__init__()
-        # set mock response status code 200
-        self.status_code = 200
-        if content:
-            self._content = content
+        self.status_code = status_code
+        self.headers = CaseInsensitiveDict(headers)
+        self._content = content
 
     def raise_for_status(self):
         if hasattr(self, "error") and self.error:
@@ -246,8 +246,8 @@ class HttpSession(requests.Session):
         Safe mode has been removed from requests 1.x.
         """
         # mock mode
-        if mock_body := kwargs.get("mock_body", None):
-            resp = MockResponse(mock_body)
+        if raw_mock_response := kwargs.get("raw_mock_response", None):
+            resp = MockResponse(**raw_mock_response)
             resp.request = Request(method, url).prepare()
             return resp
         try:

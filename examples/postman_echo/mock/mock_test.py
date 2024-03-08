@@ -5,7 +5,7 @@
 from httprunner import HttpRunner, Config, Step, RunRequest
 from httprunner.configs.mock import mock_settings
 
-mock_settings.mode = True
+mock_settings.is_enabled = True
 
 
 class TestCaseRequestWithFunctions(HttpRunner):
@@ -27,7 +27,7 @@ class TestCaseRequestWithFunctions(HttpRunner):
 
     teststeps = [
         Step(
-            RunRequest("post form data")
+            RunRequest("mock form data")
             .with_variables(**{"foo2": "bar23"})
             .post("/post")
             .with_headers(
@@ -43,11 +43,34 @@ class TestCaseRequestWithFunctions(HttpRunner):
                         "foo2": "$foo2",
                         "mock": "mock",
                     },
-                }
+                },
+                {
+                    "Server": "nginx/1.24.0",
+                    "Date": "Fri, 08 Mar 2024 07:41:38 GMT",
+                    "Content-Type": "application/json;charset=UTF-8",
+                    "foo2": "$foo2",
+                },
             )
             .validate()
             .assert_equal("status_code", 200, "response status code should be 200")
             .assert_equal("body.form.mock", "mock")
+            .assert_equal("headers.foo2", "$foo2")
+        ),
+        Step(
+            RunRequest("mock form data")
+            .with_variables(**{"foo2": "bar23", "foo": {"a": "b"}})
+            .post("/post")
+            .with_headers(
+                **{
+                    "User-Agent": "HttpRunner",
+                    "Content-Type": "application/x-www-form-urlencoded",
+                }
+            )
+            .with_data("foo2=$foo2")
+            .mock("$foo")
+            .validate()
+            .assert_equal("status_code", 200, "response status code should be 404")
+            .assert_equal("body.a", "b")
         ),
     ]
 

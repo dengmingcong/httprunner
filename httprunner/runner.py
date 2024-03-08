@@ -250,6 +250,14 @@ class HttpRunner(object):
         # refer: https://docs.pydantic.dev/2.5/concepts/serialization/#dictmodel-and-iteration
         request_dict = dict(step.request)
         request_dict.pop("upload", None)
+        if not mock_settings.is_enabled:
+            request_dict.pop("raw_mock_response")
+        else:
+            request_dict["raw_mock_response"] = request_dict[
+                "raw_mock_response"
+            ].model_dump()
+        # mock data
+
         parsed_request_dict = parse_data(
             request_dict, step.variables, self.__project_meta.functions
         )
@@ -304,12 +312,6 @@ class HttpRunner(object):
         step_data = StepData(name=step.name)  # noqa
 
         method, url, parsed_request_dict = self.__prepare_step_request(step)
-        # mock data
-        if mock_settings.mode is True and step.mock_body:
-            mock_body_dict = parse_data(
-                step.mock_body, step.variables, self.__project_meta.functions
-            )
-            parsed_request_dict["mock_body"] = mock_body_dict
         # request
         resp = self.__session.request(method, url, **parsed_request_dict)
         resp_obj = ResponseObject(resp)
