@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v3.41.2 (2024-03-11)
+
+### Fix
+
+* Poetry lock no update ([`453931f`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/453931f77b83f13b68c5a2c64fb833eba42c5f9b))
+* 引入 mock.js 使响应能够按照模版生成随机数据 ([`41520df`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/41520df0b44b3108f46fdf9397eb6d42cf1ffdcb))
+
 ## v3.41.1 (2024-03-11)
 
 ### Fix
