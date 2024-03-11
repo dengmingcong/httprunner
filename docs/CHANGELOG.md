@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.41.1 (2024-03-11)
+
+### Fix
+
+* 解决 mock 模式下 request 的 body，headers 为空的问题 ([`1867606`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1867606f582a2844caeffa06f4e065e72a776e5e))
+
 ## v3.41.0 (2024-03-08)
 
 ### Feature
