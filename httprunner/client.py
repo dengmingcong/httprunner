@@ -2,6 +2,7 @@ import json
 import time
 from datetime import datetime, timedelta, timezone
 from typing import NoReturn
+from pymock import Mock
 
 import requests
 import urllib3
@@ -34,9 +35,10 @@ class ApiResponse(Response):
 class MockResponse(Response):
     def __init__(self, content, headers, status_code):
         super().__init__()
+        mock = Mock()
         self.status_code = status_code
         self.headers = CaseInsensitiveDict(headers)
-        self._content = content
+        self._content = mock.mock(content)
 
     def raise_for_status(self):
         if hasattr(self, "error") and self.error:
