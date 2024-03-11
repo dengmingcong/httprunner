@@ -16,6 +16,7 @@ from requests.exceptions import (
 from requests.structures import CaseInsensitiveDict
 
 from httprunner.builtin import expand_nested_json
+from httprunner.builtin.dictionary import get_sub_dict
 from httprunner.models import RequestData, ResponseData
 from httprunner.models import SessionData, ReqRespData
 from httprunner.utils import lower_dict_keys, omit_long_data
@@ -248,7 +249,14 @@ class HttpSession(requests.Session):
         # mock mode
         if raw_mock_response := kwargs.get("raw_mock_response", None):
             resp = MockResponse(**raw_mock_response)
-            resp.request = Request(method, url).prepare()
+            # keep request params,headers,data,json,cookies
+            resp.request = Request(
+                method,
+                url,
+                **get_sub_dict(
+                    kwargs, *["params", "headers", "data", "json", "cookies"]
+                ),
+            ).prepare()
             return resp
         try:
             return requests.Session.request(self, method, url, **kwargs)
