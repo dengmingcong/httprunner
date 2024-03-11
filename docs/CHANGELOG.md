@@ -2,6 +2,57 @@
 
 <!--next-version-placeholder-->
 
+## v3.41.1 (2024-03-11)
+
+### Fix
+
+* 解决 mock 模式下 request 的 body，headers 为空的问题 ([`1867606`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/1867606f582a2844caeffa06f4e065e72a776e5e))
+
+## v3.41.0 (2024-03-08)
+
+### Feature
+
+* Mock 功能V0.1 ([`187519e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/187519ec304b166c9327c88384c99c5dc61da304))
+
+### Fix
+
+* 修改注释 ([`2b508ab`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/2b508ab4be0bc433c91398b55502dba3319668d9))
+* Issue 问题整改 ([`b2e899e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b2e899e47fea6f4aae18e71537483f6ed46046fa))
+* Mock_body 添加类型声明 ([`7a5289b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/7a5289bd76c9f15252ab7430de1e49d003f04f99))
+* 解决冒烟报错的问题 ([`986d025`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/986d02533d5770939f2fd38ef0c02da33003af31))
+* Mock 冒烟用例添加环境变量配置 ([`be06ac5`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/be06ac50875d1ea1731d3eb037b14bdbac0b333d))
+* 添加 mock_body 判断条件 ([`70f4309`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/70f4309421923749a4dce594c72601737606a636))
+* 删除空格 ([`fa46777`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/fa467773834461cd5c683c359384d71dff72b285))
+* 删除 MockFailedError 异常类 ([`29f309c`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/29f309cce94a68b452bd169bbbd9e910373a5a6b))
+* 添加环境变量 mock_mode 配置 ([`35b56a9`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/35b56a9d5f9fc2fef4e31cb911710bd64d096e4e))
+* 去掉 httprunner 中去判断 api 默认mock配置的代码 ([`e5efeed`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/e5efeed99abdf3baf17a52cee56d7e653bc291f7))
+* 删除 get_sub_dict 函数 ([`b4eca85`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b4eca85bd94413f23ef19c158ebf71bd9f8eb71b))
+* 添加 --mock-mode 配置 ([`c287c8b`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c287c8bf5f4c667fad49695844e556f2b33917be))
+* 解决flake8报错 ([`eda5490`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/eda5490660c6a61333faf4a900a4f5c302e65766))
+
+## v3.40.0 (2024-03-06)
+
+### Feature
+
+* Sleep before and after step ([`88aac9d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/88aac9dd3ce5fb562da33a4b7dfb644c372c572b))
+* Add function to parse and display delay info in step name ([`a5efa10`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a5efa10150fe3fe1aa91b03479ee1d48bd05b033))
+* Add function to parse and display delay info in step name ([`3d5ca5d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/3d5ca5d9a9fa5f6ee578b51315ebb3738af9bdf7))
+* (deprecated) remove TimerMixin from RunTestCase ([`5ebe009`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5ebe009d97b64af982044532e5b904d48926d74f))
+* Add TimerMixin to RunTestCase ([`f1c01a4`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/f1c01a48cff5dc09cf9be69bb58db0484bc40456))
+* Add TimerMixin to RunRequest and HttpRunnerRequest ([`338468d`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/338468dd67abfbd0ddf55c85d7d105f16eaf8888))
+* Add fields for timer ([`a394cbd`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a394cbdef3a34483fcc9f3ab9ef3fb7011df51a8))
+* Add TimerMixin ([`5096fc8`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/5096fc8ce3750de2bf8328e86fe51de0312faea2))
+
+### Documentation
+
+* Unit is second ([`2c307d1`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/2c307d1c6ebc960384661277a7ebde197fbf597f))
+
+## v3.39.1 (2024-03-04)
+
+### Performance
+
+* Change poetry source to speed up dependency resolving ([`dc8f8bb`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/dc8f8bbc14b5471c67e1017b9bfe52ef5206cab0))
+
 ## v3.39.0 (2024-02-29)
 
 ### Feature
