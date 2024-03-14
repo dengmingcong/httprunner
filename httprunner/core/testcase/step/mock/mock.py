@@ -13,7 +13,8 @@ class MockMixin:
     ):
         if headers is None:
             headers = {}
-        self._step_context.request.raw_mock_response = RawMockResponse(
-            content=content, headers=headers, status_code=status_code
-        )
+        if content is not None:
+            self._step_context.request.raw_mock_response = RawMockResponse(
+                content=content, headers=headers, status_code=status_code
+            )
         return self

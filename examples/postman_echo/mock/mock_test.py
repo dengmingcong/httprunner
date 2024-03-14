@@ -72,6 +72,22 @@ class TestCaseRequestWithFunctions(HttpRunner):
             .assert_equal("status_code", 200, "response status code should be 404")
             .assert_equal("body.a", "b")
         ),
+        Step(
+            RunRequest("mock with json")
+            .with_variables(**{"foo2": "bar23", "foo": {"a": "b"}})
+            .post("/post")
+            .with_headers(
+                **{
+                    "User-Agent": "HttpRunner",
+                    "Content-Type": "application/x-www-form-urlencoded",
+                }
+            )
+            .with_json({"data": {"foo2": "$foo2"}})
+            .mock({})
+            .validate()
+            .assert_equal("status_code", 200, "response status code should be 404")
+            .assert_not_equal("body.a", "b")
+        ),
     ]
 
 
