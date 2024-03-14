@@ -252,7 +252,7 @@ class HttpRunner(object):
         request_dict = dict(step.request)
         request_dict.pop("upload", None)
         # prepare mock response
-        if not mock_settings.is_enabled:
+        if not mock_settings.is_enabled or request_dict["raw_mock_response"] is None:
             request_dict.pop("raw_mock_response")
         else:
             request_dict["raw_mock_response"] = request_dict[
