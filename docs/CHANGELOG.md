@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v3.41.3 (2024-03-14)
+
+### Fix
+
+* .mock 方法修改为如果 content 为 None，请求真实服务 ([`aa0a7f5`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/aa0a7f57e321d2928c04dee9dcc42c00f58ade4a))
+* Content 添加判空 ([`a2418e5`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a2418e5d27ffebf1f04518b62cab062fc004c82e))
+* Content 添加判空 ([`12d82c2`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/12d82c2143993a241d8a232049fb014ecf5c414f))
+
 ## v3.41.2 (2024-03-11)
 
 ### Fix
