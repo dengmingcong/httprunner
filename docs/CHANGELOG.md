@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v3.41.4 (2024-03-14)
+
+### Fix
+
+* 请求的时候判断解析出来的 content 是否为None，为None就请求真实服务 ([`6d8bdc1`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/6d8bdc16810ad28e1494ed73426e0e0334f85ca6))
+* 请求的时候判断解析出来的 content 是否为None，为None就请求真实服务 ([`b3caeef`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/b3caeef4750bf3126a27b13c14494358dafe947f))
+
 ## v3.41.3 (2024-03-14)
 
 ### Fix
