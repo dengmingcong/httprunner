@@ -258,7 +258,6 @@ class HttpRunner(object):
             request_dict["raw_mock_response"] = request_dict[
                 "raw_mock_response"
             ].model_dump()
-        # mock data
 
         parsed_request_dict = parse_data(
             request_dict, step.variables, self.__project_meta.functions
