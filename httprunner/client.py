@@ -250,16 +250,21 @@ class HttpSession(requests.Session):
         """
         # mock mode
         if raw_mock_response := kwargs.get("raw_mock_response", None):
-            resp = MockResponse(**raw_mock_response)
-            # keep request params,headers,data,json,cookies
-            resp.request = Request(
-                method,
-                url,
-                **get_sub_dict(
-                    kwargs, *["params", "headers", "data", "json", "cookies"]
-                ),
-            ).prepare()
-            return resp
+            # mock content must not be None
+            if kwargs["raw_mock_response"]["content"] is not None:
+                resp = MockResponse(**raw_mock_response)
+                # keep request params,headers,data,json,cookies
+                resp.request = Request(
+                    method,
+                    url,
+                    **get_sub_dict(
+                        kwargs, *["params", "headers", "data", "json", "cookies"]
+                    ),
+                ).prepare()
+                return resp
+            # request real server
+            else:
+                kwargs.pop("raw_mock_response")
         try:
             return requests.Session.request(self, method, url, **kwargs)
         except (MissingSchema, InvalidSchema, InvalidURL):
