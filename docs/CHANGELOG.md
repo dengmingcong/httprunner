@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.42.0 (2024-03-19)
+
+### Feature
+
+* Update headers for every request with environment variable GLOBAL_HTTP_HEADERS ([`50c2a9e`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/50c2a9e812099dcb6ba16f2f9e5457a569d1a8ab))
+
 ## v3.41.5 (2024-03-19)
 
 ### Fix
