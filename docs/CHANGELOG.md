@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v3.41.5 (2024-03-19)
+
+### Fix
+
+* Status code 4xx and 5xx will cause ValidationFailure ([`d47cacf`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/d47cacf3571452ec075a59286bf6725581b03e7c))
+
+### Documentation
+
+* The difference between bad status code and ConnectTimeout exception ([`2e25153`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/2e251537847726e03f709debe0fc5d2d99f740f5))
+
 ## v3.41.4 (2024-03-14)
 
 ### Fix
