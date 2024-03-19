@@ -8,7 +8,7 @@ from typing import List, Dict, Text, NoReturn, Union
 import allure
 from jmespath.exceptions import JMESPathError
 from loguru import logger
-from requests import RequestException
+from requests import ConnectTimeout, HTTPError
 
 from httprunner import exceptions
 from httprunner.builtin import expand_nested_json
@@ -330,10 +330,13 @@ class HttpRunner(object):
 
         try:
             try:
-                # skip validation and raise ValidationFailure directly if RequestException was raised
                 resp_obj.resp_obj.raise_for_status()
-            except RequestException as ex:
+            # skip validation and raise ValidationFailure directly if ConnectTimeout was raised
+            except ConnectTimeout as ex:
                 raise ValidationFailure(ex)
+            # ignore HTTPError
+            except HTTPError:
+                pass
 
             resp_obj.validate(
                 step.validators, step.variables, self.__project_meta.functions

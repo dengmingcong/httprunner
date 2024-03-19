@@ -27,8 +27,11 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class ApiResponse(Response):
     def raise_for_status(self):
+        # ConnectTimeout exception will be raised here
         if hasattr(self, "error") and self.error:
             raise self.error
+
+        # status codes 4xx and 5xx will cause an HTTPError, HTTPError is a subclass of RequestException
         Response.raise_for_status(self)
 
 
@@ -269,6 +272,8 @@ class HttpSession(requests.Session):
             return requests.Session.request(self, method, url, **kwargs)
         except (MissingSchema, InvalidSchema, InvalidURL):
             raise
+        # note: status codes 4xx and 5xx will not raise any exceptions,
+        # ConnectTimeout will be caught by RequestException because it's a subclass of RequestException.
         except RequestException as ex:
             resp = ApiResponse()
             resp.error = ex
