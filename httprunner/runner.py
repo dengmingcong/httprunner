@@ -13,6 +13,7 @@ from requests import ConnectTimeout, HTTPError
 from httprunner import exceptions
 from httprunner.builtin import expand_nested_json
 from httprunner.client import HttpSession
+from httprunner.configs.http import global_http_settings
 from httprunner.configs.mock import mock_settings
 from httprunner.core.allure.runrequest.export_vars import save_export_vars
 from httprunner.core.allure.runrequest.runrequest import save_run_request_retry
@@ -271,6 +272,10 @@ class HttpRunner(object):
             parsed_request_dict["headers"].update(PyProjectToml().http_headers)
         except KeyError:
             logger.debug("no extra http headers in pyproject.toml")
+
+        # update http headers with config `global_http_settings.headers`,
+        # you can update the config by exporting env variable GLOBAL_HTTP_HEADERS.
+        parsed_request_dict["headers"].update(global_http_settings.headers)
 
         step.variables["request"] = parsed_request_dict
         step.variables["session"] = self.__session
