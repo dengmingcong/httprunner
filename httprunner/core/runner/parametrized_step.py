@@ -135,6 +135,24 @@ def expand_parametrized_step(
 
         # append id to step name
         expanded_step.name += f" - {id}"
+        # run request append extractor to step extract by parametrize id
+        expanded_step.extract.extend(
+            [
+                extractor.model_copy(
+                    update={"variable_name": f"{extractor.variable_name}_{i+1}"},
+                    deep=True,
+                )
+                for extractor in expanded_step.extract
+            ]
+        )
+        # testcase append StepExport.var_alias_mapping to export by parametrize id
+        if expanded_step.export:
+            expanded_step.export.var_alias_mapping.update(
+                {
+                    var_name: f"{var_name}_{i + 1}"
+                    for var_name in expanded_step.export.var_names
+                }
+            )
 
         expanded_steps.append(expanded_step)
 
