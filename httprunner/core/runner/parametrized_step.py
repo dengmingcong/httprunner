@@ -41,6 +41,7 @@ def parse_validate_step_parameters(
             parsed_argvalues,
             parsed_ids,
             is_skip_empty_parameter,
+            is_keep_export_history,
         )
 
     if not isinstance(parsed_argvalues, (list, tuple)):
