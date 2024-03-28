@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v3.43.0 (2024-03-28)
+
+### Feature
+
+* 参数化与export同时使用时，在export变量后添加标号导出 ([`9339ee7`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/9339ee7c5fc4629943255eff5e299cad0f8bfa7a))
+
+### Fix
+
+* 修改文档描述 ([`8aa9fcb`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/8aa9fcbed0136a4b49aa1966c3192c56f256ba10))
+* 修改参数化导出变量的后缀标号 ([`75e0774`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/75e077448e0e42b33eedf28cbdd916cdb416bfad))
+* 修改参数化导出变量的后缀标号 ([`a66e15a`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/a66e15a79050f26bc59bb643b88d8b9620c1933e))
+
 ## v3.42.0 (2024-03-19)
 
 ### Feature
