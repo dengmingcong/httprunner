@@ -33,7 +33,11 @@ class ParametrizeStepMixin:
             specifies a value for its respective argname.
         :param ids: Sequence of ids for argvalues.
         :param is_skip_empty_parameter: skip steps with an empty parameter set
-        :param is_keep_export_history: if need to keep export history. note: not supported export alias
+        :param is_keep_export_history:
+            如果为 True，会将参数化步骤每一步的导出变量添加 _{id} 后缀的同时导出。
+            注意：
+            1. 如果 .export 方法使用了导出别名的形式，var_name=var_name_alias，var_name 和 var_name_alias 变量都不会添加后缀导出。
+            2. 如果 .export 方法 var_name 和 var_alias_mapping 都使用了，且包含同一个变量名，那么别名会被添加了后缀的变量名覆盖然后导出。
         """
         self._step_context.parametrize = (
             argnames,

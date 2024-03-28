@@ -149,7 +149,7 @@ def expand_parametrized_step(
 
         # append id to step name
         expanded_step.name += f" - {id}"
-        if is_keep_export_history is True:
+        if is_keep_export_history:
             # run request append extractor to step extract by parametrize id
             expanded_step.extract.extend(
                 [
