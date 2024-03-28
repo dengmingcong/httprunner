@@ -37,13 +37,19 @@ class TestParametrizeStep(HttpRunner):
     teststeps = [
         Step(
             RunTestCase("parametrize in RunTestCase")
-            .parametrize("foo,bar", [(1, 1), (2, 2)])
+            .parametrize("foo,bar", [(1, 1), (2, 2)], is_keep_export_history=True)
             .call(SubTestCase)
-            .export(foo="foo1", *["foo", "bar"])
+            .export(*["foo", "bar"])
+        ),
+        Step(
+            RunTestCase("parametrize in RunTestCase")
+            .parametrize("foo,bar", [(3, 4), (5, 6)], is_keep_export_history=True)
+            .call(SubTestCase)
+            .export(foo="foo_alias", bar="bar_alias")
         ),
         Step(
             RunRequest("parametrize in RunRequest with exported variables")
-            .parametrize("foo,bar", [("$foo_1", "$bar_1"), ("$foo_2", "$bar_2")])
+            .parametrize("foo,bar", [("$foo_0", "$bar_0"), ("$foo_1", "$bar_1")])
             .post("/post")
             .with_json({"foo": "$foo", "bar": "$bar"})
             .extract()
@@ -56,7 +62,7 @@ class TestParametrizeStep(HttpRunner):
         Step(
             RunRequest("parametrize with exported variables - extract")
             .post("/post")
-            .with_json({"baz": ["$foo_1", "$foo_2", "$bar_1", "$bar_2"]})
+            .with_json({"baz": ["$foo_0", "$foo_0", "$bar_1", "$bar_1"]})
             .validate()
             .assert_length_equal("body.json.baz", 4)
         ),
