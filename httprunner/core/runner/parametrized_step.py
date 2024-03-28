@@ -12,7 +12,13 @@ def parse_validate_step_parameters(
     step: TStep, step_config_variables: dict, functions: dict
 ) -> tuple:
     """Parse and validate parameters of specific parametrized step."""
-    argnames, argvalues, ids, is_skip_empty_parameter = step.parametrize
+    (
+        argnames,
+        argvalues,
+        ids,
+        is_skip_empty_parameter,
+        is_keep_export_history,
+    ) = step.parametrize
 
     # make sure argnames is a str
     if not isinstance(argnames, str):
@@ -35,6 +41,7 @@ def parse_validate_step_parameters(
             parsed_argvalues,
             parsed_ids,
             is_skip_empty_parameter,
+            is_keep_export_history,
         )
 
     if not isinstance(parsed_argvalues, (list, tuple)):
@@ -73,7 +80,13 @@ def parse_validate_step_parameters(
                 "length of ids must be equal to parsed argvalues if ids is a list or tuple"
             )
 
-    return parsed_argnames, parsed_argvalues, parsed_ids, is_skip_empty_parameter
+    return (
+        parsed_argnames,
+        parsed_argvalues,
+        parsed_ids,
+        is_skip_empty_parameter,
+        is_keep_export_history,
+    )
 
 
 def expand_parametrized_step(
@@ -92,6 +105,7 @@ def expand_parametrized_step(
         argvalues,
         ids,
         is_skip_empty_parameter,
+        is_keep_export_history,
     ) = parse_validate_step_parameters(
         origin_step,
         step_context_variables,
@@ -135,6 +149,23 @@ def expand_parametrized_step(
 
         # append id to step name
         expanded_step.name += f" - {id}"
+        if is_keep_export_history:
+            # run request append extractor to step extract by parametrize id
+            expanded_step.extract.extend(
+                [
+                    extractor.model_copy(
+                        update={"variable_name": f"{extractor.variable_name}_{i}"},
+                        deep=True,
+                    )
+                    for extractor in expanded_step.extract
+                ]
+            )
+            # testcase append StepExport.var_alias_mapping to export by parametrize id
+            if expanded_step.export:
+                # var_names has export by parametrize id
+                expanded_step.export.var_alias_mapping.update(
+                    {var: f"{var}_{i}" for var in expanded_step.export.var_names}
+                )
 
         expanded_steps.append(expanded_step)
 
