@@ -164,6 +164,7 @@ class TStep(BaseModel):
     skip_if_condition: Any = None
     skip_unless_condition: Any = None
     skip_reason: Union[str, None] = None
+    is_skip: bool = False  # will be updated after resolving skip_if/skip_unless
     request: Union[TRequest, None] = None
     testcase: Union[Text, Callable, None] = None
     variables: StableDeepCopyDict = StableDeepCopyDict()

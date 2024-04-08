@@ -3,7 +3,7 @@ import os
 import time
 import warnings
 from datetime import datetime
-from typing import List, Dict, Text, NoReturn, Union
+from typing import Dict, List, NoReturn, Text, Union
 
 import allure
 from jmespath.exceptions import JMESPathError
@@ -18,13 +18,11 @@ from httprunner.configs.mock import mock_settings
 from httprunner.core.allure.runrequest.export_vars import save_export_vars
 from httprunner.core.allure.runrequest.runrequest import save_run_request_retry
 from httprunner.core.runner.export_request_step_vars import (
-    extract_request_variables,
     export_extracted_variables,
+    extract_request_variables,
 )
 from httprunner.core.runner.parametrized_step import expand_parametrized_step
-from httprunner.core.runner.retry import (
-    parse_retry_args,
-)
+from httprunner.core.runner.retry import parse_retry_args
 from httprunner.core.runner.skip_step import is_skip_step
 from httprunner.core.runner.step_shell_variables import get_step_shell_variables
 from httprunner.core.runner.timer import display_delay_in_step_name
@@ -32,28 +30,28 @@ from httprunner.core.runner.update_form import update_form
 from httprunner.core.runner.update_json import update_json
 from httprunner.core.runner.with_resource import evaluate_resources
 from httprunner.exceptions import (
-    ValidationFailure,
-    ParamsError,
-    VariableNotFound,
-    RetryInterruptError,
     MultiStepsFailedError,
     MultiValidationFailure,
+    ParamsError,
+    RetryInterruptError,
+    ValidationFailure,
+    VariableNotFound,
 )
 from httprunner.ext.uploader import prepare_upload_step
 from httprunner.loader import load_project_meta, load_testcase_file
 from httprunner.models import (
-    TConfig,
-    TStep,
-    VariablesMapping,
+    ConfigExport,
+    Hooks,
+    ProjectMeta,
     StepData,
+    StepExport,
+    TConfig,
+    TestCase,
+    TestCaseInOut,
     TestCaseSummary,
     TestCaseTime,
-    TestCaseInOut,
-    ProjectMeta,
-    TestCase,
-    Hooks,
-    StepExport,
-    ConfigExport,
+    TStep,
+    VariablesMapping,
 )
 from httprunner.parser import (
     build_url,
@@ -588,14 +586,19 @@ class HttpRunner(object):
         step_shell_variables = get_step_shell_variables(step, self._session_variables)
 
         # parse step name with context variables if skip condition was set
-        if step.skip_if_condition is not None or step.skip_unless_condition:
+        if step.skip_if_condition is not None or step.skip_unless_condition is not None:
             try:
-                return parse_data(
+                step_name = parse_data(
                     step.name, step_shell_variables, self.__project_meta.functions
                 )
             except VariableNotFound as e:
                 logger.warning(f"error occurred while parsing step name: {repr(e)}")
-                return step.name
+                step_name = step.name
+
+            # fix: when skip condition was set but resolved to False,
+            # delay value will not be parsed and will not be shown in step name.
+            if is_skip_step(step, step_shell_variables, self.__project_meta.functions):
+                return step_name
 
         # parse step retry args (retry times and retry interval)
         parse_retry_args(step, step_shell_variables, self.__project_meta.functions)
@@ -626,10 +629,9 @@ class HttpRunner(object):
             # important: parametrized step is a step wrapper, codes later was not needed for itself
             return
 
-        step_shell_variables = get_step_shell_variables(step, self._session_variables)
-
-        # skip step if condition is satisfied
-        if is_skip_step(step, step_shell_variables, self.__project_meta.functions):
+        # skip step if condition is satisfied,
+        # note: whether this step will be skipped has already been determined when calling __parse_step_name.
+        if step.is_skip:
             step_data = StepData(name=step.name)
 
             # mark skipped step as success
@@ -699,7 +701,7 @@ class HttpRunner(object):
                 MultiStepsFailedError,
             ) as exc:
                 # record failed step for later raising MultiStepsFailedError.
-                # self.__failed_steps will keep intouch until self.__continue_on_failure is set to True.
+                # self.__failed_steps will keep untouched until self.__continue_on_failure is set to True.
                 self.__failed_steps.append((step, exc))
 
                 # continue to run next step if continue_on_failure was set to True

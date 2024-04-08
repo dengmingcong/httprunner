@@ -3,16 +3,16 @@ import builtins
 import os
 import re
 import time
-from typing import Any, Set, Text, Callable, List, Dict
+from typing import Any, Callable, Dict, List, Set, Text
 from urllib.parse import urlparse
 
 from dotwiz import DotWiz
 from loguru import logger
 from sentry_sdk import capture_exception
 
-from httprunner import loader, utils, exceptions
+from httprunner import exceptions, loader, utils
 from httprunner.exceptions import VariableNotFound
-from httprunner.models import VariablesMapping, FunctionsMapping, StableDeepCopyDict
+from httprunner.models import FunctionsMapping, StableDeepCopyDict, VariablesMapping
 
 absolute_http_url_regexp = re.compile(r"^https?://", re.I)
 
@@ -27,6 +27,8 @@ expression_regex_compile = re.compile(r"""\$\{([$\w.[\]:'"]*[.[][$\w.[\]:'"]*)}"
 expression_leading_var_regex_compile = re.compile(r"(\w+)[.\[]")
 # pyexp
 pyexp_regex_compile = re.compile(r"\$\{pyexp\((.*)\)}")
+# pyexec
+pyexec_regex_compile = re.compile(r"\$\{pyexec\((.*)\)}")
 
 
 def parse_string_value(str_value: Text) -> Any:
@@ -105,7 +107,6 @@ def regex_findall_variables(raw_string: Text) -> List[Text]:
 
     vars_list = []
     while match_start_position < len(raw_string):
-
         # Notice: notation priority
         # $$ > $var
 
@@ -370,6 +371,28 @@ def parse_string(
                     name_not_found,
                 ) from ne
 
+    # search ${pyexec()}
+    if "$" in raw_string and pyexec_regex_compile.search(raw_string):
+        pyexec_full_match = pyexec_regex_compile.fullmatch(raw_string)
+        if not pyexec_full_match:
+            raise SyntaxError(
+                f"The whole string must match regular expression {pyexec_regex_compile} if you want to user pyexec"
+            )
+        else:
+            globals_ = {}
+            globals_.update(variables_mapping)
+            globals_.update(functions_mapping)
+            try:
+                # note: exec() always return None
+                return exec(pyexec_full_match.group(1), globals_)
+            except NameError as ne:
+                # get the name not defined from exception, e.g. name 'baz' is not defined
+                name_not_found = str(ne).split("'")[1]
+                raise VariableNotFound(
+                    f"`{name_not_found}` not found, available vars: {list(variables_mapping.keys())}",
+                    name_not_found,
+                ) from ne
+
     try:
         match_start_position = raw_string.index("$", 0)
         parsed_string = raw_string[0:match_start_position]
@@ -378,7 +401,6 @@ def parse_string(
         return parsed_string
 
     while match_start_position < len(raw_string):
-
         # Notice: notation priority
         # $$ > ${func($a, $b)} > $var
 
@@ -601,7 +623,6 @@ def parse_variables_mapping(
     start = time.time()
 
     while len(parsed_variables) != len(variables_mapping):
-
         elapsed = time.time() - start
         if elapsed > 15:
             not_parsed_variables = {
@@ -615,7 +636,6 @@ def parse_variables_mapping(
             )
 
         for outer_var_name in variables_mapping:
-
             if outer_var_name in parsed_variables:
                 continue
 
