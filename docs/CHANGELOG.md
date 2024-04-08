@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v3.44.0 (2024-04-08)
+
+### Feature
+
+* Add expression ${pyexec()} to enable setting object's attributes ([`c325bac`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/c325bace5a32c652082612eff0a7c984e8dc6d35))
+
+### Fix
+
+* Value in with_pre_delay() will not be resolved when skip condition was set ([`23660b6`](https://fangcun.vesync.cn/raigordeng/httprunner/-/commit/23660b6745fd273dcd7cd8da31d2a1af7065c847))
+
 ## v3.43.0 (2024-03-28)
 
 ### Feature
