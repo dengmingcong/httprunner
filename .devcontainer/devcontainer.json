@@ -1,0 +1,5 @@
+{
+    "image": "harbor.vesync.com/vesync-qa/python-poetry:3.10-1.5.1",
+    "features": {
+    }
+}
