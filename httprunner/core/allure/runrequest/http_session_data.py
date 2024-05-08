@@ -1,18 +1,12 @@
-from typing import NoReturn
-
 import allure
 
-from httprunner.json_encoders import (
-    pydantic_model_dump_json,
-)
-from httprunner.models import (
-    SessionData,
-)
+from httprunner.json_encoders import pydantic_model_dump_json
+from httprunner.models import SessionData
 
 
 def save_http_session_data(
     http_session_data: SessionData,
-) -> NoReturn:
+) -> None:
     """Save http request and response to allure report."""
     # split session data into request, response, validation results, export vars, and stat if only one request exists
     if len(http_session_data.req_resps) == 1:

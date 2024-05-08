@@ -1,18 +1,15 @@
 import json
-from typing import NoReturn
 
 import allure
 
 from httprunner.configs.validation import validation_settings
-from httprunner.json_encoders import (
-    AllureJSONAttachmentEncoder,
-)
+from httprunner.json_encoders import AllureJSONAttachmentEncoder
 from httprunner.response import ResponseObject
 
 
 def save_validation_result(
     response_obj: ResponseObject,
-) -> NoReturn:
+) -> None:
     """Save validation result to allure report."""
     for validation_result in response_obj.validation_results.get(
         "validate_extractor", []

@@ -1,12 +1,11 @@
 import json
 import time
 from datetime import datetime, timedelta, timezone
-from typing import NoReturn
-from pymock import Mock
 
 import requests
 import urllib3
 from loguru import logger
+from pymock import Mock
 from requests import Request, Response
 from requests.exceptions import (
     InvalidSchema,
@@ -18,8 +17,7 @@ from requests.structures import CaseInsensitiveDict
 
 from httprunner.builtin import expand_nested_json
 from httprunner.builtin.dictionary import get_sub_dict
-from httprunner.models import RequestData, ResponseData
-from httprunner.models import SessionData, ReqRespData
+from httprunner.models import ReqRespData, RequestData, ResponseData, SessionData
 from httprunner.utils import lower_dict_keys, omit_long_data
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -143,7 +141,7 @@ class HttpSession(requests.Session):
         super(HttpSession, self).__init__()
         self.data = SessionData()
 
-    def update_last_req_resp_record(self, requests_response: Response) -> NoReturn:
+    def update_last_req_resp_record(self, requests_response: Response) -> None:
         """
         update request and response info from Response() object.
         """

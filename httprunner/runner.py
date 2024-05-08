@@ -3,7 +3,7 @@ import os
 import time
 import warnings
 from datetime import datetime
-from typing import Dict, List, NoReturn, Text, Union
+from typing import Dict, List, Text, Union
 
 import allure
 from jmespath.exceptions import JMESPathError
@@ -126,7 +126,7 @@ class HttpRunner(object):
         else:
             raise AttributeError(f"{self.__class__.__name__} has no attribute {item}")
 
-    def __init_tests__(self) -> NoReturn:
+    def __init_tests__(self) -> None:
         self.__config = self.config.perform()
         self.__teststeps = [step.perform() for step in self.teststeps]
         self.__failed_steps: list[tuple[TStep, Exception]] = []
@@ -298,7 +298,7 @@ class HttpRunner(object):
 
     def __preprocess_response(
         self, parsed_request_dict: dict, resp_obj: ResponseObject, step: TStep
-    ) -> NoReturn:
+    ) -> None:
         """Preprocess response before actions on response such as extracting, validating."""
         # expand nested json if headers contain 'X-Json-Control' and its value is 'expand'.
         # Note: The header is case-sensitive.
@@ -311,7 +311,7 @@ class HttpRunner(object):
         if step.teardown_hooks:
             self.__call_hooks(step.teardown_hooks, step.variables, "teardown request")
 
-    def __run_step_request(self, step: TStep) -> NoReturn:
+    def __run_step_request(self, step: TStep) -> None:
         """run teststep: request"""
         step_data = StepData(name=step.name)  # noqa
 
@@ -375,7 +375,7 @@ class HttpRunner(object):
             step_data.data = self.__session.data
             self.__step_datas.append(step_data)
 
-    def __run_step_testcase(self, step: TStep) -> NoReturn:
+    def __run_step_testcase(self, step: TStep) -> None:
         """run teststep: referenced testcase"""
         step_data = StepData(name=step.name)
 
@@ -476,7 +476,7 @@ class HttpRunner(object):
             except KeyError:
                 logger.warning("Allure data was not saved.")
 
-    def __resolve_step_variables(self, step: TStep) -> NoReturn:
+    def __resolve_step_variables(self, step: TStep) -> None:
         """Parse step variables with step context variables and variables defined by step self."""
         # skip if variables already resolved
         if step.is_variables_resolved:
@@ -617,7 +617,7 @@ class HttpRunner(object):
             display_delay_in_step_name(step, self.__project_meta.functions)
             return parse_data(step.name, step.variables, self.__project_meta.functions)
 
-    def __run_step(self, step: TStep) -> NoReturn:
+    def __run_step(self, step: TStep) -> None:
         """run teststep, teststep maybe a request or referenced testcase"""
         # expand and run parametrized steps
         if step.parametrize:
@@ -667,7 +667,7 @@ class HttpRunner(object):
         else:
             self.__try_step_once(step)
 
-    def __parse_config(self, config: TConfig) -> NoReturn:
+    def __parse_config(self, config: TConfig) -> None:
         """Parse TConfig instance."""
         config.name = parse_data(
             config.name, self._session_variables, self.__project_meta.functions
@@ -676,7 +676,7 @@ class HttpRunner(object):
             config.base_url, self._session_variables, self.__project_meta.functions
         )
 
-    def __run_steps(self, steps: list[TStep]) -> NoReturn:
+    def __run_steps(self, steps: list[TStep]) -> None:
         """Iterate and run steps."""
         for step in steps:
             try:
@@ -781,7 +781,7 @@ class HttpRunner(object):
     def get_step_datas(self) -> List[StepData]:
         return self.__step_datas
 
-    def validate_testcase_export(self) -> NoReturn:
+    def validate_testcase_export(self) -> None:
         """Validate testcase export."""
         if isinstance(self.__export, StepExport):
             same_key_value_items = []

@@ -1,5 +1,3 @@
-from typing import NoReturn
-
 from loguru import logger
 
 from httprunner.configs.emoji import emojis
@@ -8,9 +6,7 @@ from httprunner.models import TStep
 from httprunner.parser import parse_data
 
 
-def parse_retry_args(
-    step: TStep, step_shell_variables: dict, functions: dict
-) -> NoReturn:
+def parse_retry_args(step: TStep, step_shell_variables: dict, functions: dict) -> None:
     """Parse step retry args (retry_times and retry_interval)."""
     if step.is_retry_args_resolved:
         return

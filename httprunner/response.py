@@ -1,4 +1,4 @@
-from typing import Dict, Text, Any, NoReturn, Union
+from typing import Any, Dict, Text, Union
 
 import jmespath
 import requests
@@ -8,14 +8,14 @@ from loguru import logger
 from httprunner import exceptions
 from httprunner.configs.emoji import emojis
 from httprunner.configs.validation import validation_settings
-from httprunner.exceptions import ValidationFailure, ParamsError
+from httprunner.exceptions import ParamsError, ValidationFailure
 from httprunner.models import (
-    VariablesMapping,
-    Validator,
     FunctionsMapping,
     JMESPathExtractor,
+    Validator,
+    VariablesMapping,
 )
-from httprunner.parser import parse_data, parse_string_value, get_mapping_function
+from httprunner.parser import get_mapping_function, parse_data, parse_string_value
 from httprunner.utils import omit_long_data
 
 
@@ -200,8 +200,7 @@ class ResponseObject(object):
         validators: list[Validator],
         variables_mapping: VariablesMapping = None,
         functions_mapping: FunctionsMapping = None,
-    ) -> NoReturn:
-
+    ) -> None:
         variables_mapping = variables_mapping or {}
         functions_mapping = functions_mapping or {}
 
@@ -213,7 +212,6 @@ class ResponseObject(object):
         failures = []
 
         for validator in validators:
-
             if "validate_extractor" not in self.validation_results:
                 self.validation_results["validate_extractor"] = []
 

@@ -1,11 +1,11 @@
 """
 Built-in validate comparators.
 """
+
 import math
 import re
 from collections import defaultdict
-from typing import Callable, Literal, Iterable, Optional
-from typing import Text, Any, Union, NoReturn
+from typing import Any, Callable, Iterable, Literal, Optional, Text, Union
 
 import jsonschema
 from pydantic import BaseModel
@@ -207,8 +207,10 @@ def is_close(
 
 
 def no_keys_duplicate(
-    check_value: list, expect_value: Any, message: str = ""  # noqa
-) -> NoReturn:
+    check_value: list,
+    expect_value: Any,
+    message: str = "",  # noqa
+) -> None:
     """
     Assert no duplicates in the list specified by `check_value`.
 

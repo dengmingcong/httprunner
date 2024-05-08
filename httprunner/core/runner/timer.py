@@ -1,10 +1,8 @@
-from typing import NoReturn
-
 from httprunner.models import TStep
 from httprunner.parser import parse_data
 
 
-def display_delay_in_step_name(step: TStep, functions: dict) -> NoReturn:
+def display_delay_in_step_name(step: TStep, functions: dict) -> None:
     """Display delay in step name."""
     delay_messages = []
 
