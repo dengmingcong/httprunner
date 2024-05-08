@@ -2,29 +2,29 @@ import os
 import string
 import subprocess
 import sys
-from typing import Text, List, Tuple, Dict, Set, NoReturn
+from typing import Dict, List, Set, Text, Tuple
 
 import jinja2
 from loguru import logger
 from sentry_sdk import capture_exception
 
-from httprunner import exceptions, __version__
+from httprunner import __version__, exceptions
 from httprunner.compat import (
-    ensure_testcase_v3_api,
-    ensure_testcase_v3,
     convert_variables,
     ensure_path_sep,
+    ensure_testcase_v3,
+    ensure_testcase_v3_api,
 )
 from httprunner.loader import (
+    convert_relative_project_root_dir,
     load_folder_files,
+    load_project_meta,
     load_test_file,
     load_testcase,
     load_testsuite,
-    load_project_meta,
-    convert_relative_project_root_dir,
 )
 from httprunner.response import uniform_validator
-from httprunner.utils import merge_variables, is_support_multiprocessing
+from httprunner.utils import is_support_multiprocessing, merge_variables
 
 """ cache converted pytest files, avoid duplicate making
 """
@@ -80,10 +80,10 @@ if __name__ == "__main__":
 def __ensure_absolute(path: Text) -> Text:
     if path.startswith("./"):
         # Linux/Darwin, hrun ./test.yml
-        path = path[len("./"):]
+        path = path[len("./") :]  # noqa
     elif path.startswith(".\\"):
         # Windows, hrun .\\test.yml
-        path = path[len(".\\"):]
+        path = path[len(".\\") :]  # noqa
 
     path = ensure_path_sep(path)
     project_meta = load_project_meta(path)
@@ -101,7 +101,7 @@ def __ensure_absolute(path: Text) -> Text:
 
 
 def ensure_file_abs_path_valid(file_abs_path: Text) -> Text:
-    """ ensure file path valid for pytest, handle cases when directory name includes dot/hyphen/space
+    """ensure file path valid for pytest, handle cases when directory name includes dot/hyphen/space
 
     Args:
         file_abs_path: absolute file path
@@ -120,7 +120,6 @@ def ensure_file_abs_path_valid(file_abs_path: Text) -> Text:
 
     path_names = []
     for name in raw_file_relative_name.rstrip(os.sep).split(os.sep):
-
         if name[0] in string.digits:
             # ensure file name not startswith digit
             # 19 => T19, 2C => T2C
@@ -141,9 +140,8 @@ def ensure_file_abs_path_valid(file_abs_path: Text) -> Text:
     return new_file_path
 
 
-def __ensure_testcase_module(path: Text) -> NoReturn:
-    """ ensure pytest files are in python module, generate __init__.py on demand
-    """
+def __ensure_testcase_module(path: Text) -> None:
+    """ensure pytest files are in python module, generate __init__.py on demand"""
     init_file = os.path.join(os.path.dirname(path), "__init__.py")
     if os.path.isfile(init_file):
         return
@@ -166,7 +164,7 @@ def convert_testcase_path(testcase_abs_path: Text) -> Tuple[Text, Text]:
     return testcase_python_abs_path, name_in_title_case
 
 
-def format_pytest_with_black(*python_paths: Text) -> NoReturn:
+def format_pytest_with_black(*python_paths: Text) -> None:
     logger.info("format pytest cases with black ...")
     try:
         if is_support_multiprocessing() or len(python_paths) <= 1:
@@ -444,7 +442,7 @@ def make_testcase(testcase: Dict, dir_path: Text = None) -> Text:
     return testcase_python_abs_path
 
 
-def make_testsuite(testsuite: Dict) -> NoReturn:
+def make_testsuite(testsuite: Dict) -> None:
     """convert valid testsuite dict to pytest folder with testcases"""
     # validate testsuite format
     load_testsuite(testsuite)
@@ -501,8 +499,8 @@ def make_testsuite(testsuite: Dict) -> NoReturn:
         pytest_files_run_set.add(testcase_pytest_path)
 
 
-def __make(tests_path: Text) -> NoReturn:
-    """ make testcase(s) with testcase/testsuite/folder absolute path
+def __make(tests_path: Text) -> None:
+    """make testcase(s) with testcase/testsuite/folder absolute path
         generated pytest file path will be cached in pytest_files_made_cache_mapping
 
     Args:
@@ -609,10 +607,10 @@ def main_make(tests_paths: List[Text]) -> List[Text]:
 
 
 def init_make_parser(subparsers):
-    """ make testcases: parse command line options and run commands.
-    """
+    """make testcases: parse command line options and run commands."""
     parser = subparsers.add_parser(
-        "make", help="Convert YAML/JSON testcases to pytest cases.",
+        "make",
+        help="Convert YAML/JSON testcases to pytest cases.",
     )
     parser.add_argument(
         "testcase_path", nargs="*", help="Specify YAML/JSON testcase file/folder path"
