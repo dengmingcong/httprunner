@@ -1,9 +1,0 @@
-{
-	"name": "Python 3",
-	"image": "mcr.microsoft.com/devcontainers/python:1-3.10-bookworm",
-	"features": {
-		"ghcr.io/devcontainers/features/common-utils:2": {},
-		"ghcr.io/nikobockerman/devcontainer-features/fish-persistent-data:2": {},
-		"ghcr.io/devcontainers-contrib/features/poetry:2": {}
-	}
-}
