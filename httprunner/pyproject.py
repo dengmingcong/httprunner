@@ -3,10 +3,11 @@ Configurations loaded from `pyproject.toml`.
 
 reference: _pytest/config/findpaths.py
 """
+
 import os
 import sys
 from pathlib import Path
-from typing import Union, Any, Callable
+from typing import Any, Callable, Union
 
 from httprunner.builtin.dictionary import get_from_nested_dict
 
@@ -98,9 +99,7 @@ class PyProjectTomlKey:
         self._validators = validators
 
     def __get__(self, instance, instance_type):
-        """
-        Get value from pyproject.toml.
-        """
+        """Get value from pyproject.toml."""
         value = get_pyproject_toml_key_value(self._pyproject_toml_data, self._key)
         [validator(value) for validator in self._validators]
         return value
@@ -110,9 +109,7 @@ pyproject_toml_data = load_pyproject_toml()
 
 
 class PyProjectToml:
-    """
-    Project meta read from pyproject.toml.
-    """
+    """Project meta read from pyproject.toml."""
 
     http_headers: dict = PyProjectTomlKey(
         pyproject_toml_data, "tool.httprunner.http-headers"
