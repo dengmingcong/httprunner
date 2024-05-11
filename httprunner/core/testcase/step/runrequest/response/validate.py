@@ -1,20 +1,9 @@
-from typing import (
-    Text,
-    Any,
-    Union,
-    Callable,
-    Literal,
-    Optional,
-    Type,
-)
+from typing import Any, Callable, Literal, Optional, Text, Type, Union
 
 from pydantic import BaseModel
 
 from httprunner.core.testcase.config import Config  # noqa
-from httprunner.models import (
-    TStep,
-    Validator,
-)
+from httprunner.models import TStep, Validator
 
 Number = Union[int, float]
 
@@ -386,7 +375,7 @@ class StepRequestValidation(object):
         :param expected_value: expected value
         :param message: error message
         :param ignore_string_type_changes: whether to ignore string type changes or not.
-            For example b”Hello” vs. “Hello” are considered the same if ignore_string_type_changes is set to True.
+            For example b"Hello" vs. "Hello" are considered the same if ignore_string_type_changes is set to True.
         :param ignore_numeric_type_changes: whether to ignore numeric type changes or not.
             For example 10 vs. 10.0 are considered the same if ignore_numeric_type_changes is set to True.
         :param ignore_type_in_groups: ignores types when t1 and t2 are both within the same type group.
@@ -442,7 +431,7 @@ class StepRequestValidation(object):
         :param expected_value: expected value
         :param message: error message
         :param ignore_string_type_changes: whether to ignore string type changes or not.
-            For example b”Hello” vs. “Hello” are considered the same if ignore_string_type_changes is set to True.
+            For example b"Hello" vs. "Hello" are considered the same if ignore_string_type_changes is set to True.
         :param ignore_numeric_type_changes: whether to ignore numeric type changes or not.
             For example 10 vs. 10.0 are considered the same if ignore_numeric_type_changes is set to True.
         :param ignore_type_in_groups: ignores types when t1 and t2 are both within the same type group.
