@@ -1,3 +1,15 @@
+# The default settings are for testonline runner, if you want to use ci runner, change these settings:
+
+# default:
+#   tags:
+#     - ci-nocodb
+
+# variables:
+#   NEXUS_HOST: nexus-testteam.vesync.co
+#   REPORT_HOST: ci-qa.vesync.co
+#   LAMPP_HTDOCS_DIR: /data/qa/lampp/htdocs
+
+
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
@@ -18,6 +30,7 @@ variables:
   POETRY_INSTALL_COMMAND: poetry install --without dev
   NEXUS_HOST: 10.40.9.73
   REPORT_HOST: nexus-testteam.vesync.co
+  LAMPP_HTDOCS_DIR: /opt/lampp/htdocs
 
 cache:
   key:
@@ -82,7 +95,7 @@ unit test:
     - $UNIT_TEST_COMMAND --alluredir=allure-results --clean-alluredir
   after_script:
     - |
-      allure generate -c -o /opt/lampp/htdocs/reports/$CI_PROJECT_NAME/$GITLAB_USER_LOGIN/unittest
+      allure generate -c -o $LAMPP_HTDOCS_DIR/reports/$CI_PROJECT_NAME/$GITLAB_USER_LOGIN/unittest
       echo "test report: http://$REPORT_HOST/reports/$CI_PROJECT_NAME/$GITLAB_USER_LOGIN/unittest"
 
 smoke test:
