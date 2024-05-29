@@ -12,10 +12,7 @@
 				"tamasfe.even-better-toml",
 				"eamodio.gitlens",
 				"ms-python.isort",
-				"ZainChen.json",
-				"eriklynd.json-tools",
 				"nickmillerdev.pytest-fixtures",
-				"donjayamanne.python-environment-manager",
 				"charliermarsh.ruff",
 				"wenfangdu.snippet-generator"
 			],
