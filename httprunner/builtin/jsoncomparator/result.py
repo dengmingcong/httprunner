@@ -74,7 +74,7 @@ class JSONCompareResult:
         if isinstance(field_value, dict):
             return "a JSON object"
 
-        if isinstance(field_value, (list, tuple)):
+        if isinstance(field_value, list):
             return "a JSON array"
 
         return repr(field_value)
