@@ -79,7 +79,9 @@ class JSONCompareResult:
 
         return repr(field_value)
 
-    def add_mismatch_field(self, field_path, expected, actual) -> "JSONCompareResult":
+    def add_mismatch_field(
+        self, field_path: str, expected: Any, actual: Any
+    ) -> "JSONCompareResult":
         """Add a mismatched field."""
         # append this field to the mismatched fields list
         self.mismatch_fields.append(FailField(field_path, expected, actual))
@@ -96,7 +98,7 @@ class JSONCompareResult:
 
         return self
 
-    def add_missing_field(self, field_path, expected) -> "JSONCompareResult":
+    def add_missing_field(self, field_path: str, expected: Any) -> "JSONCompareResult":
         """Add a missing field."""
         # append this field to the missing fields list
         self.missing_fields.append(FailField(field_path, expected, None))
@@ -112,7 +114,7 @@ class JSONCompareResult:
 
         return self
 
-    def add_unexpected_field(self, field_path, actual) -> "JSONCompareResult":
+    def add_unexpected_field(self, field_path: str, actual: Any) -> "JSONCompareResult":
         """Add an unexpected field."""
         # append this field to the unexpected fields list
         self.unexpected_fields.append(FailField(field_path, None, actual))
