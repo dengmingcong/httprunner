@@ -9,9 +9,11 @@ class FailField:
     def __init__(self, field_path, expected, actual):
         """Init a object.
 
-        :param field_path: path to the field that is currently being compared
-        :param expected: expected value of the field
-        :param actual: actual value of the field
+        :param field_path: path to the field that is currently being compared.
+        :param expected: expected value of the field. \
+            When one key is missing in actual JSON object, the value is the missing key.
+        :param actual: actual value of the field. \
+            In STRICT mode, when one key exists in actual JSON object unexpectedly, the value is the unexpected key.
         """
         self.field_path = field_path
         self.expected = expected
@@ -42,17 +44,12 @@ class JSONCompareResult:
         """
         self.is_success = is_success
         self.fail_messages = fail_messages
-        self.current_field_path = None
+        self.current_field_path = None  # TODO: decide if this is needed
         self.current_field_expected = None
         self.current_field_actual = None
         self.mismatch_fields: list[FailField] = []
         self.missing_fields: list[FailField] = []
         self.unexpected_fields: list[FailField] = []
-
-    @property
-    def is_pass(self) -> bool:
-        """Return whether the comparison passed."""
-        return self.current_field_path is None
 
     def fail(self, message: str) -> "JSONCompareResult":
         """Fail the entire JSON comparison and add fail message."""
@@ -82,7 +79,10 @@ class JSONCompareResult:
     def add_mismatch_field(
         self, field_path: str, expected: Any, actual: Any
     ) -> "JSONCompareResult":
-        """Add a mismatched field."""
+        """Add a mismatched field.
+
+        Mismatched fields are fields that exist both in expected and actual JSONs, but with mismatched values.
+        """
         # append this field to the mismatched fields list
         self.mismatch_fields.append(FailField(field_path, expected, actual))
 
@@ -98,32 +98,46 @@ class JSONCompareResult:
 
         return self
 
-    def add_missing_field(self, field_path: str, expected: Any) -> "JSONCompareResult":
-        """Add a missing field."""
+    def add_missing_field(
+        self, field_path: str, missing_key: str
+    ) -> "JSONCompareResult":
+        """Add a missing field.
+
+        :param field_path: path to the field that is currently being compared
+        :param missing_key: the key that exists in expected field but not in actual field
+        """
         # append this field to the missing fields list
-        self.missing_fields.append(FailField(field_path, expected, None))
+        self.missing_fields.append(FailField(field_path, missing_key, None))
 
         # change the current field cursor
         self.current_field_path = field_path
-        self.current_field_expected = expected
+        self.current_field_expected = missing_key
+        self.current_field_actual = None
 
         # fail the entire JSON comparison
         self.fail(
-            f"{field_path}\n    expected: {self.describe(expected)}\n    but none found\n"
+            f"{field_path}\n    expected: {self.describe(missing_key)}\n    but none found\n"
         )
 
         return self
 
-    def add_unexpected_field(self, field_path: str, actual: Any) -> "JSONCompareResult":
-        """Add an unexpected field."""
+    def add_unexpected_field(
+        self, field_path: str, unexpected_key: Any
+    ) -> "JSONCompareResult":
+        """Add an unexpected field.
+
+        :param field_path: path to the field that is currently being compared
+        :param unexpected_key: the key that exists in actual field but not in expected field
+        """
         # append this field to the unexpected fields list
-        self.unexpected_fields.append(FailField(field_path, None, actual))
+        self.unexpected_fields.append(FailField(field_path, None, unexpected_key))
 
         # change the current field cursor
         self.current_field_path = field_path
-        self.current_field_actual = actual
+        self.current_field_actual = unexpected_key
+        self.current_field_expected = None
 
         # fail the entire JSON comparison
-        self.fail(f"{field_path}\n    unexpected: {self.describe(actual)}\n")
+        self.fail(f"{field_path}\n    unexpected: {self.describe(unexpected_key)}\n")
 
         return self
