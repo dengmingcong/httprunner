@@ -11,7 +11,8 @@ class FailField:
 
         :param field_path: path to the field that is currently being compared.
         :param expected: expected value of the field. \
-            When one key is missing in actual JSON object, the value is the missing key.
+            When one key is missing in actual JSON object, the value is the missing key, \
+            when an item is missing in actual JSON array, the value is the missing item. \
         :param actual: actual value of the field. \
             In STRICT mode, when one key exists in actual JSON object unexpectedly, the value is the unexpected key.
         """
@@ -98,25 +99,25 @@ class JSONCompareResult:
 
         return self
 
-    def add_missing_field(
-        self, field_path: str, missing_key: str
-    ) -> "JSONCompareResult":
+    def add_missing_field(self, field_path: str, expected: str) -> "JSONCompareResult":
         """Add a missing field.
 
         :param field_path: path to the field that is currently being compared
-        :param missing_key: the key that exists in expected field but not in actual field
+        :param expected: an object key or array item that is missing in actual JSON. \
+            when comparing two JSON object, it's the key that exists in the expected object but not in actual object, \
+            when comparing two JSON arrays, it's the item that exists in the expected array but not in actual array.
         """
         # append this field to the missing fields list
-        self.missing_fields.append(FailField(field_path, missing_key, None))
+        self.missing_fields.append(FailField(field_path, expected, None))
 
         # change the current field cursor
         self.current_field_path = field_path
-        self.current_field_expected = missing_key
+        self.current_field_expected = expected
         self.current_field_actual = None
 
         # fail the entire JSON comparison
         self.fail(
-            f"{field_path}\n    expected: {self.describe(missing_key)}\n    but none found\n"
+            f"{field_path}\n    expected: {self.describe(expected)}\n    but none found\n"
         )
 
         return self
