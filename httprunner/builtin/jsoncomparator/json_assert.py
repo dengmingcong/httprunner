@@ -20,4 +20,7 @@ def assert_equals(
     result = json_comparator.compare_json(expected, actual)
 
     if not result.is_success:
-        raise AssertionError(f"{message}\n{result.fail_messages}")
+        if message:
+            raise AssertionError(f"{message}\n{result.fail_messages}")
+        else:
+            raise AssertionError(result.fail_messages)
