@@ -368,8 +368,7 @@ class StepRequestValidation(object):
         ignore_type_in_groups: Union[tuple, list[tuple]] = None,
         **other_deepdiff_kwargs,
     ) -> "StepRequestValidation":
-        """
-        Equivalent to the JSONassert non-strict mode.
+        """Equivalent to the JSONassert non-strict mode.
 
         :param jmespath_expression: JMESPath expression
         :param expected_value: expected value
@@ -424,8 +423,7 @@ class StepRequestValidation(object):
         ignore_type_in_groups: Union[tuple, list[tuple]] = None,
         **other_deepdiff_kwargs,
     ) -> "StepRequestValidation":
-        """
-        Equivalent to the JSONassert strict mode.
+        """Equivalent to the JSONassert strict mode.
 
         :param jmespath_expression: JMESPath expression
         :param expected_value: expected value
@@ -509,8 +507,7 @@ class StepRequestValidation(object):
         expected_value: Union[Callable, Literal["ASC", "DSC"]],
         message: Text = "",
     ) -> "StepRequestValidation":
-        """
-        Assert the list is sorted in some specific order.
+        """Assert the list is sorted in some specific order.
 
         Note:
         1. if expected_value is string 'ASC', the list is expected to be sorted in ascending order
@@ -534,8 +531,7 @@ class StepRequestValidation(object):
         expected_value: Union[tuple[Number, Number], str],
         message: Text = "",
     ) -> "StepRequestValidation":
-        """
-        Return True if the values are close to each other and False otherwise.
+        """Return True if the values are close to each other and False otherwise.
 
         References:
             math.isclose() from https://docs.python.org/3/library/math.html
@@ -592,8 +588,7 @@ class StepRequestValidation(object):
         expected_value: Union[dict, str],
         message: Text = "",
     ) -> "StepRequestValidation":
-        """
-        Assert part of response matches the JSON schema.
+        """Assert part of response matches the JSON schema.
 
         >>> schema = {
         ...     "type" : "object",
@@ -620,8 +615,7 @@ class StepRequestValidation(object):
         expected_value: Union[Type[BaseModel], str],
         message: Text = "",
     ) -> "StepRequestValidation":
-        """
-        Assert part of response matches the pydantic model.
+        """Assert part of response matches the pydantic model.
 
         Note:
             By default extra attributes will be ignored, you can change the behaviour via config `extra`.
@@ -647,8 +641,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_is_truthy(self, jmespath_expression: Text, message: Text = ""):
-        """
-        Assert the value is considered true.
+        """Assert the value is considered true.
 
         Reference: https://docs.python.org/3/library/stdtypes.html#truth-value-testing
         """
@@ -663,8 +656,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_is_falsy(self, jmespath_expression: Text, message: Text = ""):
-        """
-        Assert the value is considered false.
+        """Assert the value is considered false.
 
         Reference: https://docs.python.org/3/library/stdtypes.html#truth-value-testing
         """
@@ -686,8 +678,7 @@ class StepRequestValidation(object):
         *,
         validator_kwargs: Optional[dict] = None,
     ):
-        """
-        Assert with custom validator.
+        """Assert with custom validator.
 
         The `custom_validator` must be a callable and call `assert` to make the assertion,
         the jmespath searching result will be pass to the callable as the first positional argument,
