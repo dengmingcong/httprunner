@@ -338,8 +338,8 @@ class JSONComparator:
 
     def compare_json(
         self,
-        expected: Union[dict, Union[list, tuple]],
-        actual: Union[dict, Union[list, tuple]],
+        expected: Union[dict, list],
+        actual: Union[dict, list],
     ) -> JSONCompareResult:
         """Compare two JSONs (JSON object or JSON array)."""
         result = JSONCompareResult()
