@@ -24,3 +24,21 @@ def assert_equals(
             raise AssertionError(f"{message}\n{result.fail_messages}")
         else:
             raise AssertionError(result.fail_messages)
+
+
+def json_contains_v2(
+    check_value: Union[dict, list],
+    expect_value: Union[dict, list],
+    message: str = "",
+) -> None:
+    """Comparator for HttpRunner, non-strict mode of JSONassert."""
+    assert_equals(expect_value, check_value, False, message)
+
+
+def json_equal_v2(
+    check_value: Union[dict, list],
+    expect_value: Union[dict, list],
+    message: str = "",
+) -> None:
+    """Comparator for HttpRunner, strict mode of JSONassert."""
+    assert_equals(expect_value, check_value, True, message)

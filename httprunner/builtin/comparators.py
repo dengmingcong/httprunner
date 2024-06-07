@@ -15,6 +15,10 @@ from httprunner.builtin.jsonassert import (  # noqa
     json_contains,
     json_equal,
 )
+from httprunner.builtin.jsoncomparator.json_assert import (  # noqa
+    json_contains_v2,
+    json_equal_v2,
+)
 from httprunner.exceptions import ParamsError
 
 Number = Union[int, float]
