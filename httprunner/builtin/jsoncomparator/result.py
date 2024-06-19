@@ -14,7 +14,8 @@ class FailField:
             When one key is missing in actual JSON object, the value is the missing key, \
             when an item is missing in actual JSON array, the value is the missing item. \
         :param actual: actual value of the field. \
-            In STRICT mode, when one key exists in actual JSON object unexpectedly, the value is the unexpected key.
+            When one key exists in actual JSON object unexpectedly, the value is the unexpected key. \
+            When an item exists in actual JSON array unexpectedly, the value is the unexpected item.
         """
         self.field_path = field_path
         self.expected = expected
@@ -125,7 +126,7 @@ class JSONCompareResult:
     def add_unexpected_field(self, field_path: str, actual: Any) -> "JSONCompareResult":
         """Add an unexpected field.
 
-        :param field_path: path to the field that is currently being compared
+        :param field_path: path to the field that is currently being compared.
         :param actual: an object key or array item that is unexpected in actual JSON. \
             when comparing two JSON objects, it's the key that exists in the actual object but not in expected object, \
             when comparing two JSON arrays, it's the item that exists in the actual array but not in expected array.
