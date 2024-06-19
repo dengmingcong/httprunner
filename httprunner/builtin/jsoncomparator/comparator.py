@@ -199,15 +199,17 @@ class JSONComparator:
 
         # if no unique key found from expected or the unique key was not unique in actual JSON array,
         # we have to compare them with an expensive way.
-        if not unique_key or not jsoncomparator_util.find_unique_key(actual):
+        if not unique_key or not jsoncomparator_util.is_usable_as_unique_key(
+            unique_key, actual
+        ):
             self._compare_json_arrays_recursively(prefix, expected, actual, result)
             return
 
         # if a unique key was found, convert the JSON arrays to dictionaries and compare them.
-        expected_mapping = jsoncomparator_util.convert_json_array_to_mapping(
+        expected_mapping = jsoncomparator_util.convert_array_of_json_objects_to_mapping(
             expected, unique_key
         )
-        actual_mapping = jsoncomparator_util.convert_json_array_to_mapping(
+        actual_mapping = jsoncomparator_util.convert_array_of_json_objects_to_mapping(
             actual, unique_key
         )
 
