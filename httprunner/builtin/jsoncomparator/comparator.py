@@ -21,7 +21,7 @@ class JSONComparator:
         """
         self.is_strict = is_strict
 
-    def compare_field_values(
+    def _compare_field_values(
         self, prefix: str, expected: Any, actual: Any, result: JSONCompareResult
     ):
         """Compare the expected field value with the actual field value.
@@ -54,12 +54,12 @@ class JSONComparator:
 
         # both are JSON objects, call compare_json_objects.
         if isinstance(expected, dict) and isinstance(actual, dict):
-            self.compare_json_objects(prefix, expected, actual, result)
+            self._compare_json_objects(prefix, expected, actual, result)
             return
 
         # both are JSON arrays, call compare_json_arrays.
         if isinstance(expected, list) and isinstance(actual, list):
-            self.compare_json_arrays(prefix, expected, actual, result)
+            self._compare_json_arrays(prefix, expected, actual, result)
             return
 
         # valid JSON types contains:
@@ -67,10 +67,10 @@ class JSONComparator:
         # all other types are invalid JSON types.
         result.add_mismatch_field(prefix, expected, actual)
 
-    def check_expected_json_object_keys_in_actual(
+    def _check_expected_json_object_keys_in_actual(
         self, prefix: str, expected: dict, actual: dict, result: JSONCompareResult
     ):
-        """Check keys in expected JSON object are all in actual JSON object.
+        """Check keys of expected JSON object are all in actual JSON object.
 
         :param prefix: field path prefix.
         :param expected: expected JSON object.
@@ -80,7 +80,7 @@ class JSONComparator:
         for expected_object_key, expected_object_value in expected.items():
             if expected_object_key in actual:
                 # key exists both in expected and actual, need to compare field values.
-                self.compare_field_values(
+                self._compare_field_values(
                     f"{prefix}.{expected_object_key}",
                     expected_object_value,
                     actual[expected_object_key],
@@ -88,12 +88,12 @@ class JSONComparator:
                 )
             else:
                 # keys that exist in expected but not in actual are missing fields.
-                result.missing(prefix, expected_object_key)
+                result.add_missing_field(prefix, expected_object_key)
 
-    def check_actual_json_object_keys_in_expected(
+    def _check_actual_json_object_keys_in_expected(
         self, prefix: str, expected: dict, actual: dict, result: JSONCompareResult
     ):
-        """Check keys in actual JSON object are all in expected JSON object.
+        """Check keys of actual JSON object are all in expected JSON object.
 
         Call this method only when is_strict is True.
 
@@ -106,7 +106,7 @@ class JSONComparator:
         for key in set(actual.keys()) - set(expected.keys()):
             result.add_unexpected_field(prefix, key)
 
-    def compare_json_objects(
+    def _compare_json_objects(
         self, prefix: str, expected: dict, actual: dict, result: JSONCompareResult
     ):
         """Compare two JSON objects.
@@ -116,16 +116,18 @@ class JSONComparator:
         :param actual: actual JSON object.
         :param result: a JSONCompareResult instance.
         """
-        # check that every key in expected JSON object is in actual JSON object.
-        self.check_expected_json_object_keys_in_actual(prefix, expected, actual, result)
+        # check that every key of expected JSON object is in actual JSON object.
+        self._check_expected_json_object_keys_in_actual(
+            prefix, expected, actual, result
+        )
 
-        # if is_strict is True, check that every key in actual JSON object is in expected JSON object.
+        # if is_strict is True, check that every key of actual JSON object is in expected JSON object.
         if self.is_strict:
-            self.check_actual_json_object_keys_in_expected(
+            self._check_actual_json_object_keys_in_expected(
                 prefix, expected, actual, result
             )
 
-    def compare_json_arrays_with_strict_order(
+    def _compare_json_arrays_with_strict_order(
         self, prefix: str, expected: list, actual: list, result: JSONCompareResult
     ):
         """Compare two JSON arrays with strict order.
@@ -138,14 +140,14 @@ class JSONComparator:
         :param result: a JSONCompareResult instance.
         """
         for expected_array_index, expected_array_value in enumerate(expected):
-            self.compare_field_values(
+            self._compare_field_values(
                 f"{prefix}[{expected_array_index}]",
                 expected_array_value,
                 actual[expected_array_index],
                 result,
             )
 
-    def compare_json_arrays_all_simple_values(
+    def _compare_json_arrays_all_simple_values(
         self, prefix: str, expected: list, actual: list, result: JSONCompareResult
     ):
         """Compare two JSON arrays with all values being simple values.
@@ -183,7 +185,7 @@ class JSONComparator:
             if actual_item not in expected_item_to_count_mapping:
                 result.add_unexpected_field(f"{prefix}[]", actual_item)
 
-    def compare_json_arrays_all_json_objects(
+    def _compare_json_arrays_all_json_objects(
         self, prefix: str, expected: list, actual: list, result: JSONCompareResult
     ):
         """Compare two JSON arrays with all values being JSON objects.
@@ -195,10 +197,10 @@ class JSONComparator:
         """
         unique_key = jsoncomparator_util.find_unique_key(expected)
 
-        # if no unique key found both in expected and actual JSON array,
+        # if no unique key found from expected or the unique key was not unique in actual JSON array,
         # we have to compare them with an expensive way.
-        if not unique_key and not jsoncomparator_util.find_unique_key(actual):
-            self.compare_json_arrays_recursively(prefix, expected, actual, result)
+        if not unique_key or not jsoncomparator_util.find_unique_key(actual):
+            self._compare_json_arrays_recursively(prefix, expected, actual, result)
             return
 
         # if a unique key was found, convert the JSON arrays to dictionaries and compare them.
@@ -222,7 +224,7 @@ class JSONComparator:
                 continue
 
             # if the unique key value is in the actual mapping, compare the two JSON objects.
-            self.compare_field_values(
+            self._compare_field_values(
                 jsoncomparator_util.format_unique_key(
                     prefix, unique_key, unique_key_value
                 ),
@@ -241,7 +243,7 @@ class JSONComparator:
                     actual_json_object,
                 )
 
-    def compare_json_arrays_recursively(
+    def _compare_json_arrays_recursively(
         self, prefix: str, expected: list, actual: list, result: JSONCompareResult
     ):
         """Compare two JSON arrays recursively.
@@ -302,7 +304,7 @@ class JSONComparator:
 
                 return
 
-    def compare_json_arrays(
+    def _compare_json_arrays(
         self, prefix: str, expected: list, actual: list, result: JSONCompareResult
     ):
         """Compare two JSON arrays.
@@ -325,16 +327,22 @@ class JSONComparator:
 
         # if is_strict is True, compare the two arrays with strict order.
         if self.is_strict:
-            self.compare_json_arrays_with_strict_order(prefix, expected, actual, result)
+            self._compare_json_arrays_with_strict_order(
+                prefix, expected, actual, result
+            )
+
+        # the other cases, compare the two arrays in non strict mode.
         # if all values in the expected array are simple values, compare them in non strict mode.
         elif jsoncomparator_util.is_all_simple_values_array(expected):
-            self.compare_json_arrays_all_simple_values(prefix, expected, actual, result)
-        # if all values in the expected array are JSON objects, call compare_json_arrays_all_json_objects().
+            self._compare_json_arrays_all_simple_values(
+                prefix, expected, actual, result
+            )
+        # if all values in the expected array are JSON objects, call _compare_json_arrays_all_json_objects().
         elif jsoncomparator_util.is_all_json_objects_array(expected):
-            self.compare_json_arrays_all_json_objects(prefix, expected, actual, result)
+            self._compare_json_arrays_all_json_objects(prefix, expected, actual, result)
         # otherwise, call compare_json_arrays_recursively().
         else:
-            self.compare_json_arrays_recursively(prefix, expected, actual, result)
+            self._compare_json_arrays_recursively(prefix, expected, actual, result)
 
     def compare_json(
         self,
@@ -344,12 +352,12 @@ class JSONComparator:
         """Compare two JSONs (JSON object or JSON array)."""
         result = JSONCompareResult()
 
-        # if both expected and actual are JSON objects, call compare_json_objects.
+        # if both expected and actual are JSON objects, call _compare_json_objects().
         if isinstance(expected, dict) and isinstance(actual, dict):
-            self.compare_json_objects("", expected, actual, result)
+            self._compare_json_objects("", expected, actual, result)
         # if both expected and actual are JSON arrays, call compare_json_arrays.
         elif isinstance(expected, list) and isinstance(actual, list):
-            self.compare_json_arrays("", expected, actual, result)
+            self._compare_json_arrays("", expected, actual, result)
         # otherwise, add a mismatched field.
         else:
             result.add_mismatch_field("", expected, actual)
