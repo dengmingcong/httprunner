@@ -258,19 +258,20 @@ class JSONComparator:
         :param actual: actual JSON array.
         :param result: a JSONCompareResult instance.
         """
-        # if one item in actual array matches one in the expected array, add it's index to the matched_indexes set.
+        # if one item of actual array matches one in the expected array,
+        # it's index in actual array will be added to the matched_indexes set.
         matched_indexes = set()
 
         # iterate over the expected array in outer loop.
         for expected_index, expected_item in enumerate(expected):
-            # set initial value of match_found to False.
-            # when a match is found in the inner (actual) loop, set it to True.
-            # if no match is found in the inner (actual) loop, fail the comparison.
+            # set initial value of match_found to False,
+            # when a match was found in the inner (actual) loop, set it to True,
+            # if no match was found in the inner (actual) loop, fail the comparison.
             match_found = False
 
             # iterate over the actual array in inner loop.
             for actual_index, actual_item in enumerate(actual):
-                # if one item is None and the other is not None, continue to the next item.
+                # if one item is None and the other is not None, continue to the next iteration.
                 if (expected_item is None and actual_item is not None) or (
                     expected_item is not None and actual_item is None
                 ):
@@ -281,11 +282,15 @@ class JSONComparator:
                     continue
 
                 # continue if the data type of the two items are different.
+                # Note: When comparing items of arrays, the data type must be the same,
+                # this behavior is different from comparing objects,
+                # but is consistent with method _compare_json_arrays_all_simple_values().
                 if type(expected_item) is not type(actual_item):
                     continue
 
+                # the actual item has the same data type as the expected item,
+                # for data type has been checked above.
                 # call compare_json() if the the expected item is a JSON object or a JSON array.
-                # the actual item has the same data type as the expected item, for data type has been checked above.
                 if isinstance(expected_item, (dict, list)):
                     # if the comparison is successful, add the actual index to the matched_indexes set.
                     if self.compare_json(expected_item, actual_item).is_success:
@@ -342,7 +347,7 @@ class JSONComparator:
         # if all values in the expected array are JSON objects, call _compare_json_arrays_all_json_objects().
         elif jsoncomparator_util.is_all_json_objects_array(expected):
             self._compare_json_arrays_all_json_objects(prefix, expected, actual, result)
-        # otherwise, call compare_json_arrays_recursively().
+        # otherwise, call _compare_json_arrays_recursively().
         else:
             self._compare_json_arrays_recursively(prefix, expected, actual, result)
 
