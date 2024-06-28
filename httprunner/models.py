@@ -1,16 +1,9 @@
 import os
 from copy import deepcopy
 from enum import Enum
-from typing import Any, Optional, IO
-from typing import Dict, Text, Union, Callable
-from typing import List
+from typing import IO, Any, Callable, Dict, List, Optional, Text, Union
 
-from pydantic import (
-    BaseModel,
-    Field,
-    HttpUrl,
-    ConfigDict,
-)
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 from requests_toolbelt import MultipartEncoder
 
 Name = Text
@@ -255,7 +248,7 @@ class ResponseData(BaseModel):
     cookies: Cookies
     encoding: Union[Text, None] = None
     content_type: Text
-    body: Union[Text, bytes, Dict, List]
+    body: Optional[Union[Text, bytes, Dict, List]]
 
 
 class ReqRespData(BaseModel):
