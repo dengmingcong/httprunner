@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.44.1 (2024-06-28)
+
+### Fix
+
+* Pydantic model validation failed when response is null ([`c45a991`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/c45a991056bc4bf69fee76a25e8c95ec3d414d3e))
+
 ## v3.44.0 (2024-04-08)
 
 ### Feature
