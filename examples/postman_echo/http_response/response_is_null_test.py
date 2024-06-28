@@ -1,6 +1,8 @@
+import pytest
 from httprunner import Config, HttpRunner, RunRequest, Step
 
 
+@pytest.mark.skip("api updateEmailSubscribe may be unavailable or deprecated")
 class TestResponseIsNull(HttpRunner):
     config = (
         Config("test response is null")
