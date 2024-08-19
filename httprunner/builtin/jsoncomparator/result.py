@@ -157,6 +157,6 @@ class JSONCompareResult:
         self.current_field_expected = None
 
         # fail the entire JSON comparison
-        self.fail(f"{field_path}\n    unexpected: {self.describe(actual)}\n")
+        self.fail(f"{field_path}\nUnexpected: {self.describe(actual, True)}\n")
 
         return self
