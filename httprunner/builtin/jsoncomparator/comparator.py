@@ -278,6 +278,15 @@ class JSONComparator:
 
         # Iterate over the expected array in outer loop.
         for expected_index, expected_item in enumerate(expected):
+            # Fail the comparison if the expected item is not a valid JSON type.
+            if not jsoncomparator_util.is_valid_json_type(expected_item):
+                result.fail(
+                    f"{prefix}[{expected_index}]: Invalid JSON data type {type(expected_item)}, "
+                    f"only the following types are allowed: "
+                    "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
+                )
+                return
+
             # Set initial value of match_found to False,
             # when a match was found in the inner (actual) loop, set it to True,
             # if no match was found in the inner (actual) loop, fail the comparison.
@@ -285,27 +294,37 @@ class JSONComparator:
 
             # Iterate over the actual array in inner loop.
             for actual_index, actual_item in enumerate(actual):
-                # If one item is None and the other is not None, continue to the next iteration.
-                if (expected_item is None and actual_item is not None) or (
-                    expected_item is not None and actual_item is None
-                ):
-                    continue
-
                 # Skip the item if it has been matched.
                 if actual_index in matched_indexes:
                     continue
 
+                # Fail the comparison if the actual item is not a valid JSON type.
+                elif not jsoncomparator_util.is_valid_json_type(actual_item):
+                    result.fail(
+                        f"{prefix}[{expected_index}]: Invalid JSON data type {type(actual_item)}, "
+                        f"only the following types are allowed: "
+                        "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
+                    )
+                    return
+
+                # Compare two numbers with '==' operator.
+                elif (
+                    isinstance(expected_item, Number)
+                    and isinstance(actual_item, Number)
+                    and expected_item == actual_item
+                ):
+                    matched_indexes.add(actual_index)
+                    match_found = True
+                    break
+
                 # Continue if the data type of the two items are different.
-                # Note: When comparing items of arrays, the data type must be the same,
-                # this behavior is different from comparing objects,
-                # but is consistent with method _compare_json_arrays_all_simple_values().
-                if type(expected_item) is not type(actual_item):
+                elif type(expected_item) is not type(actual_item):
                     continue
 
                 # The actual item should have the same data type as the expected item,
                 # because data type has been checked above.
                 # Call compare_json() if the the expected item is a JSON object or a JSON array.
-                if isinstance(expected_item, (dict, list)):
+                elif isinstance(expected_item, (dict, list)):
                     # If the comparison is successful, add the actual index to the matched_indexes set.
                     if self.compare_json(expected_item, actual_item).is_success:
                         matched_indexes.add(actual_index)
