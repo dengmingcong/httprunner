@@ -373,14 +373,6 @@ class JSONComparator:
         """Compare two JSONs (JSON object or JSON array)."""
         result = JSONCompareResult()
 
-        # If both expected and actual are JSON objects, call _compare_json_objects().
-        if isinstance(expected, dict) and isinstance(actual, dict):
-            self._compare_json_objects("", expected, actual, result)
-        # If both expected and actual are JSON arrays, call compare_json_arrays.
-        elif isinstance(expected, list) and isinstance(actual, list):
-            self._compare_json_arrays("", expected, actual, result)
-        # Otherwise, add a mismatched field.
-        else:
-            result.add_mismatch_field("", expected, actual)
+        self._compare_field_values("", expected, actual, result)
 
         return result
