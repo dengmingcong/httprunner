@@ -106,7 +106,10 @@ class JSONComparator:
                 )
             else:
                 # Keys that exist in expected but not in actual are missing fields.
-                result.add_missing_field(prefix, expected_object_key)
+                result.add_missing_field(
+                    prefix,
+                    expected_object_key,
+                )
 
     def _check_actual_json_object_keys_in_expected(
         self, prefix: str, expected: dict, actual: dict, result: JSONCompareResult

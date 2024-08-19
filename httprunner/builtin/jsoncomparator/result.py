@@ -68,10 +68,11 @@ class JSONCompareResult:
         return self
 
     @staticmethod
-    def describe(field_value: Any) -> str:
+    def describe(field_value: Any, is_field_path: bool = False) -> str:
         """Describe the field value in a human-readable way.
 
         :param field_value: the value of the field, either expected or actual
+        :param is_field_path: whether the field value is a field path, field paths are displayed without quotes
         :return: a human-readable string representation of the field value
         """
         if isinstance(field_value, dict):
@@ -80,10 +81,15 @@ class JSONCompareResult:
         if isinstance(field_value, list):
             return "a JSON array"
 
-        try:
-            return json.dumps(field_value)
-        except Exception:
-            return repr(field_value)
+        # display quotes for string if it's not a field path
+        if not is_field_path:
+            try:
+                return json.dumps(field_value)
+            except Exception:
+                return repr(field_value)
+        else:
+            # display string without quotes if it's a field path
+            return field_value
 
     def add_mismatch_field(
         self, field_path: str, expected: Any, actual: Any
@@ -127,7 +133,9 @@ class JSONCompareResult:
 
         # fail the entire JSON comparison
         self.fail(
-            f"{field_path}\n    expected: {self.describe(expected)}\n    but none found\n"
+            f"{field_path}\n"
+            f"    Expected: {self.describe(expected, True)}\n"
+            f"         but none found\n"
         )
 
         return self
