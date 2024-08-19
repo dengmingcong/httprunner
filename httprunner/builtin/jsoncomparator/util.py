@@ -120,6 +120,11 @@ def convert_array_of_json_objects_to_mapping(
     return {item[unique_key]: item for item in array}
 
 
+def qualify_field_path(prefix: str, field: str) -> str:
+    """Qualify the field path."""
+    return f"{prefix}.{field}" if prefix else field
+
+
 def format_unique_key(prefix: str, unique_key: str, unique_key_value: Any) -> str:
     """Format field path to identify which field failed to match.
 

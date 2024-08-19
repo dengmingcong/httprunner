@@ -99,7 +99,7 @@ class JSONComparator:
             if expected_object_key in actual:
                 # Key exists both in expected and actual, need to compare field values.
                 self._compare_field_values(
-                    f"{prefix}.{expected_object_key}",
+                    jsoncomparator_util.qualify_field_path(prefix, expected_object_key),
                     expected_object_value,
                     actual[expected_object_key],
                     result,
