@@ -58,8 +58,11 @@ class JSONCompareResult:
         # fail the entire JSON comparison
         self.is_success = False
 
-        # add fail message, separated by ";"
-        self.fail_messages += " ; " + message
+        if not self.fail_messages:
+            self.fail_messages = message
+        else:
+            # add fail message, separated by ";"
+            self.fail_messages = f"{self.fail_messages} ; {message}"
 
         return self
 
