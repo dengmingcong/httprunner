@@ -1,5 +1,6 @@
 """Main module for JSON comparator."""
 
+from numbers import Number
 from typing import Any, Union
 
 from httprunner.builtin.jsoncomparator import util as jsoncomparator_util
@@ -31,41 +32,54 @@ class JSONComparator:
         :param actual: the actual field value.
         :param result: JSONCompareResult instance.
         """
-        # Return directly if expected and actual are the same.
-        if expected == actual:
+        # Fail the comparison if any one is not a valid JSON type.
+        if not jsoncomparator_util.is_valid_json_type(expected):
+            result.fail(
+                f"{prefix}: Invalid JSON type {type(expected)}, only the following types are allowed: "
+                "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
+            )
+            return
+        elif not jsoncomparator_util.is_valid_json_type(actual):
+            result.fail(
+                f"{prefix}: Invalid JSON type {type(actual)}, only the following types are allowed: "
+                "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
+            )
             return
 
-        # One is None and the other is not None, this field is a mismatched field.
-        if (expected is None and actual is not None) or (
-            expected is not None and actual is None
-        ):
+        # In the original JSONAssert implementation, there is a special case that two values have different types,
+        # but also considered equal, that is 1.0 == 1.
+        # So we need to compare the two values with '==' operator if both are numbers.
+        elif isinstance(expected, Number) and isinstance(actual, Number):
+            # Mark as mismatched field if the two numbers are not equal.
+            if expected != actual:
+                result.add_mismatch_field(prefix, expected, actual)
+            return
+
+        # Except numbers, two values to be compared must have the same type.
+        # The result is also right for:
+        #   - comparing None with a non-None value (they are different types)
+        #   - comparing True with 1, False with 0 (they are different types)
+        elif type(expected) is not type(actual):
             result.add_mismatch_field(prefix, expected, actual)
             return
 
-        # Note: In Python, 1.0 and 1 has different types, but they are equal (assert 1.0 == 1),
-        # so we cannot compare their types here.
         # Both are simple values, compare them directly.
-        if jsoncomparator_util.is_simple_value(
-            expected
-        ) and jsoncomparator_util.is_simple_value(actual):
+        elif jsoncomparator_util.is_simple_value(expected):
             if expected != actual:
                 result.add_mismatch_field(prefix, expected, actual)
             return
 
         # Both are JSON objects, call compare_json_objects.
-        if isinstance(expected, dict) and isinstance(actual, dict):
+        elif isinstance(expected, dict):
             self._compare_json_objects(prefix, expected, actual, result)
             return
 
         # Both are JSON arrays, call compare_json_arrays.
-        if isinstance(expected, list) and isinstance(actual, list):
+        elif isinstance(expected, list):
             self._compare_json_arrays(prefix, expected, actual, result)
             return
-
-        # Valid JSON types contains:
-        # number (int, float), string (str), boolean (bool), array (list), object (dict), null (None),
-        # all other types are invalid JSON types.
-        result.add_mismatch_field(prefix, expected, actual)
+        else:
+            result.fail("Unknown error occurred")
 
     def _check_expected_json_object_keys_in_actual(
         self, prefix: str, expected: dict, actual: dict, result: JSONCompareResult
