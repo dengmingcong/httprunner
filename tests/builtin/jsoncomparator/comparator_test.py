@@ -68,3 +68,35 @@ class TestJsonComparatorLenientMode:
         result = self.json_comparator.compare_json(None, "null")
         print(result.fail_messages)
         assert not result.is_success
+
+    def test_compare_json_objects_equal(self):
+        result = self.json_comparator.compare_json({"a": 1, "b": 2}, {"a": 1, "b": 2})
+        assert result.is_success
+
+    def test_compare_json_objects_missing_key(self):
+        result = self.json_comparator.compare_json({"a": 1, "b": 2}, {"a": 1})
+        print(result.fail_messages)
+        assert not result.is_success
+
+    def test_compare_json_objects_not_equal(self):
+        result = self.json_comparator.compare_json({"a": 1, "b": 2}, {"a": 1, "b": 3})
+        print(result.fail_messages)
+        assert not result.is_success
+
+    def test_compare_json_objects_nested_not_equal(self):
+        result = self.json_comparator.compare_json(
+            {"a": 1, "b": {"c": 2, "d": 3}}, {"a": 1, "b": {"c": 2, "d": 4}}
+        )
+        print(result.fail_messages)
+        assert not result.is_success
+
+
+class TestJSONComparatorStrictMode:
+    json_comparator = JSONComparator(True)
+
+    def test_compare_json_objects_unexpected_key(self):
+        result = self.json_comparator.compare_json(
+            {"a": 1, "b": 2}, {"a": 1, "b": 2, "c": 3}
+        )
+        print(result.fail_messages)
+        assert not result.is_success
