@@ -1,3 +1,4 @@
+from numbers import Number
 from typing import Any, Optional
 
 
@@ -138,3 +139,8 @@ def is_valid_json_type(value: Any) -> bool:
     :param value: the value to check.
     """
     return isinstance(value, (int, float, str, bool, dict, list)) or value is None
+
+
+def is_number_but_not_bool(value: Any) -> bool:
+    """Returns True if the value is a number and not a bool."""
+    return (not isinstance(value, bool)) and isinstance(value, Number)

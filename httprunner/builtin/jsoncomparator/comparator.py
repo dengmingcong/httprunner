@@ -51,7 +51,9 @@ class JSONComparator:
         # In the original JSONAssert implementation, there is a special case that two values have different types,
         # but also considered equal, that is 1.0 == 1.
         # So we need to compare the two values with '==' operator if both are numbers.
-        elif isinstance(expected, Number) and isinstance(actual, Number):
+        elif jsoncomparator_util.is_number_but_not_bool(
+            expected
+        ) and jsoncomparator_util.is_number_but_not_bool(actual):
             # Mark as mismatched field if the two numbers are not equal.
             if expected != actual:
                 result.add_mismatch_field(prefix, expected, actual)
