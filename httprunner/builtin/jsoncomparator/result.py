@@ -102,7 +102,9 @@ class JSONCompareResult:
 
         # fail the entire JSON comparison
         self.fail(
-            f"{field_path}\n    expected: {self.describe(expected)}\n    got: {self.describe(actual)}\n"
+            f"{field_path}\n"
+            f"    expected: {self.describe(expected)}\n"
+            f"         got: {self.describe(actual)}\n"
         )
 
         return self
