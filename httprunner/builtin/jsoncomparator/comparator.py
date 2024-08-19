@@ -35,13 +35,15 @@ class JSONComparator:
         # Fail the comparison if any one is not a valid JSON type.
         if not jsoncomparator_util.is_valid_json_type(expected):
             result.fail(
-                f"{prefix}: Invalid JSON data type {type(expected)}, only the following types are allowed: "
+                f"{prefix}: The type {type(expected)} of the expected item is not a valid JSON data type, "
+                "only the following types are allowed: "
                 "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
             )
             return
         elif not jsoncomparator_util.is_valid_json_type(actual):
             result.fail(
-                f"{prefix}: Invalid JSON data type {type(actual)}, only the following types are allowed: "
+                f"{prefix}: The type {type(actual)} of the actual item is not a valid JSON data type, "
+                "only the following types are allowed: "
                 "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
             )
             return
