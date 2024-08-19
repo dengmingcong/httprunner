@@ -90,6 +90,24 @@ class TestJsonComparatorLenientMode:
         print(result.fail_messages)
         assert not result.is_success
 
+    def test_compare_json_arrays_equal(self):
+        result = self.json_comparator.compare_json([1, 2, 3], [1, 2, 3])
+        assert result.is_success
+
+    def test_compare_json_arrays_length_not_equal(self):
+        result = self.json_comparator.compare_json([1, 2, 3], [1, 2])
+        print(result.fail_messages)
+        assert not result.is_success
+
+    def test_compare_json_arrays_nested_length_not_equal(self):
+        result = self.json_comparator.compare_json({"a": [1, 2, 3]}, {"a": [1, 2]})
+        print(result.fail_messages)
+        assert not result.is_success
+
+    def test_compare_json_arrays_both_empty(self):
+        result = self.json_comparator.compare_json([], [])
+        assert result.is_success
+
 
 class TestJSONComparatorStrictMode:
     json_comparator = JSONComparator(True)
@@ -98,5 +116,15 @@ class TestJSONComparatorStrictMode:
         result = self.json_comparator.compare_json(
             {"a": 1, "b": 2}, {"a": 1, "b": 2, "c": 3}
         )
+        print(result.fail_messages)
+        assert not result.is_success
+
+    def test_compare_json_arrays_order_not_equal(self):
+        result = self.json_comparator.compare_json([1, 2, 3], [3, 2, 1])
+        print(result.fail_messages)
+        assert not result.is_success
+
+    def test_compare_json_arrays_nested_order_not_equal(self):
+        result = self.json_comparator.compare_json({"a": [1, 2, 3]}, {"a": [3, 2, 1]})
         print(result.fail_messages)
         assert not result.is_success
