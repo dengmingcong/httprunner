@@ -127,3 +127,14 @@ def format_unique_key(prefix: str, unique_key: str, unique_key_value: Any) -> st
     :param unique_key_value: the value of the unique key in each JSON object.
     """
     return f"{prefix}[{unique_key}={unique_key_value}]"
+
+
+def is_valid_json_type(value: Any) -> bool:
+    """Returns True if the value is a valid JSON type.
+
+    JSON simple values are: number, string, boolean, null.
+    JSON complex values are: object, array.
+
+    :param value: the value to check.
+    """
+    return isinstance(value, (int, float, str, bool, dict, list)) or value is None
