@@ -288,8 +288,8 @@ class JSONComparator:
                 if type(expected_item) is not type(actual_item):
                     continue
 
-                # the actual item has the same data type as the expected item,
-                # for data type has been checked above.
+                # the actual item should have the same data type as the expected item,
+                # because data type has been checked above.
                 # call compare_json() if the the expected item is a JSON object or a JSON array.
                 if isinstance(expected_item, (dict, list)):
                     # if the comparison is successful, add the actual index to the matched_indexes set.
