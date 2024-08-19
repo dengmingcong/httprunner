@@ -109,8 +109,8 @@ class JSONCompareResult:
         # fail the entire JSON comparison
         self.fail(
             f"{field_path}\n"
-            f"    expected: {self.describe(expected)}\n"
-            f"         got: {self.describe(actual)}\n"
+            f"expected: {self.describe(expected)}\n"
+            f"     got: {self.describe(actual)}\n"
         )
 
         return self
@@ -134,8 +134,8 @@ class JSONCompareResult:
         # fail the entire JSON comparison
         self.fail(
             f"{field_path}\n"
-            f"    Expected: {self.describe(expected, True)}\n"
-            f"         but none found\n"
+            f"Expected: {self.describe(expected, True)}\n"
+            f"     but none found\n"
         )
 
         return self
