@@ -3,7 +3,7 @@
 from numbers import Number
 from typing import Any
 
-from httprunner.builtin.jsoncomparator import util as jsoncomparator_util
+from httprunner.builtin.jsoncomparator import util
 from httprunner.builtin.jsoncomparator.result import JSONCompareResult
 
 
@@ -33,14 +33,14 @@ class JSONComparator:
         :param result: JSONCompareResult instance.
         """
         # Fail the comparison if any one is not a valid JSON type.
-        if not jsoncomparator_util.is_valid_json_type(expected):
+        if not util.is_valid_json_type(expected):
             result.fail(
                 f"{prefix}: The type {type(expected)} of the expected item is not a valid JSON data type, "
                 "only the following types are allowed: "
                 "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
             )
             return
-        elif not jsoncomparator_util.is_valid_json_type(actual):
+        elif not util.is_valid_json_type(actual):
             result.fail(
                 f"{prefix}: The type {type(actual)} of the actual item is not a valid JSON data type, "
                 "only the following types are allowed: "
@@ -51,9 +51,9 @@ class JSONComparator:
         # In the original JSONAssert implementation, there is a special case that two values have different types,
         # but also considered equal, that is 1.0 == 1.
         # So we need to compare the two values with '==' operator if both are numbers.
-        elif jsoncomparator_util.is_number_but_not_bool(
-            expected
-        ) and jsoncomparator_util.is_number_but_not_bool(actual):
+        elif util.is_number_but_not_bool(expected) and util.is_number_but_not_bool(
+            actual
+        ):
             # Mark as mismatched field if the two numbers are not equal.
             if expected != actual:
                 result.add_mismatch_field(prefix, expected, actual)
@@ -68,7 +68,7 @@ class JSONComparator:
             return
 
         # Both are simple values, compare them directly.
-        elif jsoncomparator_util.is_simple_value(expected):
+        elif util.is_simple_value(expected):
             if expected != actual:
                 result.add_mismatch_field(prefix, expected, actual)
             return
@@ -99,7 +99,7 @@ class JSONComparator:
             if expected_object_key in actual:
                 # Key exists both in expected and actual, need to compare field values.
                 self._compare_field_values(
-                    jsoncomparator_util.qualify_field_path(prefix, expected_object_key),
+                    util.qualify_field_path(prefix, expected_object_key),
                     expected_object_value,
                     actual[expected_object_key],
                     result,
@@ -180,12 +180,8 @@ class JSONComparator:
         :param actual: actual JSON array.
         :param result: a JSONCompareResult instance.
         """
-        expected_item_to_count_mapping = jsoncomparator_util.get_cardinality_mapping(
-            expected
-        )
-        actual_item_to_count_mapping = jsoncomparator_util.get_cardinality_mapping(
-            actual
-        )
+        expected_item_to_count_mapping = util.get_cardinality_mapping(expected)
+        actual_item_to_count_mapping = util.get_cardinality_mapping(actual)
 
         # Iterate over the expected mapping to find missing and mismatched items.
         for expected_item, expected_count in expected_item_to_count_mapping.items():
@@ -216,21 +212,19 @@ class JSONComparator:
         :param actual: actual JSON array.
         :param result: a JSONCompareResult instance.
         """
-        unique_key = jsoncomparator_util.find_unique_key(expected)
+        unique_key = util.find_unique_key(expected)
 
         # If no unique key found from expected or the unique key was not unique in actual JSON array,
         # we have to compare them with an expensive way.
-        if not unique_key or not jsoncomparator_util.is_usable_as_unique_key(
-            unique_key, actual
-        ):
+        if not unique_key or not util.is_usable_as_unique_key(unique_key, actual):
             self._compare_json_arrays_recursively(prefix, expected, actual, result)
             return
 
         # If a unique key was found, convert the JSON arrays to dictionaries and compare them.
-        expected_mapping = jsoncomparator_util.convert_array_of_json_objects_to_mapping(
+        expected_mapping = util.convert_array_of_json_objects_to_mapping(
             expected, unique_key
         )
-        actual_mapping = jsoncomparator_util.convert_array_of_json_objects_to_mapping(
+        actual_mapping = util.convert_array_of_json_objects_to_mapping(
             actual, unique_key
         )
 
@@ -239,18 +233,14 @@ class JSONComparator:
             # If any value of the unique key is not in the actual mapping, this item is a missing item.
             if unique_key_value not in actual_mapping:
                 result.add_missing_field(
-                    jsoncomparator_util.format_unique_key(
-                        prefix, unique_key, unique_key_value
-                    ),
+                    util.format_unique_key(prefix, unique_key, unique_key_value),
                     expected_json_object,
                 )
                 continue
 
             # If the unique key value is in the actual mapping, compare the two JSON objects.
             self._compare_field_values(
-                jsoncomparator_util.format_unique_key(
-                    prefix, unique_key, unique_key_value
-                ),
+                util.format_unique_key(prefix, unique_key, unique_key_value),
                 expected_json_object,
                 actual_mapping[unique_key_value],
                 result,
@@ -260,9 +250,7 @@ class JSONComparator:
         for unique_key_value, actual_json_object in actual_mapping:
             if unique_key_value not in expected_mapping:
                 result.add_unexpected_field(
-                    jsoncomparator_util.format_unique_key(
-                        prefix, unique_key, unique_key_value
-                    ),
+                    util.format_unique_key(prefix, unique_key, unique_key_value),
                     actual_json_object,
                 )
 
@@ -286,7 +274,7 @@ class JSONComparator:
         # Iterate over the expected array in outer loop.
         for expected_index, expected_item in enumerate(expected):
             # Fail the comparison if the expected item is not a valid JSON type.
-            if not jsoncomparator_util.is_valid_json_type(expected_item):
+            if not util.is_valid_json_type(expected_item):
                 result.fail(
                     f"{prefix}[{expected_index}]: Invalid JSON data type {type(expected_item)}, "
                     f"only the following types are allowed: "
@@ -306,7 +294,7 @@ class JSONComparator:
                     continue
 
                 # Fail the comparison if the actual item is not a valid JSON type.
-                elif not jsoncomparator_util.is_valid_json_type(actual_item):
+                elif not util.is_valid_json_type(actual_item):
                     result.fail(
                         f"{prefix}[{expected_index}]: Invalid JSON data type {type(actual_item)}, "
                         f"only the following types are allowed: "
@@ -380,12 +368,12 @@ class JSONComparator:
 
         # The other cases, compare the two arrays in non strict mode.
         # If all values in the expected array are simple values, compare them in non strict mode.
-        elif jsoncomparator_util.is_all_simple_values_array(expected):
+        elif util.is_all_simple_values_array(expected):
             self._compare_json_arrays_all_simple_values(
                 prefix, expected, actual, result
             )
         # If all values in the expected array are JSON objects, call _compare_json_arrays_all_json_objects().
-        elif jsoncomparator_util.is_all_json_objects_array(expected):
+        elif util.is_all_json_objects_array(expected):
             self._compare_json_arrays_all_json_objects(prefix, expected, actual, result)
         # Otherwise, call _compare_json_arrays_recursively().
         else:
