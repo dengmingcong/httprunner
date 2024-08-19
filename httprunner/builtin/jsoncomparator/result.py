@@ -1,5 +1,6 @@
 """Record and track the comparison results of JSONs."""
 
+import json
 from typing import Any
 
 
@@ -79,7 +80,10 @@ class JSONCompareResult:
         if isinstance(field_value, list):
             return "a JSON array"
 
-        return repr(field_value)
+        try:
+            return json.dumps(field_value)
+        except Exception:
+            return repr(field_value)
 
     def add_mismatch_field(
         self, field_path: str, expected: Any, actual: Any
