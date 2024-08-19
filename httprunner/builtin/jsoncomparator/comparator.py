@@ -1,7 +1,7 @@
 """Main module for JSON comparator."""
 
 from numbers import Number
-from typing import Any, Union
+from typing import Any
 
 from httprunner.builtin.jsoncomparator import util as jsoncomparator_util
 from httprunner.builtin.jsoncomparator.result import JSONCompareResult
@@ -35,13 +35,13 @@ class JSONComparator:
         # Fail the comparison if any one is not a valid JSON type.
         if not jsoncomparator_util.is_valid_json_type(expected):
             result.fail(
-                f"{prefix}: Invalid JSON type {type(expected)}, only the following types are allowed: "
+                f"{prefix}: Invalid JSON data type {type(expected)}, only the following types are allowed: "
                 "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
             )
             return
         elif not jsoncomparator_util.is_valid_json_type(actual):
             result.fail(
-                f"{prefix}: Invalid JSON type {type(actual)}, only the following types are allowed: "
+                f"{prefix}: Invalid JSON data type {type(actual)}, only the following types are allowed: "
                 "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
             )
             return
@@ -365,12 +365,8 @@ class JSONComparator:
         else:
             self._compare_json_arrays_recursively(prefix, expected, actual, result)
 
-    def compare_json(
-        self,
-        expected: Union[dict, list],
-        actual: Union[dict, list],
-    ) -> JSONCompareResult:
-        """Compare two JSONs (JSON object or JSON array)."""
+    def compare_json(self, expected: Any, actual: Any) -> JSONCompareResult:
+        """Compare two values corresponding to JSON data type."""
         result = JSONCompareResult()
 
         self._compare_field_values("", expected, actual, result)
