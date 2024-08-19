@@ -4,7 +4,7 @@ from deepdiff import DeepDiff
 from dotwiz import DotWiz
 
 from httprunner.builtin.jsonassert_formatter import DeepDiffFormatter
-from httprunner.builtin.jsoncomparator.json_assert import (
+from httprunner.builtin.jsoncomparator.jsonassert import (
     json_contains_v2,
     json_equal_v2,
 )
