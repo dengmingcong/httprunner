@@ -3,10 +3,14 @@ Configurations loaded from `pyproject.toml`.
 
 reference: _pytest/config/findpaths.py
 """
+
 import os
 import sys
+from functools import cache
 from pathlib import Path
-from typing import Union, Any, Callable
+from typing import Any, Callable, Union
+
+from loguru import logger
 
 from httprunner.builtin.dictionary import get_from_nested_dict
 
@@ -20,10 +24,9 @@ def get_absolute_path(path: Union[Path, str]) -> Path:
     return Path(os.path.abspath(str(path)))
 
 
+@cache
 def locate_pyproject_toml_dir() -> Path:
-    """
-    Locate project root directory by searching file `pyproject.toml` upwards from current directory.
-    """
+    """Locate project root directory by searching file `pyproject.toml` upwards from current directory."""
     current_dir = get_absolute_path(Path.cwd())
     for base in (current_dir, *current_dir.parents):
         p = base / "pyproject.toml"
@@ -35,15 +38,13 @@ def locate_pyproject_toml_dir() -> Path:
     )
 
 
-project_root_path = locate_pyproject_toml_dir()
-
-
+@cache
 def load_pyproject_toml() -> dict:
     """
     Load configurations from `pyproject.toml`.
     """
     # find pyproject.toml
-    pyproject_toml_file = project_root_path / "pyproject.toml"
+    pyproject_toml_file = locate_pyproject_toml_dir() / "pyproject.toml"
 
     if sys.version_info >= (3, 11):
         import tomllib  # noqa
@@ -55,58 +56,58 @@ def load_pyproject_toml() -> dict:
     return tomllib.loads(toml_text)
 
 
-def get_pyproject_toml_key_value(pyproject_toml_data_: dict, key: str) -> Any:
-    """Guess key value based on environment variables and `pyproject.toml`."""
+def get_pyproject_toml_key_value(key: str, default: Any) -> Any:
+    """Guess key value based on environment variables and `pyproject.toml`.
+
+    :param key: Dot-separated key string.
+    :param default: Default value if key was not found in `pyproject.toml`.
+    """
     key_parts = key.split(".")
 
     try:
-        config_value = get_from_nested_dict(pyproject_toml_data_, *key_parts)
-    # exception will be raised if some nested key not found or nested object is not subscriptable
-    except Exception as exc:
-        raise KeyError(
-            f"key `{key}` was not configured properly in pyproject.toml"
-        ) from exc
+        config_value = get_from_nested_dict(load_pyproject_toml(), *key_parts)
+    except KeyError:
+        # Return value specified by `default` if key was not found in pyproject.toml.
+        logger.warning(
+            f"key {key} not found in pyproject.toml, the default value {repr(default)} will be used."
+        )
+        return default
 
-    # return value directly if configuration was not sourced from an environment variable
+    # Return value directly if configuration was not sourced from an environment variable.
     if not (isinstance(config_value, dict) and "env" in config_value):
         return config_value
 
-    # return value got from environment variable
-    env_var_name = config_value["env"]
-    if env_var_name in os.environ:
+    # Return value got from environment variable.
+    if (env_var_name := config_value["env"]) in os.environ:
         return os.environ.get(env_var_name)
 
     # return value specified by `default`
     if "default" in config_value:
         return config_value["default"]
 
-    raise KeyError(
-        f"environment variable `{env_var_name}` was not set.\n"
-        f"Hint: set environment variable `{env_var_name}` or add key `default` to specify configuration"
-    )
-
 
 class PyProjectTomlKey:
     def __init__(
-        self,
-        pyproject_toml_data_: dict,
-        key: str,
-        *validators: Callable,
+        self, key: str, default: Any = None, validators: list[Callable] = None
     ):
-        self._pyproject_toml_data = pyproject_toml_data_
+        """Initialize PyProjectTomlKey.
+
+        :param key: Dot-separated key string.
+        :param default: Default value if key was not found in `pyproject.toml`.
+        :param validators: Validators to validate the value.
+        """
+        if validators is None:
+            validators = []
+
         self._key = key
+        self._default = default
         self._validators = validators
 
     def __get__(self, instance, instance_type):
-        """
-        Get value from pyproject.toml.
-        """
-        value = get_pyproject_toml_key_value(self._pyproject_toml_data, self._key)
+        """Get value from pyproject.toml."""
+        value = get_pyproject_toml_key_value(self._key, self._default)
         [validator(value) for validator in self._validators]
         return value
-
-
-pyproject_toml_data = load_pyproject_toml()
 
 
 class PyProjectToml:
@@ -114,6 +115,4 @@ class PyProjectToml:
     Project meta read from pyproject.toml.
     """
 
-    http_headers: dict = PyProjectTomlKey(
-        pyproject_toml_data, "tool.httprunner.http-headers"
-    )
+    http_headers: dict = PyProjectTomlKey("tool.httprunner.http-headers", {})

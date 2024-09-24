@@ -6,17 +6,16 @@ import sys
 from argparse import ArgumentParser
 from importlib.metadata import entry_points
 from pathlib import Path
-from typing import Tuple, Dict, Union, Text, List, Callable, Optional
+from typing import Callable, Dict, List, Optional, Text, Tuple, Union
 
 import yaml
 from _pytest.pathlib import absolutepath
 from loguru import logger
 from pydantic import ValidationError
 
-from httprunner import builtin, utils
-from httprunner import exceptions
-from httprunner.models import TestCase, ProjectMeta, TestSuite
-from httprunner.pyproject import project_root_path
+from httprunner import builtin, exceptions, utils
+from httprunner.models import ProjectMeta, TestCase, TestSuite
+from httprunner.pyproject import locate_pyproject_toml_dir
 
 try:
     # PyYAML version >= 5.1
@@ -316,6 +315,7 @@ def locate_httprunner_root_path() -> Tuple[Optional[Text], Text]:
         return debugtalk_py_file.as_posix(), os.path.dirname(debugtalk_py_file)
 
     # find debugtalk.py file from project root dir
+    project_root_path = locate_pyproject_toml_dir()
     if (project_root_path / "debugtalk.py").is_file():
         return (
             project_root_path / "debugtalk.py"
