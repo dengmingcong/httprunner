@@ -22,7 +22,7 @@ class TestPyProjectToml:
         class IncorrectProjectMeta:
             name = PyProjectTomlKey(
                 "tool.poetry.name",
-                [name_must_be_str, name_must_be_int],
+                validators=[name_must_be_str, name_must_be_int],
             )
 
         assert CorrectProjectMeta().name == "httprunner"
