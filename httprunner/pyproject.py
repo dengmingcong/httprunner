@@ -90,6 +90,12 @@ class PyProjectTomlKey:
     def __init__(
         self, key: str, default: Any = None, validators: list[Callable] = None
     ):
+        """Initialize PyProjectTomlKey.
+
+        :param key: Dot-separated key string.
+        :param default: Default value if key was not found in `pyproject.toml`.
+        :param validators: Validators to validate the value.
+        """
         if validators is None:
             validators = []
 
