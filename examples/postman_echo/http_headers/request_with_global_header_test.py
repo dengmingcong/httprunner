@@ -1,19 +1,18 @@
 import pytest
 
-from httprunner import HttpRunner, Config, Step, RunRequest
-from httprunner.pyproject import pyproject_toml_data
+from httprunner import Config, HttpRunner, RunRequest, Step
+from httprunner.pyproject import load_pyproject_toml
 
 
 @pytest.fixture(autouse=True)
 def set_http_headers():
-    pyproject_toml_data["tool"]["httprunner"] = {
+    load_pyproject_toml()["tool"]["httprunner"] = {
         "http-headers": {"X-Global-Header": "FOO"}
     }
     yield
 
 
 class TestCaseRequestWithGlobalHeader(HttpRunner):
-
     config = (
         Config("request methods testcase with global header")
         .base_url("https://postman-echo.com")
