@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v3.45.0 (2024-09-24)
+
+### Feature
+
+* PyProjectTomlKey can set default value ([`4195b8a`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/4195b8af3c6489346874653661f70bcb1791ed74))
+
+### Documentation
+
+* Arguments of PyProjectTomlKey constructor ([`4980ad7`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/4980ad7bfb9c413ba25ffed87ef7838aa12f09b2))
+
 ## v3.44.1 (2024-06-28)
 
 ### Fix
