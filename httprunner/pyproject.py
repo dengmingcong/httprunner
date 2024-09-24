@@ -3,10 +3,12 @@ Configurations loaded from `pyproject.toml`.
 
 reference: _pytest/config/findpaths.py
 """
+
 import os
 import sys
+from functools import cache
 from pathlib import Path
-from typing import Union, Any, Callable
+from typing import Any, Callable, Union
 
 from httprunner.builtin.dictionary import get_from_nested_dict
 
@@ -20,10 +22,9 @@ def get_absolute_path(path: Union[Path, str]) -> Path:
     return Path(os.path.abspath(str(path)))
 
 
+@cache
 def locate_pyproject_toml_dir() -> Path:
-    """
-    Locate project root directory by searching file `pyproject.toml` upwards from current directory.
-    """
+    """Locate project root directory by searching file `pyproject.toml` upwards from current directory."""
     current_dir = get_absolute_path(Path.cwd())
     for base in (current_dir, *current_dir.parents):
         p = base / "pyproject.toml"
@@ -35,15 +36,13 @@ def locate_pyproject_toml_dir() -> Path:
     )
 
 
-project_root_path = locate_pyproject_toml_dir()
-
-
+@cache
 def load_pyproject_toml() -> dict:
     """
     Load configurations from `pyproject.toml`.
     """
     # find pyproject.toml
-    pyproject_toml_file = project_root_path / "pyproject.toml"
+    pyproject_toml_file = locate_pyproject_toml_dir() / "pyproject.toml"
 
     if sys.version_info >= (3, 11):
         import tomllib  # noqa
