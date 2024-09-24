@@ -19,7 +19,7 @@ workflow:
 
 default:
   tags:
-    - qa-sit-nacos
+    - ci-nocodb
 
 variables:
   FLAKE_COMMAND: poetry run flake8 examples/ httprunner/ tests/
@@ -28,9 +28,9 @@ variables:
   IS_RUN_UNIT_TEST: "true"
   IS_RUN_SMOKE_TEST: "true"
   POETRY_INSTALL_COMMAND: poetry install --without dev
-  NEXUS_HOST: 10.40.9.73
-  REPORT_HOST: nexus-testteam.vesync.co
-  LAMPP_HTDOCS_DIR: /opt/lampp/htdocs
+  NEXUS_HOST: nexus-testteam.vesync.co
+  REPORT_HOST: ci-qa.vesync.co
+  LAMPP_HTDOCS_DIR: /data/qa/lampp/htdocs
 
 cache:
   key:
@@ -109,7 +109,7 @@ smoke test:
   after_script:
     - |
       cd examples
-      allure generate -c -o /opt/lampp/htdocs/reports/$CI_PROJECT_NAME/$GITLAB_USER_LOGIN/smoketest
+      allure generate -c -o $LAMPP_HTDOCS_DIR/reports/$CI_PROJECT_NAME/$GITLAB_USER_LOGIN/smoketest
       echo "test report: http://$REPORT_HOST/reports/$CI_PROJECT_NAME/$GITLAB_USER_LOGIN/smoketest"
 
 semantic release:
