@@ -187,20 +187,25 @@ class JSONComparator:
         for expected_item, expected_count in expected_item_to_count_mapping.items():
             # If the expected item is not in the actual mapping, this item is a missing item.
             if expected_item not in actual_item_to_count_mapping:
-                result.add_missing_field(f"{prefix}[]", expected_item)
+                result.add_missing_field(
+                    f"{prefix}[]", util.get_actual_value(expected_item)
+                )
+
             # If the expected count is different from the actual count, this value is a mismatched item.
             elif expected_count != (
                 actual_count := actual_item_to_count_mapping[expected_item]
             ):
                 result.fail(
-                    f"{prefix}[]: Expected {expected_count} occurrence(s) of {expected_item} "
+                    f"{prefix}[]: Expected {expected_count} occurrence(s) of {util.get_actual_value(expected_item)} "
                     f"but got {actual_count} occurrence(s)"
                 )
 
         # Iterate over the actual mapping to find unexpected items.
         for actual_item in actual_item_to_count_mapping:
             if actual_item not in expected_item_to_count_mapping:
-                result.add_unexpected_field(f"{prefix}[]", actual_item)
+                result.add_unexpected_field(
+                    f"{prefix}[]", util.get_actual_value(actual_item)
+                )
 
     def _compare_json_arrays_all_json_objects(
         self, prefix: str, expected: list, actual: list, result: JSONCompareResult
@@ -303,6 +308,7 @@ class JSONComparator:
                     return
 
                 # Compare two numbers with '==' operator.
+                # TODO: True is Number too.
                 elif (
                     isinstance(expected_item, Number)
                     and isinstance(actual_item, Number)

@@ -36,6 +36,15 @@ def is_all_json_objects_array(json_array: list) -> bool:
     return True
 
 
+def get_actual_value(value: Any) -> Any:
+    """If the value is a tuple, return the first element of the tuple."""
+    return (
+        value[0]
+        if isinstance(value, tuple) and value and value[-1] == "__SALT__"
+        else value
+    )
+
+
 def get_cardinality_mapping(json_array: list) -> dict:
     """Get a cardinality mapping of the array.
 
@@ -44,6 +53,10 @@ def get_cardinality_mapping(json_array: list) -> dict:
     item_to_count_mapping = {}
 
     for item in json_array:
+        # Distinguish between True and 1 as keys.
+        if isinstance(item, bool):
+            item = (item, "__SALT__")
+
         item_to_count_mapping[item] = item_to_count_mapping.get(item, 0) + 1
 
     return item_to_count_mapping
