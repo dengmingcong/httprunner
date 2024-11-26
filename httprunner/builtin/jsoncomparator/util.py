@@ -133,11 +133,11 @@ def convert_array_of_json_objects_to_mapping(
     The value of the unique key in each JSON object is used as the key in the mapping.
     The value of the mapping is the JSON object itself.
 
-    :param array: the JSON array to convert.
-    :param unique_key: the unique key.
-    :return: a dict.
+    :param array: The JSON array to convert.
+    :param unique_key: The unique key.
+    :return: A dict.
     """
-    return {item[unique_key]: item for item in array}
+    return {decorate_boolean(d[unique_key]): d for d in array}
 
 
 def qualify_field_path(prefix: str, field: str) -> str:

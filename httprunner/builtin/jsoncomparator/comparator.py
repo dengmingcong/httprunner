@@ -238,14 +238,18 @@ class JSONComparator:
             # If any value of the unique key is not in the actual mapping, this item is a missing item.
             if unique_key_value not in actual_mapping:
                 result.add_missing_field(
-                    util.format_unique_key(prefix, unique_key, unique_key_value),
+                    util.format_unique_key(
+                        prefix, unique_key, util.get_actual_value(unique_key_value)
+                    ),
                     expected_json_object,
                 )
                 continue
 
             # If the unique key value is in the actual mapping, compare the two JSON objects.
             self._compare_field_values(
-                util.format_unique_key(prefix, unique_key, unique_key_value),
+                util.format_unique_key(
+                    prefix, unique_key, util.get_actual_value(unique_key_value)
+                ),
                 expected_json_object,
                 actual_mapping[unique_key_value],
                 result,
@@ -255,7 +259,9 @@ class JSONComparator:
         for unique_key_value, actual_json_object in actual_mapping:
             if unique_key_value not in expected_mapping:
                 result.add_unexpected_field(
-                    util.format_unique_key(prefix, unique_key, unique_key_value),
+                    util.format_unique_key(
+                        prefix, unique_key, util.get_actual_value(unique_key_value)
+                    ),
                     actual_json_object,
                 )
 
