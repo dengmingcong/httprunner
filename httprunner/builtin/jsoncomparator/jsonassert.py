@@ -20,10 +20,10 @@ def assert_equals(
     result = json_comparator.compare_json(expected, actual)
 
     if not result.is_success:
-        if message:
-            raise AssertionError(f"{message}\n{result.fail_messages}")
-        else:
-            raise AssertionError(result.fail_messages)
+        error_message = (
+            f"{message}\n{result.fail_messages}" if message else result.fail_messages
+        )
+        raise AssertionError(error_message)
 
 
 def json_contains_v2(
