@@ -147,5 +147,9 @@ def is_valid_json_type(value: Any) -> bool:
 
 
 def is_number_but_not_bool(value: Any) -> bool:
-    """Returns True if the value is a number and not a bool."""
+    """Returns True if the value is a number and not a bool.
+
+    Booleans in Python are implemented as a subclass of integers (https://docs.python.org/3/c-api/bool.html),
+    so booleans are Number too, we need to distinguish them.
+    """
     return (not isinstance(value, bool)) and isinstance(value, Number)
