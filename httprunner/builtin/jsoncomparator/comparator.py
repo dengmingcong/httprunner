@@ -1,6 +1,5 @@
 """Main module for JSON comparator."""
 
-from numbers import Number
 from typing import Any
 
 from httprunner.builtin.jsoncomparator import util
@@ -314,10 +313,9 @@ class JSONComparator:
                     return
 
                 # Compare two numbers with '==' operator.
-                # TODO: True is Number too.
                 elif (
-                    isinstance(expected_item, Number)
-                    and isinstance(actual_item, Number)
+                    util.is_number_but_not_bool(expected_item)
+                    and util.is_number_but_not_bool(actual_item)
                     and expected_item == actual_item
                 ):
                     matched_indexes.add(actual_index)
