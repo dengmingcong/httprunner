@@ -1,6 +1,8 @@
 from numbers import Number
 from typing import Any, Optional
 
+SALT = "__SALT__"
+
 
 def is_simple_value(value: Any):
     """The value has a simple data type (neither dict nor list).
@@ -39,9 +41,7 @@ def is_all_json_objects_array(json_array: list) -> bool:
 def get_actual_value(value: Any) -> Any:
     """If the value is a tuple, return the first element of the tuple."""
     return (
-        value[0]
-        if isinstance(value, tuple) and value and value[-1] == "__SALT__"
-        else value
+        value[0] if isinstance(value, tuple) and value and value[-1] == SALT else value
     )
 
 
@@ -55,7 +55,7 @@ def get_cardinality_mapping(json_array: list) -> dict:
     for item in json_array:
         # Distinguish between True and 1 as keys.
         if isinstance(item, bool):
-            item = (item, "__SALT__")
+            item = (item, SALT)
 
         item_to_count_mapping[item] = item_to_count_mapping.get(item, 0) + 1
 
