@@ -38,6 +38,11 @@ def is_all_json_objects_array(json_array: list) -> bool:
     return True
 
 
+def decorate_boolean(value: Any) -> Any:
+    """Decorate the boolean value to distinguish between True and 1."""
+    return (value, SALT) if isinstance(value, bool) else value
+
+
 def get_actual_value(value: Any) -> Any:
     """If the value is a tuple, return the first element of the tuple."""
     return (
@@ -53,11 +58,9 @@ def get_cardinality_mapping(json_array: list) -> dict:
     item_to_count_mapping = {}
 
     for item in json_array:
-        # Distinguish between True and 1 as keys.
-        if isinstance(item, bool):
-            item = (item, SALT)
-
-        item_to_count_mapping[item] = item_to_count_mapping.get(item, 0) + 1
+        item_to_count_mapping[item] = (
+            item_to_count_mapping.get(decorate_boolean(item), 0) + 1
+        )
 
     return item_to_count_mapping
 
@@ -68,27 +71,31 @@ def is_usable_as_unique_key(candidate_key: str, array: list[dict]) -> bool:
     The candidate key is usable as a unique key if every element in the array is a JSON object having that key,
     and no two values are the same.
 
-    :param candidate_key: a top-level key in each of the JSON objects, and it should be a simple value.
-    :param json_array: the JSON array to check.
+    :param candidate_key: A top-level key in each of the JSON objects, and it should be a simple value.
+    :param json_array: The JSON array to check.
     """
-    # record the value of the candidate key in every JSON object, if any value appears more than once,
+    # Record the value of the candidate key in every JSON object, if any value appears more than once,
     # the candidate key cannot be used as a unique key.
     seen_values = set()
 
-    for item in array:
-        # if any item is not a JSON object, return False
-        if not isinstance(item, dict):
+    d: dict
+    for d in array:
+        # If any item is not a JSON object, return False.
+        if not isinstance(d, dict):
             return False
 
-        # if any item does not have the candidate key, return False
-        if candidate_key not in item:
+        # If any item does not have the candidate key, return False.
+        if candidate_key not in d:
             return False
 
-        value = item[candidate_key]
-        # only key whose value is simple value can be usable as unique key,
+        value = d[candidate_key]
+        # Only key whose value is simple value can be usable as unique key,
         # and the value should not appear more than once.
-        if is_simple_value(value) and value not in seen_values:
-            seen_values.add(value)
+        if is_simple_value(value):
+            value = decorate_boolean(value)
+
+            if value not in seen_values:
+                seen_values.add(value)
         else:
             return False
 
