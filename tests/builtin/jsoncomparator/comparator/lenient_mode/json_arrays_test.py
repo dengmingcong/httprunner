@@ -24,10 +24,18 @@ class TestCompareJSONArrays:
 
     def test_simple_values_equal(self):
         result = self.json_comparator.compare_json(
-            {"a": [None, 1, 2.5, "abc", True, None]},
-            {"a": [2.5, None, "abc", None, 1, 1]},
+            {"a": [None, 1, 2.5, "abc", True]},
+            {"a": [2.5, None, "abc", True, 1]},
         )
         print(result.fail_messages)
+        assert result.is_success
+
+    def test_simple_value_1p0_equal_1(self):
+        result = self.json_comparator.compare_json(
+            {"a": [1.0, 2.0, 3.0]},
+            {"a": [1, 2.0, 3]},
+        )
+        assert result.is_success
 
     def test_missing_item(self):
         result = self.json_comparator.compare_json({"a": [1, 2, 3]}, {"a": [1, 2, 2]})
