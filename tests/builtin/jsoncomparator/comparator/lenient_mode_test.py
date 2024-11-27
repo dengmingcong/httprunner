@@ -115,6 +115,72 @@ class TestCompareJSONObjects:
         print(result.fail_messages)
         assert not result.is_success
 
+    def test_compare_simple_values_int(self):
+        # equal
+        result = json_comparator.compare_json({"a": 1, "b": 2}, {"a": 1, "b": 2})
+        assert result.is_success
+
+        # not equal
+        result = json_comparator.compare_json({"a": 1, "b": 2}, {"a": 1, "b": 3})
+        print(result.fail_messages)
+        assert not result.is_success
+
+    def test_compare_simple_values_float(self):
+        # equal
+        result = json_comparator.compare_json(
+            {"a": 1.25, "b": 2.5}, {"a": 1.25, "b": 2.5}
+        )
+        assert result.is_success
+
+        # not equal
+        result = json_comparator.compare_json(
+            {"a": 1.25, "b": 2.5}, {"a": 1.251, "b": 2.6}
+        )
+        print(result.fail_messages)
+        assert not result.is_success
+
+    def test_compare_simple_values_str(self):
+        # equal
+        result = json_comparator.compare_json(
+            {"a": "abc", "b": "def"}, {"a": "abc", "b": "def"}
+        )
+        assert result.is_success
+
+        # not equal
+        result = json_comparator.compare_json(
+            {"a": "abc", "b": "def"}, {"a": "abc", "b": "xyz"}
+        )
+        print(result.fail_messages)
+        assert not result.is_success
+
+    def test_compare_simple_values_bool(self):
+        # equal
+        result = json_comparator.compare_json(
+            {"a": True, "b": False}, {"a": True, "b": False}
+        )
+        assert result.is_success
+
+        # not equal
+        result = json_comparator.compare_json(
+            {"a": True, "b": False}, {"a": True, "b": True}
+        )
+        print(result.fail_messages)
+        assert not result.is_success
+
+    def test_compare_simple_values_null(self):
+        # equal
+        result = json_comparator.compare_json(
+            {"a": None, "b": None}, {"a": None, "b": None}
+        )
+        assert result.is_success
+
+        # not equal
+        result = json_comparator.compare_json(
+            {"a": None, "b": None}, {"a": None, "b": "null"}
+        )
+        print(result.fail_messages)
+        assert not result.is_success
+
     def test_not_equal(self):
         result = self.json_comparator.compare_json({"a": 1, "b": 2}, {"a": 1, "b": 3})
         print(result.fail_messages)
