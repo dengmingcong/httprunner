@@ -13,9 +13,8 @@ class TestJsonComparatorLenientMode:
         print(result.fail_messages)
         assert not result.is_success
 
-    def test_two_numbers(self):
+    def test_1_equal_1p0(self):
         result = self.json_comparator.compare_json(1.0, 1)
-        print(result.fail_messages)
         assert result.is_success
 
     def test_compare_true_with_1(self):
