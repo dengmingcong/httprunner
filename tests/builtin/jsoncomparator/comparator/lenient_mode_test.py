@@ -17,17 +17,12 @@ class TestJsonComparatorLenientMode:
         result = self.json_comparator.compare_json(1.0, 1)
         assert result.is_success
 
-    def test_1_not_equal_true(self):
+    def test_compare_true_with_1(self):
         result = self.json_comparator.compare_json(1, True)
         print(result.fail_messages)
         assert not result.is_success
 
         result = self.json_comparator.compare_json(0, False)
-        print(result.fail_messages)
-        assert not result.is_success
-
-    def test_compare_true_with_1(self):
-        result = self.json_comparator.compare_json(True, 1)
         print(result.fail_messages)
         assert not result.is_success
 
