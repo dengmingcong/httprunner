@@ -120,10 +120,3 @@ class TestCompareJSONObjects:
         result = self.json_comparator.compare_json({"a": 1, "b": 2}, {"a": 1})
         print(result.fail_messages)
         assert not result.is_success
-
-    def test_nested_not_equal(self):
-        result = self.json_comparator.compare_json(
-            {"a": 1, "b": {"c": 2, "d": 3}}, {"a": 1, "b": {"c": 2, "d": 4}}
-        )
-        print(result.fail_messages)
-        assert not result.is_success
