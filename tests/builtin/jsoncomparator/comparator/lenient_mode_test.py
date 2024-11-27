@@ -102,6 +102,19 @@ class TestCompareJSONObjects:
         print(result.fail_messages)
         assert not result.is_success
 
+    def test_1_equal_1p0(self):
+        result = json_comparator.compare_json({"a": 1.0, "b": 2}, {"a": 1, "b": 2})
+        assert result.is_success
+
+    def test_compare_true_with_1(self):
+        result = json_comparator.compare_json({"a": 1, "b": True}, {"a": 1, "b": 1})
+        print(result.fail_messages)
+        assert not result.is_success
+
+        result = json_comparator.compare_json({"a": 1, "b": False}, {"a": 1, "b": 0})
+        print(result.fail_messages)
+        assert not result.is_success
+
     def test_not_equal(self):
         result = self.json_comparator.compare_json({"a": 1, "b": 2}, {"a": 1, "b": 3})
         print(result.fail_messages)
