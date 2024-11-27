@@ -58,9 +58,8 @@ def get_cardinality_mapping(json_array: list) -> dict:
     item_to_count_mapping = {}
 
     for item in json_array:
-        item_to_count_mapping[item] = (
-            item_to_count_mapping.get(decorate_boolean(item), 0) + 1
-        )
+        item = decorate_boolean(item)
+        item_to_count_mapping[item] = item_to_count_mapping.get(item, 0) + 1
 
     return item_to_count_mapping
 
