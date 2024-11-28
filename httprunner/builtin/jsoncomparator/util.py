@@ -1,3 +1,4 @@
+import json
 from numbers import Number
 from typing import Any, Optional
 
@@ -176,3 +177,27 @@ def is_number_but_not_bool(value: Any) -> bool:
     so booleans are Number too, we need to distinguish them.
     """
     return (not isinstance(value, bool)) and isinstance(value, Number)
+
+
+def describe_field(field_value: Any, is_field_path: bool = False) -> str:
+    """Describe the field value in a human-readable way.
+
+    :param field_value: the value of the field, either expected or actual
+    :param is_field_path: whether the field value is a field path, field paths are displayed without quotes
+    :return: a human-readable string representation of the field value
+    """
+    if isinstance(field_value, dict):
+        return "a JSON object"
+
+    if isinstance(field_value, list):
+        return "a JSON array"
+
+    # display quotes for string if it's not a field path
+    if not is_field_path:
+        try:
+            return json.dumps(field_value)
+        except Exception:
+            return repr(field_value)
+    else:
+        # display string without quotes if it's a field path
+        return field_value

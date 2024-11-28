@@ -1,7 +1,8 @@
 """Record and track the comparison results of JSONs."""
 
-import json
 from typing import Any
+
+from httprunner.builtin.jsoncomparator.util import describe_field
 
 
 class FailField:
@@ -67,30 +68,6 @@ class JSONCompareResult:
 
         return self
 
-    @staticmethod
-    def describe(field_value: Any, is_field_path: bool = False) -> str:
-        """Describe the field value in a human-readable way.
-
-        :param field_value: the value of the field, either expected or actual
-        :param is_field_path: whether the field value is a field path, field paths are displayed without quotes
-        :return: a human-readable string representation of the field value
-        """
-        if isinstance(field_value, dict):
-            return "a JSON object"
-
-        if isinstance(field_value, list):
-            return "a JSON array"
-
-        # display quotes for string if it's not a field path
-        if not is_field_path:
-            try:
-                return json.dumps(field_value)
-            except Exception:
-                return repr(field_value)
-        else:
-            # display string without quotes if it's a field path
-            return field_value
-
     def add_mismatch_field(
         self, field_path: str, expected: Any, actual: Any
     ) -> "JSONCompareResult":
@@ -109,8 +86,8 @@ class JSONCompareResult:
         # fail the entire JSON comparison
         self.fail(
             f"{field_path}\n"
-            f"expected: {self.describe(expected)}\n"
-            f"     got: {self.describe(actual)}\n"
+            f"expected: {describe_field(expected)}\n"
+            f"     got: {describe_field(actual)}\n"
         )
 
         return self
@@ -138,7 +115,7 @@ class JSONCompareResult:
         # fail the entire JSON comparison
         self.fail(
             f"{field_path}\n"
-            f"Expected: {self.describe(expected, is_expected_field_path)}\n"
+            f"Expected: {describe_field(expected, is_expected_field_path)}\n"
             f"     but none found\n"
         )
 
@@ -166,7 +143,7 @@ class JSONCompareResult:
 
         # fail the entire JSON comparison
         self.fail(
-            f"{field_path}\nUnexpected: {self.describe(actual, is_actual_field_path)}\n"
+            f"{field_path}\nUnexpected: {describe_field(actual, is_actual_field_path)}\n"
         )
 
         return self
