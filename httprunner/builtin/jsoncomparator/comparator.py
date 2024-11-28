@@ -203,7 +203,7 @@ class JSONComparator:
         for actual_item in actual_item_to_count_mapping:
             if actual_item not in expected_item_to_count_mapping:
                 result.add_unexpected_field(
-                    f"{prefix}[]", util.get_actual_value(actual_item)
+                    f"{prefix}[]", util.get_actual_value(actual_item), False
                 )
 
     def _compare_json_arrays_all_json_objects(
@@ -263,6 +263,7 @@ class JSONComparator:
                         prefix, unique_key, util.get_actual_value(unique_key_value)
                     ),
                     actual_json_object,
+                    False,
                 )
 
     def _compare_json_arrays_recursively(

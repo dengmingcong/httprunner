@@ -124,7 +124,8 @@ class JSONCompareResult:
         :param expected: An object key or array item that is missing in actual JSON. \
             when comparing two JSON objects, it's the key that exists in the expected object but not in actual object, \
             when comparing two JSON arrays, it's the item that exists in the expected array but not in actual array.
-        :param is_expected_field_path: Whether the `expected` is a field path.
+        :param is_expected_field_path: Whether the `expected` is a field path. \
+            If not, it was assumed to be field value and will displayed with json.dumps.
         """
         # append this field to the missing fields list
         self.missing_fields.append(FailField(field_path, expected, None))
@@ -143,13 +144,17 @@ class JSONCompareResult:
 
         return self
 
-    def add_unexpected_field(self, field_path: str, actual: Any) -> "JSONCompareResult":
+    def add_unexpected_field(
+        self, field_path: str, actual: Any, is_actual_field_path: bool = True
+    ) -> "JSONCompareResult":
         """Add an unexpected field.
 
         :param field_path: path to the field that is currently being compared.
         :param actual: an object key or array item that is unexpected in actual JSON. \
             when comparing two JSON objects, it's the key that exists in the actual object but not in expected object, \
             when comparing two JSON arrays, it's the item that exists in the actual array but not in expected array.
+        :param is_actual_field_path: Whether the `actual` is a field path. \
+            If not, it was assumed to be field value and will displayed with json.dumps.
         """
         # append this field to the unexpected fields list
         self.unexpected_fields.append(FailField(field_path, None, actual))
@@ -160,6 +165,8 @@ class JSONCompareResult:
         self.current_field_expected = None
 
         # fail the entire JSON comparison
-        self.fail(f"{field_path}\nUnexpected: {self.describe(actual, True)}\n")
+        self.fail(
+            f"{field_path}\nUnexpected: {self.describe(actual, is_actual_field_path)}\n"
+        )
 
         return self
