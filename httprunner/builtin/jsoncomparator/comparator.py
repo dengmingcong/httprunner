@@ -289,8 +289,8 @@ class JSONComparator:
             # Fail the comparison if the expected item is not a valid JSON type.
             if not util.is_valid_json_type(expected_item):
                 result.fail(
-                    f"{prefix}[{expected_index}]: Invalid JSON data type {type(expected_item)}, "
-                    f"only the following types are allowed: "
+                    f"{prefix}[{expected_index}]: Invalid JSON data type {type(expected_item)} in expected array."
+                    f"\nOnly the following types are allowed: "
                     "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
                 )
                 return
@@ -309,8 +309,8 @@ class JSONComparator:
                 # Fail the comparison if the actual item is not a valid JSON type.
                 elif not util.is_valid_json_type(actual_item):
                     result.fail(
-                        f"{prefix}[{expected_index}]: Invalid JSON data type {type(actual_item)}, "
-                        f"only the following types are allowed: "
+                        f"{prefix}[{expected_index}]: Invalid JSON data type {type(actual_item)} in actual array."
+                        f"\nOnly the following types are allowed: "
                         "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
                     )
                     return
