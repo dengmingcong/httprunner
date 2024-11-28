@@ -85,8 +85,14 @@ class TestAllSimpleValues:
         assert not result.is_success
 
     def test_unexpected_item(self):
+        # number
         result = self.json_comparator.compare_json(
             {"a": [1, 2, 3, 3]}, {"a": [1, 2, 3, 4]}
         )
+        print(result.fail_messages)
+        assert not result.is_success
+
+        # bool
+        result = self.json_comparator.compare_json({"b": [1, 1]}, {"b": [True, False]})
         print(result.fail_messages)
         assert not result.is_success
