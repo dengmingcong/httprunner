@@ -4,8 +4,8 @@ from httprunner.builtin.jsoncomparator.comparator import JSONComparator
 class TestAllSimpleValues:
     json_comparator = JSONComparator(False)
 
-    def test_equal(self):
-        result = self.json_comparator.compare_json([1, 2, 3], [1, 2, 3])
+    def test_order_different(self):
+        result = self.json_comparator.compare_json([1, 2, 3], [3, 2, 1])
         assert result.is_success
 
     def test_length_not_equal(self):
