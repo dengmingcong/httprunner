@@ -138,3 +138,10 @@ class TestCompareJSONObjects:
     def test_extra_key_is_acceptable(self):
         result = self.json_comparator.compare_json({"a": 1}, {"a": 1, "b": 2})
         assert result.is_success
+
+    def test_value_is_simple_array(self):
+        result = self.json_comparator.compare_json(
+            {"id": 1, "pets": ["cat", "dog", "fish"]},
+            {"id": 1, "pets": ["fish", "dog", "cat"]},
+        )
+        assert result.is_success
