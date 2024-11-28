@@ -37,3 +37,8 @@ class TestRecursively:
         result = self.json_comparator.compare_json([{}, 1], [True, {}])
         print(result.fail_messages)
         assert not result.is_success
+
+    def test_print_string_not_found(self):
+        result = self.json_comparator.compare_json(["foo", {}], [{}, "bar"])
+        print(result.fail_messages)
+        assert not result.is_success
