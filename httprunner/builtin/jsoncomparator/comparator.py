@@ -195,7 +195,8 @@ class JSONComparator:
                 actual_count := actual_item_to_count_mapping[expected_item]
             ):
                 result.fail(
-                    f"{prefix}[]: Expected {expected_count} occurrence(s) of {util.get_actual_value(expected_item)} "
+                    f"{prefix}[]: Expected {expected_count} occurrence(s) of "
+                    f"{util.describe_field(util.get_actual_value(expected_item))} "
                     f"but got {actual_count} occurrence(s)"
                 )
 
