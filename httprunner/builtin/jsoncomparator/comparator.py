@@ -1,5 +1,6 @@
 """Main module for JSON comparator."""
 
+import json
 from typing import Any
 
 from httprunner.builtin.jsoncomparator import util
@@ -346,8 +347,13 @@ class JSONComparator:
 
             # If no match is found in the inner (actual) loop, fail the comparison.
             if not match_found:
+                try:
+                    expected_item_str = json.dumps(expected_item, ensure_ascii=False)
+                except Exception:
+                    expected_item_str = repr(expected_item)
+
                 result.fail(
-                    f"{prefix}[{expected_index}] Could not find match for element {expected_item}"
+                    f"{prefix}[{expected_index}] Could not find match for element {expected_item_str}"
                 )
 
                 return
