@@ -11,5 +11,16 @@ class TestRecursively:
         )
         assert result.is_success
 
+    def test_item_is_invalid_json_data_type(self):
+        # Expected item.
+        result = self.json_comparator.compare_json([(1, 2), 3], [3, (1, 2)])
+        print(result.fail_messages)
+        assert not result.is_success
+
+        # Actual item.
+        result = self.json_comparator.compare_json([1, 2], [(1, 2), 3])
+        print(result.fail_messages)
+        assert not result.is_success
+
     # 1 = 1.0
     # 1 != True
