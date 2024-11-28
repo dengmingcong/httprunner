@@ -127,3 +127,7 @@ class TestCompareJSONObjects:
         result = self.json_comparator.compare_json({"a": 1, "b": 2}, {"a": 1})
         print(result.fail_messages)
         assert not result.is_success
+
+    def test_extra_key_is_acceptable(self):
+        result = self.json_comparator.compare_json({"a": 1}, {"a": 1, "b": 2})
+        assert result.is_success
