@@ -257,7 +257,7 @@ class JSONComparator:
             )
 
         # Iterate over the actual mapping to find unexpected items.
-        for unique_key_value, actual_json_object in actual_mapping:
+        for unique_key_value, actual_json_object in actual_mapping.items():
             if unique_key_value not in expected_mapping:
                 result.add_unexpected_field(
                     util.format_unique_key(
