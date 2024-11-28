@@ -370,6 +370,19 @@ class StepRequestValidation(object):
     ) -> "StepRequestValidation":
         """Equivalent to the JSONassert non-strict mode.
 
+        By default, use java JSONassert (re-implemented with Python) as the comparator,
+        fallback to deepdiff version if any of the following conditions are met: \n
+            * ignore_string_type_changes is True
+            * ignore_numeric_type_changes is True
+            * ignore_type_in_groups is not None
+            * other_deepdiff_kwargs is not empty
+            * expected_value is neither a dict nor a list
+            * check_value is neither a dict nor a list
+
+        The original JSONassert library only supports comparing JSON objects and arrays,
+        but when reimplemented based on deepdiff, it can also compare other types of data,
+        to ensure compatibility, we also support comparing other types of data in this function too.
+
         :param jmespath_expression: JMESPath expression
         :param expected_value: expected value
         :param message: error message
@@ -424,6 +437,19 @@ class StepRequestValidation(object):
         **other_deepdiff_kwargs,
     ) -> "StepRequestValidation":
         """Equivalent to the JSONassert strict mode.
+
+        By default, use java JSONassert (re-implemented with Python) as the comparator,
+        fallback to deepdiff version if any of the following conditions are met: \n
+            * ignore_string_type_changes is True
+            * ignore_numeric_type_changes is True
+            * ignore_type_in_groups is not None
+            * other_deepdiff_kwargs is not empty
+            * expected_value is neither a dict nor a list
+            * check_value is neither a dict nor a list
+
+        The original JSONassert library only supports comparing JSON objects and arrays,
+        but when reimplemented based on deepdiff, it can also compare other types of data,
+        to ensure compatibility, we also support comparing other types of data in this function too.
 
         :param jmespath_expression: JMESPath expression
         :param expected_value: expected value
