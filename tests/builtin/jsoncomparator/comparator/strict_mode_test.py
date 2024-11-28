@@ -63,3 +63,105 @@ class TestJSONComparatorStrictMode:
         result = self.json_comparator.compare_json(expected, actual_fail)
         print(result.fail_messages)
         assert not result.is_success
+
+    def test_very_nested(self):
+        expected = {
+            "a": {
+                "b": {
+                    "c": {
+                        "d": {
+                            "e": {
+                                "f": {
+                                    "g": {
+                                        "h": {
+                                            "i": {
+                                                "j": {
+                                                    "k": {
+                                                        "l": {
+                                                            "m": {
+                                                                "n": {
+                                                                    "o": {"p": "blah"}
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        actual_pass = {
+            "a": {
+                "b": {
+                    "c": {
+                        "d": {
+                            "e": {
+                                "f": {
+                                    "g": {
+                                        "h": {
+                                            "i": {
+                                                "j": {
+                                                    "k": {
+                                                        "l": {
+                                                            "m": {
+                                                                "n": {
+                                                                    "o": {"p": "blah"}
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        actual_fail = {
+            "a": {
+                "b": {
+                    "c": {
+                        "d": {
+                            "e": {
+                                "f": {
+                                    "g": {
+                                        "h": {
+                                            "i": {
+                                                "j": {
+                                                    "k": {
+                                                        "l": {
+                                                            "m": {
+                                                                "n": {
+                                                                    "o": {"z": "blah"}
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        result_pass = self.json_comparator.compare_json(expected, actual_pass)
+        assert result_pass.is_success
+
+        result_fail = self.json_comparator.compare_json(expected, actual_fail)
+        print(result_fail.fail_messages)
+        assert not result_fail.is_success
