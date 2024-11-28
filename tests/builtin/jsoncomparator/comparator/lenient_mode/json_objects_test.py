@@ -145,3 +145,43 @@ class TestCompareJSONObjects:
             {"id": 1, "pets": ["fish", "dog", "cat"]},
         )
         assert result.is_success
+
+    def test_complex_json_objects(self):
+        expected = {
+            "id": 1,
+            "name": "Joe",
+            "friends": [
+                {"id": 2, "name": "Pat", "pets": ["dog"]},
+                {"id": 3, "name": "Sue", "pets": ["bird", "fish"]},
+            ],
+            "pets": [],
+        }
+        actual_pass_lenient = {
+            "id": 1,
+            "name": "Joe",
+            "friends": [
+                {"id": 3, "name": "Sue", "pets": ["fish", "bird"]},
+                {"id": 2, "name": "Pat", "pets": ["dog"]},
+            ],
+            "pets": [],
+        }
+        actual_fail_mismatch_strict = {
+            "id": 1,
+            "name": "Joe",
+            "friends": [
+                {"id": 2, "name": "Pat", "pets": ["dog"]},
+                {"id": 3, "name": "Sue", "pets": ["cat", "fish"]},
+            ],
+            "pets": [],
+        }
+
+        result_pass_lenient = self.json_comparator.compare_json(
+            expected, actual_pass_lenient
+        )
+        assert result_pass_lenient.is_success
+
+        result_fail_mismatch_strict = self.json_comparator.compare_json(
+            expected, actual_fail_mismatch_strict
+        )
+        print(result_fail_mismatch_strict.fail_messages)
+        assert not result_fail_mismatch_strict.is_success
