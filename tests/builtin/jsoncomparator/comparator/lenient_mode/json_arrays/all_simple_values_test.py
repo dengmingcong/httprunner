@@ -72,7 +72,15 @@ class TestAllSimpleValues:
         assert not result.is_success
 
     def test_missing_item(self):
+        # number
         result = self.json_comparator.compare_json({"a": [1, 2, 3]}, {"a": [1, 2, 2]})
+        print(result.fail_messages)
+        assert not result.is_success
+
+        # bool
+        result = self.json_comparator.compare_json(
+            {"b": [True, False]}, {"b": [True, True]}
+        )
         print(result.fail_messages)
         assert not result.is_success
 
