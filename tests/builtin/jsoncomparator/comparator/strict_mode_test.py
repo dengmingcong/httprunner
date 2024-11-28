@@ -165,3 +165,42 @@ class TestJSONComparatorStrictMode:
         result_fail = self.json_comparator.compare_json(expected, actual_fail)
         print(result_fail.fail_messages)
         assert not result_fail.is_success
+
+    def test_complex_array(self):
+        expected = {
+            "id": 1,
+            "name": "Joe",
+            "friends": [
+                {"id": 2, "name": "Pat", "pets": ["dog"]},
+                {"id": 3, "name": "Sue", "pets": ["bird", "fish"]},
+            ],
+            "pets": [],
+        }
+        actual_pass_strict = {
+            "id": 1,
+            "name": "Joe",
+            "friends": [
+                {"id": 2, "name": "Pat", "pets": ["dog"]},
+                {"id": 3, "name": "Sue", "pets": ["bird", "fish"]},
+            ],
+            "pets": [],
+        }
+        actual_fail_strict = {
+            "id": 1,
+            "name": "Joe",
+            "friends": [
+                {"id": 3, "name": "Sue", "pets": ["fish", "bird"]},
+                {"id": 2, "name": "Pat", "pets": ["dog"]},
+            ],
+            "pets": [],
+        }
+
+        result_pass_strict = self.json_comparator.compare_json(
+            expected, actual_pass_strict
+        )
+        assert result_pass_strict.is_success
+
+        result_fail_strict = self.json_comparator.compare_json(
+            expected, actual_fail_strict
+        )
+        print(result_fail_strict.fail_messages)
