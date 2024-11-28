@@ -42,3 +42,9 @@ class TestRecursively:
         result = self.json_comparator.compare_json(["foo", {}], [{}, "bar"])
         print(result.fail_messages)
         assert not result.is_success
+
+    def test_array_of_arrays(self):
+        expected = {"id": 1, "stuff": [[4, 3], [3, 2], [], [1, 2]]}
+        actual = {"id": 1, "stuff": [[1, 2], [2, 3], [], [3, 4]]}
+        result = self.json_comparator.compare_json(expected, actual)
+        assert result.is_success
