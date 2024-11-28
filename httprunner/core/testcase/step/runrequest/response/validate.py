@@ -1,6 +1,7 @@
 from typing import Any, Callable, Literal, Optional, Text, Type, Union
 
 from pydantic import BaseModel
+from typing_extensions import deprecated
 
 from httprunner.core.testcase.config import Config  # noqa
 from httprunner.models import TStep, Validator
@@ -493,6 +494,10 @@ class StepRequestValidation(object):
         )
         return self
 
+    @deprecated(
+        "This method is deprecated, use assert_json_contains() instead. "
+        "Validator assert_json_contains() now use java-version JSONassert (re-implemented in Python) by default."
+    )
     def assert_json_contains_with_java(
         self,
         jmespath_expression: Text,
@@ -502,7 +507,7 @@ class StepRequestValidation(object):
         """Equivalent to the JSONassert non-strict mode with java version."""
         self._step_context.validators.append(
             Validator(
-                method="json_contains_with_java",
+                method="json_contains_v2",
                 expression=jmespath_expression,
                 expect=expected_value,
                 message=message,
@@ -510,6 +515,10 @@ class StepRequestValidation(object):
         )
         return self
 
+    @deprecated(
+        "This method is deprecated, use assert_json_equal() instead. "
+        "Validator assert_json_equal() now use java-version JSONassert (re-implemented in Python) by default."
+    )
     def assert_json_equal_with_java(
         self,
         jmespath_expression: Text,
@@ -519,7 +528,7 @@ class StepRequestValidation(object):
         """Equivalent to the JSONassert strict mode with java version."""
         self._step_context.validators.append(
             Validator(
-                method="json_equal_with_java",
+                method="json_equal_v2",
                 expression=jmespath_expression,
                 expect=expected_value,
                 message=message,
