@@ -109,6 +109,13 @@ class TestCompareJSONObjects:
         )
         assert result.is_success
 
+        # Reverse order.
+        result = json_comparator.compare_json(
+            {"a": 1, "b": 1.25, "c": "abc", "d": True, "e": None},
+            {"e": None, "d": True, "c": "abc", "b": 1.25, "a": 1},
+        )
+        assert result.is_success
+
     def test_compare_json_objects(self):
         # equal
         result = json_comparator.compare_json(
