@@ -380,8 +380,10 @@ class JSONComparator:
             )
 
         # The other cases, compare the two arrays in non strict mode.
-        # If all values in the expected array are simple values, compare them in non strict mode.
-        elif util.is_all_simple_values_array(expected):
+        # If all values in the array are simple values, compare them in non strict mode.
+        elif util.is_all_simple_values_array(
+            expected
+        ) and util.is_all_simple_values_array(actual):
             self._compare_json_arrays_all_simple_values(
                 prefix, expected, actual, result
             )
