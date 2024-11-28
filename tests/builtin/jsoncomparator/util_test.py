@@ -2,6 +2,7 @@ from httprunner.builtin.jsoncomparator.util import (
     SALT,
     get_actual_value,
     get_cardinality_mapping,
+    is_number_but_not_bool,
     is_usable_as_unique_key,
 )
 
@@ -64,3 +65,17 @@ def test_is_usable_as_unique_key():
     # None values are acceptable.
     assert not is_usable_as_unique_key("a", [{"a": None}, {"a": None}, {"a": None}])
     assert is_usable_as_unique_key("a", [{"a": None}, {"a": 1}, {"a": 2}])
+
+
+def test_is_number_but_not_bool():
+    assert is_number_but_not_bool(1)
+    assert is_number_but_not_bool(1.0)
+    assert is_number_but_not_bool(-1)
+    assert is_number_but_not_bool(0)
+    assert is_number_but_not_bool(0.0)
+    assert not is_number_but_not_bool(True)
+    assert not is_number_but_not_bool(False)
+    assert not is_number_but_not_bool("1")
+    assert not is_number_but_not_bool(None)
+    assert not is_number_but_not_bool([])
+    assert not is_number_but_not_bool({})
