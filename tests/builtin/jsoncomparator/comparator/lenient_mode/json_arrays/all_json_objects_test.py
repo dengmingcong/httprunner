@@ -30,3 +30,33 @@ class TestAllJSONObjects:
             [{"a": 1}, {"a": 2.0}, {"a": 3}],
         )
         assert result.is_success
+
+    def test_unique_key_missing_in_actual(self):
+        result = self.json_comparator.compare_json(
+            [{"a": 1}, {"a": 2}, {"a": 3}], [{"a": 3}, {"a": 2}, {"a": 4}]
+        )
+        print(result.fail_messages)
+        assert not result.is_success
+
+        # boolean value in expected
+        result = self.json_comparator.compare_json(
+            [{"a": True}, {"a": False}],
+            [{"a": 2}, {"a": 3}],
+        )
+        print(result.fail_messages)
+        assert not result.is_success
+
+        # boolean value in actual
+        result = self.json_comparator.compare_json(
+            [{"a": 1}, {"a": 2}],
+            [{"a": True}, {"a": False}],
+        )
+        print(result.fail_messages)
+        assert not result.is_success
+
+        # string value
+        result = self.json_comparator.compare_json(
+            [{"a": "1"}, {"a": "2"}], [{"a": "3"}, {"a": "4"}]
+        )
+        print(result.fail_messages)
+        assert not result.is_success
