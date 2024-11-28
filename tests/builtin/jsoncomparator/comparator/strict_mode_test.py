@@ -204,3 +204,15 @@ class TestJSONComparatorStrictMode:
             expected, actual_fail_strict
         )
         print(result_fail_strict.fail_messages)
+
+    def test_array_of_arrays(self):
+        expected = {"id": 1, "stuff": [[1, 2], [2, 3], [], [3, 4]]}
+        actual_pass = {"id": 1, "stuff": [[1, 2], [2, 3], [], [3, 4]]}
+        actual_fail = {"id": 1, "stuff": [[1, 2], [2, 3], [3, 4], []]}
+
+        result_pass = self.json_comparator.compare_json(expected, actual_pass)
+        assert result_pass.is_success
+
+        result_fail = self.json_comparator.compare_json(expected, actual_fail)
+        print(result_fail.fail_messages)
+        assert not result_fail.is_success
