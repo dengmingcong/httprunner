@@ -22,5 +22,12 @@ class TestRecursively:
         print(result.fail_messages)
         assert not result.is_success
 
+    def test_1p0_equals_1(self):
+        result = self.json_comparator.compare_json(
+            [1.0, {}, []],
+            [{}, [], 1],
+        )
+        assert result.is_success
+
     # 1 = 1.0
     # 1 != True
