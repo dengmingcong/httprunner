@@ -60,3 +60,11 @@ class TestAllJSONObjects:
         )
         print(result.fail_messages)
         assert not result.is_success
+
+    def test_unique_key_value_equal_but_json_not_equal(self):
+        result = self.json_comparator.compare_json(
+            [{"a": True, "b": 1}, {"a": 2, "b": True}, {"a": 3, "b": "3"}],
+            [{"a": True, "b": False}, {"a": 2, "b": 4}, {"a": 3, "b": "4"}],
+        )
+        print(result.fail_messages)
+        assert not result.is_success
