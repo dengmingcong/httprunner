@@ -185,3 +185,10 @@ class TestCompareJSONObjects:
         )
         print(result_fail_mismatch_strict.fail_messages)
         assert not result_fail_mismatch_strict.is_success
+
+    def test_value_type_different(self):
+        result = self.json_comparator.compare_json(
+            {"id": 1, "name": "Joe"}, {"id": 1, "name": ["Joe"]}
+        )
+        print(result.fail_messages)
+        assert not result.is_success
