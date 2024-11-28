@@ -48,3 +48,14 @@ class TestRecursively:
         actual = {"id": 1, "stuff": [[1, 2], [2, 3], [], [3, 4]]}
         result = self.json_comparator.compare_json(expected, actual)
         assert result.is_success
+
+    def test_array_of_objects_with_same_id(self):
+        """Python-version JSONAssert implemented base on deepdiff has this bug."""
+        expected = [{"id": 1}, {"id": 1}, {"id": 1}]
+        actual = [
+            {"id": 1, "name": "1"},
+            {"id": 1, "name": "2"},
+            {"id": 1, "name": "3"},
+        ]
+        result = self.json_comparator.compare_json(expected, actual)
+        assert result.is_success
