@@ -115,13 +115,16 @@ class JSONCompareResult:
 
         return self
 
-    def add_missing_field(self, field_path: str, expected: Any) -> "JSONCompareResult":
+    def add_missing_field(
+        self, field_path: str, expected: Any, is_expected_field_path: bool = True
+    ) -> "JSONCompareResult":
         """Add a missing field.
 
-        :param field_path: path to the field that is currently being compared
-        :param expected: an object key or array item that is missing in actual JSON. \
+        :param field_path: Path to the field that is currently being compared.
+        :param expected: An object key or array item that is missing in actual JSON. \
             when comparing two JSON objects, it's the key that exists in the expected object but not in actual object, \
             when comparing two JSON arrays, it's the item that exists in the expected array but not in actual array.
+        :param is_expected_field_path: Whether the `expected` is a field path.
         """
         # append this field to the missing fields list
         self.missing_fields.append(FailField(field_path, expected, None))
@@ -134,7 +137,7 @@ class JSONCompareResult:
         # fail the entire JSON comparison
         self.fail(
             f"{field_path}\n"
-            f"Expected: {self.describe(expected, True)}\n"
+            f"Expected: {self.describe(expected, is_expected_field_path)}\n"
             f"     but none found\n"
         )
 

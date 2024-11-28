@@ -187,7 +187,7 @@ class JSONComparator:
             # If the expected item is not in the actual mapping, this item is a missing item.
             if expected_item not in actual_item_to_count_mapping:
                 result.add_missing_field(
-                    f"{prefix}[]", util.get_actual_value(expected_item)
+                    f"{prefix}[]", util.get_actual_value(expected_item), False
                 )
 
             # If the expected count is different from the actual count, this value is a mismatched item.
@@ -241,6 +241,7 @@ class JSONComparator:
                         prefix, unique_key, util.get_actual_value(unique_key_value)
                     ),
                     expected_json_object,
+                    False,
                 )
                 continue
 
