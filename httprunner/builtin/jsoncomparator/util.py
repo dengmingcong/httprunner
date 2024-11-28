@@ -100,6 +100,8 @@ def is_usable_as_unique_key(candidate_key: str, array: list[dict]) -> bool:
 
             if value not in seen_values:
                 seen_values.add(value)
+            else:
+                return False
         else:
             return False
 
