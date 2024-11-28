@@ -31,7 +31,7 @@ class TestAllJSONObjects:
         )
         assert result.is_success
 
-    def test_unique_key_missing_in_actual(self):
+    def test_unique_key_missing_unexpected_in_actual(self):
         result = self.json_comparator.compare_json(
             [{"a": 1}, {"a": 2}, {"a": 3}], [{"a": 3}, {"a": 2}, {"a": 4}]
         )
