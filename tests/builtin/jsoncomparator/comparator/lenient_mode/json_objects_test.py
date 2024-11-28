@@ -102,6 +102,13 @@ class TestCompareJSONObjects:
         print(result.fail_messages)
         assert not result.is_success
 
+    def test_all_kinds_simple_values(self):
+        result = json_comparator.compare_json(
+            {"a": 1, "b": 1.25, "c": "abc", "d": True, "e": None},
+            {"a": 1, "b": 1.25, "c": "abc", "d": True, "e": None},
+        )
+        assert result.is_success
+
     def test_compare_json_objects(self):
         # equal
         result = json_comparator.compare_json(
