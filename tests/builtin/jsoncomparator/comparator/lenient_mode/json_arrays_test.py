@@ -30,6 +30,18 @@ class TestCompareJSONArrays:
         print(result.fail_messages)
         assert result.is_success
 
+    def test_compare_true_with_1(self):
+        # equal
+        result = self.json_comparator.compare_json(
+            {"a": [False, True]}, {"a": [True, False]}
+        )
+        assert result.is_success
+
+        # not equal
+        result = self.json_comparator.compare_json({"a": [False, 1]}, {"a": [0, True]})
+        print(result.fail_messages)
+        assert not result.is_success
+
     def test_simple_value_1p0_equal_1(self):
         result = self.json_comparator.compare_json(
             {"a": [1.0, 2.0, 3.0]},
