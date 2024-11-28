@@ -1,7 +1,7 @@
 from httprunner.builtin.jsoncomparator.comparator import JSONComparator
 
 
-class TestCompareJSONArrays:
+class TestAllSimpleValues:
     json_comparator = JSONComparator(False)
 
     def test_equal(self):
@@ -37,17 +37,39 @@ class TestCompareJSONArrays:
         )
         assert result.is_success
 
+        # equal
+        result = self.json_comparator.compare_json(
+            {"a": [False, True, 1, 0]}, {"a": [0, 1, True, False]}
+        )
+        assert result.is_success
+
         # not equal
         result = self.json_comparator.compare_json({"a": [False, 1]}, {"a": [0, True]})
         print(result.fail_messages)
         assert not result.is_success
 
     def test_simple_value_1p0_equal_1(self):
+        # equal
         result = self.json_comparator.compare_json(
             {"a": [1.0, 2.0, 3.0]},
             {"a": [1, 2.0, 3]},
         )
         assert result.is_success
+
+        # equal
+        result = self.json_comparator.compare_json(
+            {"a": [1.10, 2.20, 3.30]},
+            {"a": [1.1, 2.2, 3.3]},
+        )
+        assert result.is_success
+
+        # not equal
+        result = self.json_comparator.compare_json(
+            {"a": [1.1, 2.0, 3.11]},
+            {"a": [1, 2.0, 3.110]},
+        )
+        print(result.fail_messages)
+        assert not result.is_success
 
     def test_missing_item(self):
         result = self.json_comparator.compare_json({"a": [1, 2, 3]}, {"a": [1, 2, 2]})
