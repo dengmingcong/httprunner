@@ -158,7 +158,7 @@ def format_unique_key(prefix: str, unique_key: str, unique_key_value: Any) -> st
     :param unique_key: the unique key in each JSON object.
     :param unique_key_value: the value of the unique key in each JSON object.
     """
-    return f"{prefix}[{unique_key}={unique_key_value}]"
+    return f"{prefix}[{unique_key}={describe_field(unique_key_value, False)}]"
 
 
 def is_valid_json_type(value: Any) -> bool:
