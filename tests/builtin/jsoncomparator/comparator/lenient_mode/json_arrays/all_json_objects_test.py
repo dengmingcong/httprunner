@@ -10,6 +10,13 @@ class TestAllJSONObjects:
         )
         assert result.is_success
 
+    def test_unique_key_not_usable_for_actual(self):
+        result = self.json_comparator.compare_json(
+            [{"a": 1}, {"a": 2}, {"a": 3}], [{"a": 3}, {"a": 2}, {"a": 2}]
+        )
+        print(result.fail_messages)
+        assert not result.is_success
+
     def test_value_contains_boolean_and_equal(self):
         result = self.json_comparator.compare_json(
             [{"a": True}, {"a": False}, {"a": 1}, {"a": 0}],
