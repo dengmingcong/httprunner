@@ -82,9 +82,9 @@ class DeepDiffFormatter(object):
                 t1 = value_changed.t1
                 t2 = value_changed.t2
 
-                self.formatted_string += f"\n  - jmespath: {path}\n"
-                self.formatted_string += f"    expected: {t1}\n"
-                self.formatted_string += f"         got: {t2}"
+                self.formatted_string += f"\n  - jmespath: {path}"
+                self.formatted_string += f"\n    expected: {t1}"
+                self.formatted_string += f"\n         got: {t2}"
 
             self.formatted_string += "\n"
 
@@ -99,8 +99,8 @@ class DeepDiffFormatter(object):
                     added_item.path(output_format="list"), self.ddiff.t2
                 )
                 t2 = added_item.t2
-                self.formatted_string += f"\n  - jmespath: {path}\n"
-                self.formatted_string += f"         got: {t2}"
+                self.formatted_string += f"\n  - jmespath: {path}"
+                self.formatted_string += f"\n         got: {t2}"
 
             self.formatted_string += "\n"
 
@@ -116,8 +116,8 @@ class DeepDiffFormatter(object):
                 )
                 t1 = removed_item.t1
                 t1_type = type(t1).__name__
-                self.formatted_string += f"\n  - jmespath: {path}\n"
-                self.formatted_string += f"    expected: {t1_type:10} {t1}\n"
+                self.formatted_string += f"\n  - jmespath: {path}"
+                self.formatted_string += f"\n    expected: {t1_type:10} {t1}\n"
 
             self.formatted_string += "\n"
 
