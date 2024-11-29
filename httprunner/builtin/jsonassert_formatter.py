@@ -107,7 +107,7 @@ class DeepDiffFormatter(object):
     def format_dictionary_item_removed(self):
         """Format dictionary_item_removed."""
         if "dictionary_item_removed" in self.ddiff:
-            self.formatted_string += "\nThese dictionary items are missing:"
+            self.formatted_string += "\n** Missing Items **"
 
             removed_dict_items = list(self.ddiff["dictionary_item_removed"])
             for removed_item in removed_dict_items:
@@ -116,7 +116,8 @@ class DeepDiffFormatter(object):
                 )
                 t1 = removed_item.t1
                 t1_type = type(t1).__name__
-                self.formatted_string += f"\n    jmespath: {path}, type expected: {t1_type}, value expected: {t1}"
+                self.formatted_string += f"\n  - jmespath: {path}\n"
+                self.formatted_string += f"    expected: {t1_type:10} {t1}\n"
 
             self.formatted_string += "\n"
 
