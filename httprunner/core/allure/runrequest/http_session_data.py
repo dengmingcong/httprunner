@@ -1,7 +1,11 @@
+import datetime
+from zoneinfo import ZoneInfo
+
 import allure
 
 from httprunner.json_encoders import pydantic_model_dump_json
 from httprunner.models import SessionData
+from httprunner.pyproject import PyProjectToml
 
 
 def save_http_session_data(
@@ -14,8 +18,32 @@ def save_http_session_data(
         response_data = http_session_data.req_resps[0].response
 
         # save request data
-        if request_at := request_data.headers.get("Date", None):
-            request_attachment_name = f"request 🕒 {request_at}"
+        if request_at_str := request_data.headers.get("Date", None):
+            # Parse string to datetime object.
+            request_at: datetime.datetime = datetime.datetime.fromisoformat(
+                request_at_str
+            )
+
+            # Convert datetime object to target timezones.
+            request_timezones_str = []
+            for timezone_dict in PyProjectToml().request_timezones:
+                # Format datetime object as specified timezone.
+                timezone_format_string = request_at.astimezone(
+                    ZoneInfo(timezone_dict["timezone"])
+                ).strftime(timezone_dict["format"])
+
+                # Add flag if it exists.
+                if "flag" in timezone_dict:
+                    timezone_format_string = (
+                        f"{timezone_dict['flag']} {timezone_format_string}"
+                    )
+
+                request_timezones_str.append(timezone_format_string)
+
+            # Join all formatted datetimes.
+            request_timezones_str = " / ".join(request_timezones_str)
+
+            request_attachment_name = f"request 🕒 {request_timezones_str}"
         else:
             request_attachment_name = "request"
         allure.attach(
