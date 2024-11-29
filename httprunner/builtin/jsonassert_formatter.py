@@ -51,7 +51,7 @@ class DeepDiffFormatter(object):
     def format_type_changes(self):
         """Format 'type_changes'."""
         if "type_changes" in self.ddiff:
-            self.formatted_string += "\nType changes detected:"
+            self.formatted_string += "\n** Type Changes **"
 
             type_changes_list = list(self.ddiff["type_changes"])
             for type_changes in type_changes_list:
@@ -64,10 +64,8 @@ class DeepDiffFormatter(object):
                 t2_type = type(t2).__name__
 
                 self.formatted_string += f"\n  - jmespath: {path}\n"
-                self.formatted_string += (
-                    f"    type expected: {t1_type}, value expected: {t1}\n"
-                )
-                self.formatted_string += f"    type got: {t2_type}, value got: {t2}"
+                self.formatted_string += f"    expected: {t1_type:10} {t1}\n"
+                self.formatted_string += f"         got: {t2_type:10} {t2}"
 
             self.formatted_string += "\n"
 
