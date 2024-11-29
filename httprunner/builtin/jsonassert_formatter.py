@@ -72,7 +72,7 @@ class DeepDiffFormatter(object):
     def format_values_changed(self):
         """Format 'values_changed'."""
         if "values_changed" in self.ddiff:
-            self.formatted_string += "\nValue changes detected:"
+            self.formatted_string += "\n** Value Changes **"
 
             values_changed_list = list(self.ddiff["values_changed"])
             for value_changed in values_changed_list:
@@ -82,9 +82,9 @@ class DeepDiffFormatter(object):
                 t1 = value_changed.t1
                 t2 = value_changed.t2
 
-                self.formatted_string += (
-                    f"\n    jmespath: {path}, value expected: {t1}, value got: {t2}"
-                )
+                self.formatted_string += f"\n  - jmespath: {path}\n"
+                self.formatted_string += f"    expected: {t1}\n"
+                self.formatted_string += f"         got: {t2}"
 
             self.formatted_string += "\n"
 
