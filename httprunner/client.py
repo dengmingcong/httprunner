@@ -1,6 +1,6 @@
 import json
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import requests
 import urllib3
@@ -149,7 +149,7 @@ class HttpSession(requests.Session):
         self.data.req_resps.pop()
         self.data.req_resps.append(get_req_resp_record(requests_response))
 
-    def request(self, method, url, name=None, **kwargs) -> Response:
+    def request(self, method, url, name=None, **kwargs: dict) -> Response:
         """
         Constructs and sends a :py:class:`requests.Request`.
         Returns :py:class:`requests.Response` object.
@@ -202,8 +202,8 @@ class HttpSession(requests.Session):
         start_timestamp = time.time()
 
         # set header 'Date' to represent request timestamp
-        now = datetime.now(timezone(timedelta(hours=8)))
-        kwargs["headers"].update({"Date": now.strftime("%Y-%m-%d %H:%M:%S %Z")})
+        now = datetime.now(timezone.utc)
+        kwargs["headers"].update({"Date": now.isoformat(" ")})
 
         requests_response = self._send_request_safe_mode(method, url, **kwargs)
         response_time_ms = round((time.time() - start_timestamp) * 1000, 2)
