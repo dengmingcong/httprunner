@@ -183,7 +183,8 @@ class ResponseObject(object):
             return {}
 
         extract_mapping = {}
-        for extractor in extractors:  # type: Union[JMESPathExtractor]
+        extractor: Union[JMESPathExtractor]
+        for extractor in extractors:
             if isinstance(extractor, JMESPathExtractor):
                 field_value = self._search_jmespath(extractor.expression)
 

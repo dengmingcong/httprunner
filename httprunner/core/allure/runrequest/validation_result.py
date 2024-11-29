@@ -11,9 +11,10 @@ def save_validation_result(
     response_obj: ResponseObject,
 ) -> None:
     """Save validation result to allure report."""
+    validation_result: dict
     for validation_result in response_obj.validation_results.get(
         "validate_extractor", []
-    ):  # type: dict
+    ):
         jmespath_ = validation_result.get(validation_settings.content.keys.jmespath_)
         # it is possible that jmespath is not str
         jmespath_ = jmespath_ if isinstance(jmespath_, str) else "NA"
