@@ -43,7 +43,9 @@ def save_http_session_data(
             # Join all formatted datetimes.
             request_timezones_str = " / ".join(request_timezones_str)
 
-            request_attachment_name = f"request 🕒 {request_timezones_str}"
+            request_attachment_name = (
+                f"request 🕒 {request_timezones_str} / {request_at.timestamp()}"
+            )
         else:
             request_attachment_name = "request"
         allure.attach(
