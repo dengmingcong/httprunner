@@ -266,10 +266,7 @@ class HttpRunner(object):
         update_form(parsed_request_dict)
 
         # add http headers for every http request
-        try:
-            parsed_request_dict["headers"].update(PyProjectToml().http_headers)
-        except KeyError:
-            logger.debug("no extra http headers in pyproject.toml")
+        parsed_request_dict["headers"].update(PyProjectToml().http_headers)
 
         # update http headers with config `global_http_settings.headers`,
         # you can update the config by exporting env variable GLOBAL_HTTP_HEADERS.

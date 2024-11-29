@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from httprunner.pyproject import PyProjectTomlKey, pyproject_toml_data
+from httprunner.pyproject import PyProjectTomlKey
 
 
 class TestPyProjectToml:
@@ -17,16 +17,12 @@ class TestPyProjectToml:
                 raise TypeError
 
         class CorrectProjectMeta:
-            name = PyProjectTomlKey(
-                pyproject_toml_data, "tool.poetry.name", name_must_be_str
-            )
+            name = PyProjectTomlKey("tool.poetry.name", validators=[name_must_be_str])
 
         class IncorrectProjectMeta:
             name = PyProjectTomlKey(
-                pyproject_toml_data,
                 "tool.poetry.name",
-                name_must_be_str,
-                name_must_be_int,
+                validators=[name_must_be_str, name_must_be_int],
             )
 
         assert CorrectProjectMeta().name == "httprunner"
