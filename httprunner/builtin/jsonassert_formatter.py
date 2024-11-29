@@ -131,17 +131,17 @@ class DeepDiffFormatter(object):
 
         if parent_path not in self.fail_match_iterable_paths:
             self.fail_match_iterable_paths.append(parent_path)
+            self.formatted_string += f"\n  - jmespath: {parent_path}"
             if len(parent.t1) != len(parent.t2):
                 self.formatted_string += (
-                    f"\n  - jmespath: {parent_path}, expected {len(parent.t1)} "
-                    f"but got {len(parent.t2)}"
+                    f", expected {len(parent.t1)} but got {len(parent.t2)}"
                 )
             if len((t1 := json.dumps(parent.t1, ensure_ascii=False))) > omit_length:
                 t1 = t1[:omit_length] + "..."
             if len((t2 := json.dumps(parent.t2, ensure_ascii=False))) > omit_length:
                 t2 = t2[:omit_length] + "..."
-            self.formatted_string += f"\n    list expected: {t1}"
-            self.formatted_string += f"\n    list got: {t2}"
+            self.formatted_string += f"\n    expected: {t1}"
+            self.formatted_string += f"\n         got: {t2}"
         else:
             return
 
@@ -152,7 +152,7 @@ class DeepDiffFormatter(object):
             or "iterable_item_removed" in self.ddiff
             or "repetition_change" in self.ddiff
         ):
-            self.formatted_string += "\nThese lists are not expected:"
+            self.formatted_string += "\n** Unexpected Lists **"
 
             if "iterable_item_added" in self.ddiff:
                 added_iterable_items = list(self.ddiff["iterable_item_added"])
