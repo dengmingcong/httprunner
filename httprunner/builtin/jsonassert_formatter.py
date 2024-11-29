@@ -91,7 +91,7 @@ class DeepDiffFormatter(object):
     def format_dictionary_item_added(self):
         """Format dictionary_item_added."""
         if "dictionary_item_added" in self.ddiff:
-            self.formatted_string += "\nThese dictionary items are not expected:"
+            self.formatted_string += "\n** Unexpected Items **"
 
             added_dict_items = list(self.ddiff["dictionary_item_added"])
             for added_item in added_dict_items:
@@ -99,7 +99,8 @@ class DeepDiffFormatter(object):
                     added_item.path(output_format="list"), self.ddiff.t2
                 )
                 t2 = added_item.t2
-                self.formatted_string += f"\n    jmespath: {path}, value: {t2}"
+                self.formatted_string += f"\n  - jmespath: {path}\n"
+                self.formatted_string += f"         got: {t2}"
 
             self.formatted_string += "\n"
 
