@@ -397,18 +397,16 @@ class StepRequestValidation(object):
             view, ignore_order, report_repetition, cutoff_intersection_for_pairs, cutoff_distance_for_pairs
         """
         # raise exception if these keys are in other_deepdiff_kwargs
-        if other_deepdiff_kwargs:
-            for key in (
-                "view",
-                "ignore_order",
-                "report_repetition",
-                "cutoff_intersection_for_pairs",
-                "cutoff_distance_for_pairs",
-            ):
-                if key in other_deepdiff_kwargs:
-                    raise ValueError(
-                        f"the keyword argument {key} cannot be used in assert_json_contains."
-                    )
+        if blocked_args := set(other_deepdiff_kwargs) & {
+            "view",
+            "ignore_order",
+            "report_repetition",
+            "cutoff_intersection_for_pairs",
+            "cutoff_distance_for_pairs",
+        }:
+            raise ValueError(
+                f"Keyword arguments {blocked_args} cannot be used in assert_json_contains."
+            )
 
         self._step_context.validators.append(
             Validator(
@@ -465,18 +463,16 @@ class StepRequestValidation(object):
             view, ignore_order, report_repetition, cutoff_intersection_for_pairs, cutoff_distance_for_pairs
         """
         # raise exception if these keys are in other_deepdiff_kwargs
-        if other_deepdiff_kwargs:
-            for key in (
-                "view",
-                "ignore_order",
-                "report_repetition",
-                "cutoff_intersection_for_pairs",
-                "cutoff_distance_for_pairs",
-            ):
-                if key in other_deepdiff_kwargs:
-                    raise ValueError(
-                        f"the keyword argument {key} cannot be used in assert_json_contains."
-                    )
+        if blocked_args := set(other_deepdiff_kwargs) & {
+            "view",
+            "ignore_order",
+            "report_repetition",
+            "cutoff_intersection_for_pairs",
+            "cutoff_distance_for_pairs",
+        }:
+            raise ValueError(
+                f"Keyword arguments {blocked_args} cannot be used in assert_json_contains."
+            )
 
         self._step_context.validators.append(
             Validator(
