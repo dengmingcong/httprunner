@@ -1,3 +1,5 @@
+from dotwiz import DotWiz
+
 from httprunner.builtin.jsoncomparator.comparator import JSONComparator
 
 json_comparator = JSONComparator(False)
@@ -192,3 +194,9 @@ class TestCompareJSONObjects:
         )
         print(result.fail_messages)
         assert not result.is_success
+
+    def test_dotwiz(self):
+        result = self.json_comparator.compare_json(
+            DotWiz({"a": 1, "b": 2}), {"a": 1, "b": 2, "c": 3}
+        )
+        assert result.is_success
