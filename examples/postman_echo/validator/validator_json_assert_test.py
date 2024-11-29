@@ -89,9 +89,12 @@ class TestFailMessage(HttpRunner):
             .post("/post")
             .with_json(
                 {
-                    "type_changes": 1.1,
-                    "values_changed": "new",
-                    "item_added": "this item is unexpected",
+                    "type_changes01": 1.1,
+                    "type_changes02": 1.1,
+                    "values_changed01": "new",
+                    "values_changed02": "new",
+                    "item_added01": "this item is unexpected",
+                    "item_added02": "this item is unexpected",
                     "list_not_expected": [1, 2, 3, 3],
                 }
             )
@@ -100,9 +103,12 @@ class TestFailMessage(HttpRunner):
             .assert_json_equal(
                 "body.json",
                 {
-                    "type_changes": 1,
-                    "values_changed": "old",
-                    "item_removed": "this item is missing",
+                    "type_changes01": 1,
+                    "type_changes02": 1,
+                    "values_changed01": "old",
+                    "values_changed02": "old",
+                    "item_removed01": "this item is missing",
+                    "item_removed02": "this item is missing",
                     "list_not_expected": [1, 2, 3, 4],
                 },
                 ignore_string_type_changes=True,
