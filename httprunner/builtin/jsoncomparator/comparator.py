@@ -4,6 +4,7 @@ import json
 from typing import Any
 
 from httprunner.builtin.jsoncomparator import util
+from httprunner.builtin.jsoncomparator.compat import normalize_dotwiz
 from httprunner.builtin.jsoncomparator.result import JSONCompareResult
 
 
@@ -402,6 +403,12 @@ class JSONComparator:
 
     def compare_json(self, expected: Any, actual: Any) -> JSONCompareResult:
         """Compare two values corresponding to JSON data type."""
+        # Convert dotwiz object to dict.
+        # Do this behavior only in the main entrance for performance considerations,
+        # user should convert dotwiz objects to dict by themselves in other cases.
+        expected = normalize_dotwiz(expected)
+        actual = normalize_dotwiz(actual)
+
         result = JSONCompareResult()
 
         self._compare_field_values("", expected, actual, result)
