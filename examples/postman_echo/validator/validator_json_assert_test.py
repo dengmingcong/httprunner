@@ -120,6 +120,7 @@ class TestFailMessage(HttpRunner):
             .with_json(
                 {
                     "list_not_expected": [1, 2, 3, 3],
+                    "length_not_expected": [1, 2, 3, 4],
                 }
             )
             .validate()
@@ -128,6 +129,7 @@ class TestFailMessage(HttpRunner):
                 "body.json",
                 {
                     "list_not_expected": [1, 2, 3, 4],
+                    "length_not_expected": [1, 2, 3],
                 },
                 ignore_string_type_changes=True,
             )
