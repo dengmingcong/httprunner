@@ -213,7 +213,7 @@ def is_close(
 def no_keys_duplicate(
     check_value: list,
     expect_value: Any,
-    message: str = "",  # noqa
+    message: str = "",
 ) -> None:
     """
     Assert no duplicates in the list specified by `check_value`.
