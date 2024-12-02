@@ -38,14 +38,14 @@ class JSONComparator:
             result.fail(
                 f"{prefix}: The expected item's type ({type(expected)}) is not a valid JSON data type, "
                 "only the following types are allowed: "
-                "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
+                "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)\n"
             )
             return
         elif not util.is_valid_json_type(actual):
             result.fail(
                 f"{prefix}: The actual item's type ({type(actual)}) is not a valid JSON data type, "
                 "only the following types are allowed: "
-                "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
+                "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)\n"
             )
             return
 
@@ -293,7 +293,7 @@ class JSONComparator:
                 result.fail(
                     f"{prefix}[{expected_index}]: Invalid JSON data type {type(expected_item)} in expected array."
                     f"\nOnly the following types are allowed: "
-                    "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
+                    "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)\n"
                 )
                 return
 
@@ -313,7 +313,7 @@ class JSONComparator:
                     result.fail(
                         f"{prefix}[{expected_index}]: Invalid JSON data type {type(actual_item)} in actual array."
                         f"\nOnly the following types are allowed: "
-                        "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)"
+                        "number (int, float), string (str), boolean (bool), array (list), object (dict), null (None)\n"
                     )
                     return
 
