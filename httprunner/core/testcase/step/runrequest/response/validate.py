@@ -707,6 +707,34 @@ class StepRequestValidation(object):
         )
         return self
 
+    def assert_is_truthy_and_subset(
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
+    ):
+        """Assert actual value is considered true and every element in the actual value is in the expected value."""
+        self._step_context.validators.append(
+            Validator(
+                method="is_truthy_and_subset",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
+        )
+        return self
+
+    def assert_is_truthy_and_superset(
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
+    ):
+        """Assert actual value is considered true and every element in the expected value is in the actual value."""
+        self._step_context.validators.append(
+            Validator(
+                method="is_truthy_and_superset",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
+        )
+        return self
+
     def assert_lambda(
         self,
         jmespath_expression: Text,

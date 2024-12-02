@@ -362,6 +362,20 @@ def is_falsy(check_value: Any, expect_value: Any, message: Text = ""):  # noqa
     assert not bool(check_value), message
 
 
+def is_truthy_and_subset(
+    check_value: Any, expected_value: Iterable, message: Text = ""
+):
+    """Assert check_value is considered true and every element in check_value is in expected_value."""
+    assert check_value and set(check_value).issubset(set(expected_value)), message
+
+
+def is_truthy_and_superset(
+    check_value: Any, expected_value: Iterable, message: Text = ""
+):
+    """Assert check_value is considered true and every element in expected_value is in check_value."""
+    assert check_value and set(check_value).issuperset(set(expected_value)), message
+
+
 def assert_lambda(
     check_value: Any,
     expect_value: Union[Callable, tuple[Callable, dict]],
