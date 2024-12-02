@@ -75,7 +75,7 @@ class JSONComparator:
             return
 
         # Both are JSON objects, call compare_json_objects.
-        elif isinstance(expected, dict):
+        elif type(expected) is dict:
             self._compare_json_objects(prefix, expected, actual, result)
             return
 
