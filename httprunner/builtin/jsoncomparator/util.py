@@ -33,7 +33,7 @@ def is_all_json_objects_array(json_array: list) -> bool:
     :param json_array: the array to check.
     """
     for item in json_array:
-        if not isinstance(item, dict):
+        if type(item) is not dict:
             return False
 
     return True
