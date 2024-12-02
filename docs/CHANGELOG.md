@@ -2,6 +2,32 @@
 
 <!--next-version-placeholder-->
 
+## v3.46.0 (2024-12-02)
+
+### Feature
+
+* Add validator for subset and superset ([`72e52c1`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/72e52c1732b8f0de9f2e81110bea4ce73791001d))
+* Delay reason can be set now ([`e0acd50`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/e0acd5005a05382b6558f9672c1e7a5eccd42c87))
+* Display request timestamp too ([`fe0035b`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/fe0035b1f5911cecc00b45b72894370534b70ec4))
+* Add configurable request timezones ([`3021195`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/3021195e41f2afe5604819d12f7be5a17fbca457))
+* Set Date in request header to UTC datetime and show microseconds ([`8fc2974`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/8fc2974d8ad443a014b86b01c017ad4afa6f9d89))
+* Assert_json_contains_with_java call json_contains_v2 internally now ([`399d54c`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/399d54cec6f1f769b69c1146c5451ac48373199a))
+
+### Fix
+
+* DotWiz was considered as valid JSON type but cause error while comparing with dict ([`a54e83f`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/a54e83f074c77080f35d2028fbc92706f4ff5dc2))
+* DotWiz was considered as valid JSON type but cause error while comparing with dict ([`78d1d07`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/78d1d0706b6700f22355aa3a07cf723a93dbac6b))
+* Convert dotwiz to dict before comparing ([`f19134a`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/f19134a158d1f4a99f27b1eeda765bc49615a7cb))
+
+### Documentation
+
+* Java-version JSONAssert will be used by default ([`810b286`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/810b286586ea7a19207f944e5bb6c52dcbe9865d))
+
+### Performance
+
+* Change if other_deepdiff_kwargs not empty before set operation ([`d190650`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/d19065057757b8caeb71672a388b9a59cb130f0e))
+* Replace for loop with set intersection ([`744993f`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/744993f3215a35873d20a286b24c32723412bbdf))
+
 ## v3.45.0 (2024-09-24)
 
 ### Feature
