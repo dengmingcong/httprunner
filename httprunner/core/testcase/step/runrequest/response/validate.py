@@ -1,20 +1,10 @@
-from typing import (
-    Text,
-    Any,
-    Union,
-    Callable,
-    Literal,
-    Optional,
-    Type,
-)
+from typing import Any, Callable, Literal, Optional, Text, Type, Union
 
 from pydantic import BaseModel
+from typing_extensions import deprecated
 
 from httprunner.core.testcase.config import Config  # noqa
-from httprunner.models import (
-    TStep,
-    Validator,
-)
+from httprunner.models import TStep, Validator
 
 Number = Union[int, float]
 
@@ -379,14 +369,26 @@ class StepRequestValidation(object):
         ignore_type_in_groups: Union[tuple, list[tuple]] = None,
         **other_deepdiff_kwargs,
     ) -> "StepRequestValidation":
-        """
-        Equivalent to the JSONassert non-strict mode.
+        """Equivalent to the JSONassert non-strict mode.
+
+        By default, use java JSONassert (re-implemented with Python) as the comparator,
+        fallback to deepdiff version if any of the following conditions are met: \n
+            * ignore_string_type_changes is True
+            * ignore_numeric_type_changes is True
+            * ignore_type_in_groups is not None
+            * other_deepdiff_kwargs is not empty
+            * expected_value is neither a dict nor a list
+            * check_value is neither a dict nor a list
+
+        The original JSONassert library only supports comparing JSON objects and arrays,
+        but when reimplemented based on deepdiff, it can also compare other types of data,
+        to ensure compatibility, we also support comparing other types of data in this function too.
 
         :param jmespath_expression: JMESPath expression
         :param expected_value: expected value
         :param message: error message
         :param ignore_string_type_changes: whether to ignore string type changes or not.
-            For example b”Hello” vs. “Hello” are considered the same if ignore_string_type_changes is set to True.
+            For example b"Hello" vs. "Hello" are considered the same if ignore_string_type_changes is set to True.
         :param ignore_numeric_type_changes: whether to ignore numeric type changes or not.
             For example 10 vs. 10.0 are considered the same if ignore_numeric_type_changes is set to True.
         :param ignore_type_in_groups: ignores types when t1 and t2 are both within the same type group.
@@ -395,18 +397,19 @@ class StepRequestValidation(object):
             view, ignore_order, report_repetition, cutoff_intersection_for_pairs, cutoff_distance_for_pairs
         """
         # raise exception if these keys are in other_deepdiff_kwargs
-        if other_deepdiff_kwargs:
-            for key in (
+        if other_deepdiff_kwargs and (
+            blocked_args := set(other_deepdiff_kwargs)
+            & {
                 "view",
                 "ignore_order",
                 "report_repetition",
                 "cutoff_intersection_for_pairs",
                 "cutoff_distance_for_pairs",
-            ):
-                if key in other_deepdiff_kwargs:
-                    raise ValueError(
-                        f"the keyword argument {key} cannot be used in assert_json_contains."
-                    )
+            }
+        ):
+            raise ValueError(
+                f"Keyword arguments {blocked_args} cannot be used in assert_json_contains."
+            )
 
         self._step_context.validators.append(
             Validator(
@@ -435,14 +438,26 @@ class StepRequestValidation(object):
         ignore_type_in_groups: Union[tuple, list[tuple]] = None,
         **other_deepdiff_kwargs,
     ) -> "StepRequestValidation":
-        """
-        Equivalent to the JSONassert strict mode.
+        """Equivalent to the JSONassert strict mode.
+
+        By default, use java JSONassert (re-implemented with Python) as the comparator,
+        fallback to deepdiff version if any of the following conditions are met: \n
+            * ignore_string_type_changes is True
+            * ignore_numeric_type_changes is True
+            * ignore_type_in_groups is not None
+            * other_deepdiff_kwargs is not empty
+            * expected_value is neither a dict nor a list
+            * check_value is neither a dict nor a list
+
+        The original JSONassert library only supports comparing JSON objects and arrays,
+        but when reimplemented based on deepdiff, it can also compare other types of data,
+        to ensure compatibility, we also support comparing other types of data in this function too.
 
         :param jmespath_expression: JMESPath expression
         :param expected_value: expected value
         :param message: error message
         :param ignore_string_type_changes: whether to ignore string type changes or not.
-            For example b”Hello” vs. “Hello” are considered the same if ignore_string_type_changes is set to True.
+            For example b"Hello" vs. "Hello" are considered the same if ignore_string_type_changes is set to True.
         :param ignore_numeric_type_changes: whether to ignore numeric type changes or not.
             For example 10 vs. 10.0 are considered the same if ignore_numeric_type_changes is set to True.
         :param ignore_type_in_groups: ignores types when t1 and t2 are both within the same type group.
@@ -451,18 +466,19 @@ class StepRequestValidation(object):
             view, ignore_order, report_repetition, cutoff_intersection_for_pairs, cutoff_distance_for_pairs
         """
         # raise exception if these keys are in other_deepdiff_kwargs
-        if other_deepdiff_kwargs:
-            for key in (
+        if other_deepdiff_kwargs and (
+            blocked_args := set(other_deepdiff_kwargs)
+            & {
                 "view",
                 "ignore_order",
                 "report_repetition",
                 "cutoff_intersection_for_pairs",
                 "cutoff_distance_for_pairs",
-            ):
-                if key in other_deepdiff_kwargs:
-                    raise ValueError(
-                        f"the keyword argument {key} cannot be used in assert_json_contains."
-                    )
+            }
+        ):
+            raise ValueError(
+                f"Keyword arguments {blocked_args} cannot be used in assert_json_contains."
+            )
 
         self._step_context.validators.append(
             Validator(
@@ -480,6 +496,10 @@ class StepRequestValidation(object):
         )
         return self
 
+    @deprecated(
+        "This method is deprecated, use assert_json_contains() instead. "
+        "Validator assert_json_contains() now use java-version JSONassert (re-implemented in Python) by default."
+    )
     def assert_json_contains_with_java(
         self,
         jmespath_expression: Text,
@@ -489,7 +509,7 @@ class StepRequestValidation(object):
         """Equivalent to the JSONassert non-strict mode with java version."""
         self._step_context.validators.append(
             Validator(
-                method="json_contains_with_java",
+                method="json_contains_v2",
                 expression=jmespath_expression,
                 expect=expected_value,
                 message=message,
@@ -497,6 +517,10 @@ class StepRequestValidation(object):
         )
         return self
 
+    @deprecated(
+        "This method is deprecated, use assert_json_equal() instead. "
+        "Validator assert_json_equal() now use java-version JSONassert (re-implemented in Python) by default."
+    )
     def assert_json_equal_with_java(
         self,
         jmespath_expression: Text,
@@ -506,7 +530,7 @@ class StepRequestValidation(object):
         """Equivalent to the JSONassert strict mode with java version."""
         self._step_context.validators.append(
             Validator(
-                method="json_equal_with_java",
+                method="json_equal_v2",
                 expression=jmespath_expression,
                 expect=expected_value,
                 message=message,
@@ -520,8 +544,7 @@ class StepRequestValidation(object):
         expected_value: Union[Callable, Literal["ASC", "DSC"]],
         message: Text = "",
     ) -> "StepRequestValidation":
-        """
-        Assert the list is sorted in some specific order.
+        """Assert the list is sorted in some specific order.
 
         Note:
         1. if expected_value is string 'ASC', the list is expected to be sorted in ascending order
@@ -545,8 +568,7 @@ class StepRequestValidation(object):
         expected_value: Union[tuple[Number, Number], str],
         message: Text = "",
     ) -> "StepRequestValidation":
-        """
-        Return True if the values are close to each other and False otherwise.
+        """Return True if the values are close to each other and False otherwise.
 
         References:
             math.isclose() from https://docs.python.org/3/library/math.html
@@ -603,8 +625,7 @@ class StepRequestValidation(object):
         expected_value: Union[dict, str],
         message: Text = "",
     ) -> "StepRequestValidation":
-        """
-        Assert part of response matches the JSON schema.
+        """Assert part of response matches the JSON schema.
 
         >>> schema = {
         ...     "type" : "object",
@@ -631,8 +652,7 @@ class StepRequestValidation(object):
         expected_value: Union[Type[BaseModel], str],
         message: Text = "",
     ) -> "StepRequestValidation":
-        """
-        Assert part of response matches the pydantic model.
+        """Assert part of response matches the pydantic model.
 
         Note:
             By default extra attributes will be ignored, you can change the behaviour via config `extra`.
@@ -658,8 +678,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_is_truthy(self, jmespath_expression: Text, message: Text = ""):
-        """
-        Assert the value is considered true.
+        """Assert the value is considered true.
 
         Reference: https://docs.python.org/3/library/stdtypes.html#truth-value-testing
         """
@@ -674,8 +693,7 @@ class StepRequestValidation(object):
         return self
 
     def assert_is_falsy(self, jmespath_expression: Text, message: Text = ""):
-        """
-        Assert the value is considered false.
+        """Assert the value is considered false.
 
         Reference: https://docs.python.org/3/library/stdtypes.html#truth-value-testing
         """
@@ -689,6 +707,34 @@ class StepRequestValidation(object):
         )
         return self
 
+    def assert_is_truthy_and_subset(
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
+    ):
+        """Assert actual value is considered true and every element in the actual value is in the expected value."""
+        self._step_context.validators.append(
+            Validator(
+                method="is_truthy_and_subset",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
+        )
+        return self
+
+    def assert_is_truthy_and_superset(
+        self, jmespath_expression: Text, expected_value: Any, message: Text = ""
+    ):
+        """Assert actual value is considered true and every element in the expected value is in the actual value."""
+        self._step_context.validators.append(
+            Validator(
+                method="is_truthy_and_superset",
+                expression=jmespath_expression,
+                expect=expected_value,
+                message=message,
+            )
+        )
+        return self
+
     def assert_lambda(
         self,
         jmespath_expression: Text,
@@ -697,8 +743,7 @@ class StepRequestValidation(object):
         *,
         validator_kwargs: Optional[dict] = None,
     ):
-        """
-        Assert with custom validator.
+        """Assert with custom validator.
 
         The `custom_validator` must be a callable and call `assert` to make the assertion,
         the jmespath searching result will be pass to the callable as the first positional argument,

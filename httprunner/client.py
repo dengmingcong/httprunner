@@ -1,12 +1,11 @@
 import json
 import time
-from datetime import datetime, timedelta, timezone
-from typing import NoReturn
-from pymock import Mock
+from datetime import datetime, timezone
 
 import requests
 import urllib3
 from loguru import logger
+from pymock import Mock
 from requests import Request, Response
 from requests.exceptions import (
     InvalidSchema,
@@ -18,8 +17,7 @@ from requests.structures import CaseInsensitiveDict
 
 from httprunner.builtin import expand_nested_json
 from httprunner.builtin.dictionary import get_sub_dict
-from httprunner.models import RequestData, ResponseData
-from httprunner.models import SessionData, ReqRespData
+from httprunner.models import ReqRespData, RequestData, ResponseData, SessionData
 from httprunner.utils import lower_dict_keys, omit_long_data
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -143,7 +141,7 @@ class HttpSession(requests.Session):
         super(HttpSession, self).__init__()
         self.data = SessionData()
 
-    def update_last_req_resp_record(self, requests_response: Response) -> NoReturn:
+    def update_last_req_resp_record(self, requests_response: Response) -> None:
         """
         update request and response info from Response() object.
         """
@@ -151,7 +149,7 @@ class HttpSession(requests.Session):
         self.data.req_resps.pop()
         self.data.req_resps.append(get_req_resp_record(requests_response))
 
-    def request(self, method, url, name=None, **kwargs) -> Response:
+    def request(self, method, url, name=None, **kwargs: dict) -> Response:
         """
         Constructs and sends a :py:class:`requests.Request`.
         Returns :py:class:`requests.Response` object.
@@ -204,8 +202,8 @@ class HttpSession(requests.Session):
         start_timestamp = time.time()
 
         # set header 'Date' to represent request timestamp
-        now = datetime.now(timezone(timedelta(hours=8)))
-        kwargs["headers"].update({"Date": now.strftime("%Y-%m-%d %H:%M:%S %Z")})
+        now = datetime.now(timezone.utc)
+        kwargs["headers"].update({"Date": now.isoformat(" ")})
 
         requests_response = self._send_request_safe_mode(method, url, **kwargs)
         response_time_ms = round((time.time() - start_timestamp) * 1000, 2)

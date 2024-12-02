@@ -1,9 +1,13 @@
-from typing import Union, Optional
+from typing import Any, Optional, Union
 
 from deepdiff import DeepDiff
 from dotwiz import DotWiz
 
 from httprunner.builtin.jsonassert_formatter import DeepDiffFormatter
+from httprunner.builtin.jsoncomparator.jsonassert import (
+    json_contains_v2,
+    json_equal_v2,
+)
 
 
 def json_assert(
@@ -67,8 +71,8 @@ def json_assert(
 
 
 def json_contains(
-    check_value: Union[dict, list],
-    expect_value: Union[tuple, dict, list],
+    check_value: Any,
+    expect_value: Any,
     message: str = "",
     *,
     ignore_string_type_changes: bool = False,
@@ -76,26 +80,52 @@ def json_contains(
     ignore_type_in_groups: Union[tuple, list[tuple]] = None,
     **other_deepdiff_kwargs,
 ) -> None:
-    """Equivalent to the non-strict mode of java unit test lib JSONassert."""
-    deepdiff_kwargs = {
-        "ignore_string_type_changes": ignore_string_type_changes,
-        "ignore_numeric_type_changes": ignore_numeric_type_changes,
-        "ignore_type_in_groups": ignore_type_in_groups,
-        **other_deepdiff_kwargs,
-    }
+    """Equivalent to the non-strict mode of java unit test lib JSONassert.
 
-    # note: specifying deepdiff arguments in tuple is not recommended, keep it for compatibility
-    if isinstance(expect_value, tuple):
-        if not isinstance(expect_value[1], dict):
-            raise TypeError(
-                "the second element must be a dict if `expect_value` is a tuple"
-            )
-        expect_value, deepdiff_args = expect_value  # the real expect_value
-        deepdiff_kwargs.update(deepdiff_args)
+    By default, use java JSONassert (re-implemented with Python) as the comparator,
+    fallback to deepdiff version if any of the following conditions are met:
+        * ignore_string_type_changes is True
+        * ignore_numeric_type_changes is True
+        * ignore_type_in_groups is not None
+        * other_deepdiff_kwargs is not empty
+        * expected_value is neither a dict nor a list
+        * check_value is neither a dict nor a list
 
-    return json_assert(
-        check_value, expect_value, message, strict=False, **deepdiff_kwargs
-    )
+    The original JSONassert library only supports comparing JSON objects and arrays,
+    but when reimplemented based on deepdiff, it can also compare other types of data,
+    to ensure compatibility, we also support comparing other types of data in this function too.
+    """
+    # fallback to deepdiff version if any of the following conditions are met.
+    if (
+        ignore_string_type_changes
+        or ignore_numeric_type_changes
+        or ignore_type_in_groups
+        or other_deepdiff_kwargs
+        or not isinstance(expect_value, (dict, list))
+        or not isinstance(check_value, (dict, list))
+    ):
+        deepdiff_kwargs = {
+            "ignore_string_type_changes": ignore_string_type_changes,
+            "ignore_numeric_type_changes": ignore_numeric_type_changes,
+            "ignore_type_in_groups": ignore_type_in_groups,
+            **other_deepdiff_kwargs,
+        }
+
+        # note: specifying deepdiff arguments in tuple is not recommended, keep it for compatibility
+        if isinstance(expect_value, tuple):
+            if not isinstance(expect_value[1], dict):
+                raise TypeError(
+                    "the second element must be a dict if `expect_value` is a tuple"
+                )
+            expect_value, deepdiff_args = expect_value  # the real expect_value
+            deepdiff_kwargs.update(deepdiff_args)
+
+        return json_assert(
+            check_value, expect_value, message, strict=False, **deepdiff_kwargs
+        )
+
+    # use java JSONassert (re-implemented with Python) as the comparator
+    json_contains_v2(check_value, expect_value, message)
 
 
 def json_equal(
@@ -108,26 +138,52 @@ def json_equal(
     ignore_type_in_groups: Union[tuple, list[tuple]] = None,
     **other_deepdiff_kwargs,
 ) -> None:
-    """Equivalent to the strict mode of java unit test lib JSONassert."""
-    deepdiff_kwargs = {
-        "ignore_string_type_changes": ignore_string_type_changes,
-        "ignore_numeric_type_changes": ignore_numeric_type_changes,
-        "ignore_type_in_groups": ignore_type_in_groups,
-        **other_deepdiff_kwargs,
-    }
+    """Equivalent to the strict mode of java unit test lib JSONassert.
 
-    # note: specifying deepdiff arguments in tuple is not recommended, keep it for compatibility
-    if isinstance(expect_value, tuple):
-        if not isinstance(expect_value[1], dict):
-            raise TypeError(
-                "the second element must be a dict if `expect_value` is a tuple"
-            )
-        expect_value, deepdiff_args = expect_value  # the real expect_value
-        deepdiff_kwargs.update(deepdiff_args)
+    By default, use java JSONassert (re-implemented with Python) as the comparator,
+    fallback to deepdiff version if any of the following conditions are met:
+        * ignore_string_type_changes is True
+        * ignore_numeric_type_changes is True
+        * ignore_type_in_groups is not None
+        * other_deepdiff_kwargs is not empty
+        * expected_value is neither a dict nor a list
+        * check_value is neither a dict nor a list
 
-    return json_assert(
-        check_value, expect_value, message, strict=True, **deepdiff_kwargs
-    )
+    The original JSONassert library only supports comparing JSON objects and arrays,
+    but when reimplemented based on deepdiff, it can also compare other types of data,
+    to ensure compatibility, we also support comparing other types of data in this function too.
+    """
+    # fallback to deepdiff version if any of the following conditions are met.
+    if (
+        ignore_string_type_changes
+        or ignore_numeric_type_changes
+        or ignore_type_in_groups
+        or other_deepdiff_kwargs
+        or not isinstance(expect_value, (dict, list))
+        or not isinstance(check_value, (dict, list))
+    ):
+        deepdiff_kwargs = {
+            "ignore_string_type_changes": ignore_string_type_changes,
+            "ignore_numeric_type_changes": ignore_numeric_type_changes,
+            "ignore_type_in_groups": ignore_type_in_groups,
+            **other_deepdiff_kwargs,
+        }
+
+        # note: specifying deepdiff arguments in tuple is not recommended, keep it for compatibility
+        if isinstance(expect_value, tuple):
+            if not isinstance(expect_value[1], dict):
+                raise TypeError(
+                    "the second element must be a dict if `expect_value` is a tuple"
+                )
+            expect_value, deepdiff_args = expect_value  # the real expect_value
+            deepdiff_kwargs.update(deepdiff_args)
+
+        return json_assert(
+            check_value, expect_value, message, strict=True, **deepdiff_kwargs
+        )
+
+    # use java JSONassert (re-implemented with Python) as the comparator
+    json_equal_v2(check_value, expect_value, message)
 
 
 def get_json_contains_diff_message(

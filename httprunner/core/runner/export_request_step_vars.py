@@ -1,7 +1,4 @@
-from typing import NoReturn
-
-from httprunner.models import StepData
-from httprunner.models import TStep, JMESPathExtractor
+from httprunner.models import JMESPathExtractor, StepData, TStep
 from httprunner.parser import parse_data
 from httprunner.response import ResponseObject
 
@@ -81,7 +78,7 @@ def export_extracted_variables(
     step_data: StepData,
     session_variables: dict,
     extract_mapping: dict,
-) -> NoReturn:
+) -> None:
     """Export variables, including those extracted from response and those exported from request local variables."""
     step_data.export_vars.update(extract_mapping)
 

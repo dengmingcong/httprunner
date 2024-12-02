@@ -1,11 +1,11 @@
 """
 Built-in validate comparators.
 """
+
 import math
 import re
 from collections import defaultdict
-from typing import Callable, Literal, Iterable, Optional
-from typing import Text, Any, Union, NoReturn
+from typing import Any, Callable, Iterable, Literal, Optional, Text, Union
 
 import jsonschema
 from pydantic import BaseModel
@@ -14,6 +14,10 @@ from httprunner.builtin.jsonassert import (  # noqa
     json_assert,
     json_contains,
     json_equal,
+)
+from httprunner.builtin.jsoncomparator.jsonassert import (  # noqa
+    json_contains_v2,
+    json_equal_v2,
 )
 from httprunner.exceptions import ParamsError
 
@@ -207,8 +211,10 @@ def is_close(
 
 
 def no_keys_duplicate(
-    check_value: list, expect_value: Any, message: str = ""  # noqa
-) -> NoReturn:
+    check_value: list,
+    expect_value: Any,
+    message: str = "",
+) -> None:
     """
     Assert no duplicates in the list specified by `check_value`.
 
@@ -354,6 +360,20 @@ def is_truthy(check_value: Any, expect_value: Any, message: Text = ""):  # noqa
 def is_falsy(check_value: Any, expect_value: Any, message: Text = ""):  # noqa
     """Assert value is falsy."""
     assert not bool(check_value), message
+
+
+def is_truthy_and_subset(
+    check_value: Any, expected_value: Iterable, message: Text = ""
+):
+    """Assert check_value is considered true and every element in check_value is in expected_value."""
+    assert check_value and set(check_value).issubset(set(expected_value)), message
+
+
+def is_truthy_and_superset(
+    check_value: Any, expected_value: Iterable, message: Text = ""
+):
+    """Assert check_value is considered true and every element in expected_value is in check_value."""
+    assert check_value and set(check_value).issuperset(set(expected_value)), message
 
 
 def assert_lambda(

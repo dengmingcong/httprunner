@@ -1,10 +1,8 @@
-from typing import NoReturn
-
 from httprunner.models import TStep
 from httprunner.parser import parse_data
 
 
-def display_delay_in_step_name(step: TStep, functions: dict) -> NoReturn:
+def display_delay_in_step_name(step: TStep, functions: dict) -> None:
     """Display delay in step name."""
     delay_messages = []
 
@@ -23,6 +21,9 @@ def display_delay_in_step_name(step: TStep, functions: dict) -> NoReturn:
         if step.pre_delay_seconds:
             delay_messages.append(f"Sleep Before: {step.pre_delay_seconds} seconds")
 
+            if step.pre_delay_reason:
+                delay_messages.append(f"Reason: {step.pre_delay_reason}")
+
     # display delay after running step
     if step.post_delay_seconds:
         step.post_delay_seconds = parse_data(
@@ -37,6 +38,9 @@ def display_delay_in_step_name(step: TStep, functions: dict) -> NoReturn:
 
         if step.post_delay_seconds:
             delay_messages.append(f"Sleep After: {step.post_delay_seconds} seconds")
+
+            if step.post_delay_reason:
+                delay_messages.append(f"Reason: {step.post_delay_reason}")
 
     # join delay messages with '/', and display at the end of step name (separated by icon ⏱️)
     if delay_messages:

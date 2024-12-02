@@ -1,4 +1,4 @@
-""" upload test extension.
+"""upload test extension.
 
 If you want to use this extension, you should install the following dependencies first.
 
@@ -44,12 +44,12 @@ For compatibility, you can also write upload test script in old way:
 
 import os
 import sys
-from typing import Text, NoReturn
+from typing import NoReturn, Text
 
 from loguru import logger
 
-from httprunner.models import TStep, FunctionsMapping
-from httprunner.parser import parse_variables_mapping, parse_data
+from httprunner.models import FunctionsMapping, TStep
+from httprunner.parser import parse_data, parse_variables_mapping
 
 try:
     import filetype  # noqa
@@ -84,7 +84,7 @@ def get_filetype(file_path):
         return "text/html"
 
 
-def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> "NoReturn":
+def prepare_upload_step(step: TStep, functions: FunctionsMapping) -> None:
     """preprocess for upload test
         replace `upload` info with MultipartEncoder
 
@@ -194,7 +194,6 @@ def multipart_encoder(**kwargs):
     ensure_upload_ready()
     fields_dict = {}
     for key, value in kwargs.items():
-
         if os.path.isabs(value):
             # value is absolute file path
             _file_path = value

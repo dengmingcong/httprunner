@@ -1,13 +1,7 @@
 from copy import deepcopy
-from typing import (
-    Text,
-    NoReturn,
-)
+from typing import Text
 
-from httprunner.models import (
-    TConfig,
-    StableDeepCopyDict,
-)
+from httprunner.models import StableDeepCopyDict, TConfig
 
 
 class Config(object):
@@ -30,7 +24,7 @@ class Config(object):
         return self.__path
 
     @path.setter
-    def path(self, testcase_file_path: Text) -> NoReturn:
+    def path(self, testcase_file_path: Text) -> None:
         self.__path = testcase_file_path
 
     @property

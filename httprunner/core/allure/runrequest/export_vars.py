@@ -1,18 +1,15 @@
 import json
-from typing import NoReturn
 
 import allure
 
-from httprunner.json_encoders import (
-    AllureJSONAttachmentEncoder,
-)
+from httprunner.json_encoders import AllureJSONAttachmentEncoder
 
 
 def save_extract_export_vars(
     extract_mapping: dict,
     exported_vars: dict,
     is_export_extract_same: bool,
-) -> NoReturn:
+) -> None:
     """Save export variables to allure report."""
     # display export only if it is the same as extract
     if is_export_extract_same:
@@ -40,7 +37,7 @@ def save_extract_export_vars(
 
 def save_export_vars(
     exported_vars: dict,
-) -> NoReturn:
+) -> None:
     """Save export variables to allure report."""
     allure.attach(
         json.dumps(

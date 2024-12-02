@@ -111,8 +111,20 @@ class PyProjectTomlKey:
 
 
 class PyProjectToml:
-    """
-    Project meta read from pyproject.toml.
-    """
+    """Project meta read from pyproject.toml."""
 
     http_headers: dict = PyProjectTomlKey("tool.httprunner.http-headers", {})
+    request_timezones: list = PyProjectTomlKey(
+        "tool.httprunner.request-timezones",
+        [
+            {
+                "timezone": "UTC",
+                "format": "%Y-%m-%d %H:%M:%S.%f %z",
+            },
+            {
+                "timezone": "Asia/Shanghai",
+                "format": "%Y-%m-%d %H:%M:%S.%f %z",
+                "flag": "🇨🇳",
+            },
+        ],
+    )

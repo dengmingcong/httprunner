@@ -51,7 +51,7 @@ class DeepDiffFormatter(object):
     def format_type_changes(self):
         """Format 'type_changes'."""
         if "type_changes" in self.ddiff:
-            self.formatted_string += "\nType changes detected:"
+            self.formatted_string += "\n** Type Changes **"
 
             type_changes_list = list(self.ddiff["type_changes"])
             for type_changes in type_changes_list:
@@ -64,17 +64,15 @@ class DeepDiffFormatter(object):
                 t2_type = type(t2).__name__
 
                 self.formatted_string += f"\n  - jmespath: {path}\n"
-                self.formatted_string += (
-                    f"    type expected: {t1_type}, value expected: {t1}\n"
-                )
-                self.formatted_string += f"    type got: {t2_type}, value got: {t2}"
+                self.formatted_string += f"    expected: {t1_type:10} {t1}\n"
+                self.formatted_string += f"         got: {t2_type:10} {t2}"
 
             self.formatted_string += "\n"
 
     def format_values_changed(self):
         """Format 'values_changed'."""
         if "values_changed" in self.ddiff:
-            self.formatted_string += "\nValue changes detected:"
+            self.formatted_string += "\n** Value Changes **"
 
             values_changed_list = list(self.ddiff["values_changed"])
             for value_changed in values_changed_list:
@@ -84,16 +82,16 @@ class DeepDiffFormatter(object):
                 t1 = value_changed.t1
                 t2 = value_changed.t2
 
-                self.formatted_string += (
-                    f"\n    jmespath: {path}, value expected: {t1}, value got: {t2}"
-                )
+                self.formatted_string += f"\n  - jmespath: {path}"
+                self.formatted_string += f"\n    expected: {t1}"
+                self.formatted_string += f"\n         got: {t2}"
 
             self.formatted_string += "\n"
 
     def format_dictionary_item_added(self):
         """Format dictionary_item_added."""
         if "dictionary_item_added" in self.ddiff:
-            self.formatted_string += "\nThese dictionary items are not expected:"
+            self.formatted_string += "\n** Unexpected Items **"
 
             added_dict_items = list(self.ddiff["dictionary_item_added"])
             for added_item in added_dict_items:
@@ -101,14 +99,15 @@ class DeepDiffFormatter(object):
                     added_item.path(output_format="list"), self.ddiff.t2
                 )
                 t2 = added_item.t2
-                self.formatted_string += f"\n    jmespath: {path}, value: {t2}"
+                self.formatted_string += f"\n  - jmespath: {path}"
+                self.formatted_string += f"\n         got: {t2}"
 
             self.formatted_string += "\n"
 
     def format_dictionary_item_removed(self):
         """Format dictionary_item_removed."""
         if "dictionary_item_removed" in self.ddiff:
-            self.formatted_string += "\nThese dictionary items are missing:"
+            self.formatted_string += "\n** Missing Items **"
 
             removed_dict_items = list(self.ddiff["dictionary_item_removed"])
             for removed_item in removed_dict_items:
@@ -117,7 +116,8 @@ class DeepDiffFormatter(object):
                 )
                 t1 = removed_item.t1
                 t1_type = type(t1).__name__
-                self.formatted_string += f"\n    jmespath: {path}, type expected: {t1_type}, value expected: {t1}"
+                self.formatted_string += f"\n  - jmespath: {path}"
+                self.formatted_string += f"\n    expected: {t1_type:10} {t1}\n"
 
             self.formatted_string += "\n"
 
@@ -131,17 +131,17 @@ class DeepDiffFormatter(object):
 
         if parent_path not in self.fail_match_iterable_paths:
             self.fail_match_iterable_paths.append(parent_path)
+            self.formatted_string += f"\n  - jmespath: {parent_path}"
             if len(parent.t1) != len(parent.t2):
                 self.formatted_string += (
-                    f"\n  - jmespath: {parent_path}, expected {len(parent.t1)} "
-                    f"but got {len(parent.t2)}"
+                    f", expected {len(parent.t1)} but got {len(parent.t2)}"
                 )
             if len((t1 := json.dumps(parent.t1, ensure_ascii=False))) > omit_length:
                 t1 = t1[:omit_length] + "..."
             if len((t2 := json.dumps(parent.t2, ensure_ascii=False))) > omit_length:
                 t2 = t2[:omit_length] + "..."
-            self.formatted_string += f"\n    list expected: {t1}"
-            self.formatted_string += f"\n    list got: {t2}"
+            self.formatted_string += f"\n    expected: {t1}"
+            self.formatted_string += f"\n         got: {t2}"
         else:
             return
 
@@ -152,7 +152,7 @@ class DeepDiffFormatter(object):
             or "iterable_item_removed" in self.ddiff
             or "repetition_change" in self.ddiff
         ):
-            self.formatted_string += "\nThese lists are not expected:"
+            self.formatted_string += "\n** Unexpected Lists **"
 
             if "iterable_item_added" in self.ddiff:
                 added_iterable_items = list(self.ddiff["iterable_item_added"])

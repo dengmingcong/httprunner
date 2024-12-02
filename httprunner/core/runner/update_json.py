@@ -1,9 +1,7 @@
-from typing import NoReturn
-
 from httprunner.builtin import update_dict_recursively
 
 
-def update_json(parsed_request_dict: dict) -> NoReturn:
+def update_json(parsed_request_dict: dict) -> None:
     """
     Update request with data from update_json_object.
     """

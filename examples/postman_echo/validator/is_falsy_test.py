@@ -1,8 +1,7 @@
-from httprunner import HttpRunner, Config, Step, RunRequest
+from httprunner import Config, HttpRunner, RunRequest, Step
 
 
 class TestValidatorIsFalsy(HttpRunner):
-
     config = (
         Config("test validate with is_falsy")
         .base_url("https://postman-echo.com")

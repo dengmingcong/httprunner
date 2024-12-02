@@ -1,4 +1,4 @@
-from typing import NoReturn, Optional
+from typing import Optional
 
 import allure
 from loguru import logger
@@ -9,15 +9,11 @@ from httprunner.core.allure.runrequest.validation_result import save_validation_
 from httprunner.core.runner.export_request_step_vars import export_extracted_variables
 from httprunner.core.runner.retry import (
     gen_retry_step_title,
-    is_meet_stop_retry_condition,
     is_final_request,
+    is_meet_stop_retry_condition,
 )
 from httprunner.exceptions import RetryInterruptError, ValidationFailure
-from httprunner.models import (
-    SessionData,
-    TStep,
-    StepData,
-)
+from httprunner.models import SessionData, StepData, TStep
 from httprunner.response import ResponseObject
 
 
@@ -27,7 +23,7 @@ def save_run_request(
     extract_mapping: dict,
     exported_vars: dict,
     is_export_extract_same,
-) -> NoReturn:
+) -> None:
     """Save RunRequest data to allure report."""
     try:
         save_http_session_data(session_data)
@@ -47,7 +43,7 @@ def save_run_request_retry(
     session_variables: dict,
     content_size: int,
     exception: Optional[Exception],
-) -> NoReturn:
+) -> None:
     """Save RunRequest data to allure report."""
     if exception:
         is_pass = False

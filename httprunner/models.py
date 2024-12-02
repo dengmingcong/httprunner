@@ -185,8 +185,10 @@ class TStep(BaseModel):
 
     # HttpRunnerRequest config
     request_config: TRequestConfig = None
-    pre_delay_seconds: int = None  # delay before running step
-    post_delay_seconds: int = None  # delay after running step
+    pre_delay_seconds: Optional[int] = None  # delay before running step
+    pre_delay_reason: Optional[str] = None  # Why the delay is needed.
+    post_delay_seconds: Optional[int] = None  # delay after running step
+    post_delay_reason: Optional[str] = None  # Why the delay is needed.
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
