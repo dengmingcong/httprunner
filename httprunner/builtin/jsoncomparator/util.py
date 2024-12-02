@@ -167,9 +167,15 @@ def is_valid_json_type(value: Any) -> bool:
     JSON simple values are: number, string, boolean, null.
     JSON complex values are: object, array.
 
+    Note: Types inherited from dict such as DotWiz are not considered as valid JSON types.
+
     :param value: the value to check.
     """
-    return isinstance(value, (int, float, str, bool, dict, list)) or value is None
+    return (
+        type(value) is dict
+        or isinstance(value, (int, float, str, bool, list))
+        or value is None
+    )
 
 
 def is_number_but_not_bool(value: Any) -> bool:
