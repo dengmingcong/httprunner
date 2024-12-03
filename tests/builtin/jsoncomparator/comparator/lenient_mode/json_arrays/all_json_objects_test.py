@@ -98,3 +98,11 @@ class TestAllJSONObjects:
             [{"a": 3}, {"a": 2}, {"a": 1}],
         )
         assert result.is_success
+
+        # Not equal.
+        result = self.json_comparator.compare_json(
+            [DotWiz({"a": 1}), DotWiz({"a": 2})],
+            [DotWiz({"a": 1}), DotWiz({"a": 3})],
+        )
+        print(result.fail_messages)
+        assert not result.is_success

@@ -78,3 +78,19 @@ class TestRecursively:
             [DotWiz({"a": 2}), None, [1, 2, 3], {"a": 1}, False, True, "abc", 2.2, 1],
         )
         assert result.is_success
+
+        # Not equal.
+        result = self.json_comparator.compare_json(
+            [
+                1,
+                "abc",
+                True,
+                DotWiz({"a": 1}),
+                [1, 2, 3],
+                None,
+                DotWiz({"a": 2}),
+            ],
+            [DotWiz({"a": 2}), None, [1, 2, 3], {"a": 3}, True, "abc", 1],
+        )
+        print(result.fail_messages)
+        assert not result.is_success
