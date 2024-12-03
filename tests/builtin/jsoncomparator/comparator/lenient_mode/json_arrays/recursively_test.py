@@ -1,3 +1,5 @@
+from dotwiz import DotWiz
+
 from httprunner.builtin.jsoncomparator.comparator import JSONComparator
 
 
@@ -58,4 +60,11 @@ class TestRecursively:
             {"id": 1, "name": "3"},
         ]
         result = self.json_comparator.compare_json(expected, actual)
+        assert result.is_success
+
+    def test_dotwiz(self):
+        result = self.json_comparator.compare_json(
+            [1, 2.2, "abc", True, False, DotWiz({"a": 1}), [1, 2, 3], None, {"a": 2}],
+            [DotWiz({"a": 2}), None, [1, 2, 3], {"a": 1}, False, True, "abc", 2.2, 1],
+        )
         assert result.is_success
