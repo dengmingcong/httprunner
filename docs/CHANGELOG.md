@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v3.47.0 (2024-12-03)
+
+### Feature
+
+* Types inherited from dict or list are valid JSON data type now ([`5db9c5e`](https://fangcun.vesync.cn/testTeam/httprunner/-/commit/5db9c5ee53f5c4b37ed442d6af2e5ac2ce4163b4))
+
 ## v3.46.0 (2024-12-02)
 
 ### Feature
