@@ -33,7 +33,7 @@ def is_all_json_objects_array(json_array: list) -> bool:
     :param json_array: the array to check.
     """
     for item in json_array:
-        if type(item) is not dict:
+        if not isinstance(item, dict):
             return False
 
     return True
@@ -167,14 +167,26 @@ def is_valid_json_type(value: Any) -> bool:
     JSON simple values are: number, string, boolean, null.
     JSON complex values are: object, array.
 
-    Note: Types inherited from dict such as DotWiz are not considered as valid JSON types.
+    Note: Types inherited from dict or list such as DotWiz are considered as valid JSON types too.
 
     :param value: the value to check.
     """
+    return isinstance(value, (int, float, str, bool, dict, list)) or value is None
+
+
+def is_same_json_type(actual: Any, expected: Any) -> bool:
+    """Returns True if the actual and expected values have the same JSON type.
+
+    The result is also right for:
+      - comparing None with a non-None value (they are different types)
+      - comparing True with 1, False with 0 (they are different types)
+
+    For types inherited from dict or list such as DotWiz, their JSON types are equivalent to dict and list.
+    """
     return (
-        type(value) is dict
-        or isinstance(value, (int, float, str, bool, list))
-        or value is None
+        type(actual) is type(expected)
+        or (isinstance(actual, dict) and isinstance(expected, dict))
+        or (isinstance(actual, list) and isinstance(expected, list))
     )
 
 

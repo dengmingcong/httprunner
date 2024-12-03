@@ -4,7 +4,6 @@ import json
 from typing import Any
 
 from httprunner.builtin.jsoncomparator import util
-from httprunner.builtin.jsoncomparator.compat import normalize_dotwiz
 from httprunner.builtin.jsoncomparator.result import JSONCompareResult
 
 
@@ -60,11 +59,8 @@ class JSONComparator:
                 result.add_mismatch_field(prefix, expected, actual)
             return
 
-        # Except numbers, two values to be compared must have the same type.
-        # The result is also right for:
-        #   - comparing None with a non-None value (they are different types)
-        #   - comparing True with 1, False with 0 (they are different types)
-        elif type(expected) is not type(actual):
+        # Except numbers, two values to be compared must have the same JSON type.
+        elif not util.is_same_json_type(actual, expected):
             result.add_mismatch_field(prefix, expected, actual)
             return
 
@@ -75,7 +71,7 @@ class JSONComparator:
             return
 
         # Both are JSON objects, call compare_json_objects.
-        elif type(expected) is dict:
+        elif isinstance(expected, dict):
             self._compare_json_objects(prefix, expected, actual, result)
             return
 
@@ -327,11 +323,11 @@ class JSONComparator:
                     match_found = True
                     break
 
-                # Continue if the data type of the two items are different.
-                elif type(expected_item) is not type(actual_item):
+                # Continue if the JSON data type of the two items are different.
+                elif not util.is_same_json_type(actual_item, expected_item):
                     continue
 
-                # The actual item should have the same data type as the expected item,
+                # The actual item should have the same JSON data type as the expected item,
                 # because data type has been checked above.
                 # Call compare_json() if the the expected item is a JSON object or a JSON array.
                 elif isinstance(expected_item, (dict, list)):
@@ -403,12 +399,6 @@ class JSONComparator:
 
     def compare_json(self, expected: Any, actual: Any) -> JSONCompareResult:
         """Compare two values corresponding to JSON data type."""
-        # Convert dotwiz object to dict.
-        # Do this behavior only in the main entrance for performance considerations,
-        # user should convert dotwiz objects to dict by themselves in other cases.
-        expected = normalize_dotwiz(expected)
-        actual = normalize_dotwiz(actual)
-
         result = JSONCompareResult()
 
         self._compare_field_values("", expected, actual, result)

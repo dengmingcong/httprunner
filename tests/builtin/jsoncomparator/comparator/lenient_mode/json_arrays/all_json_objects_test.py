@@ -80,16 +80,29 @@ class TestAllJSONObjects:
 
     def test_dotwiz(self):
         result = self.json_comparator.compare_json(
+            [DotWiz({"a": 1}), {"a": 2}],
             [DotWiz({"a": 1}), DotWiz({"a": 2})],
-            [{"a": 1}, {"a": 2}],
         )
-        print(result.fail_messages)
-        assert not result.is_success
+        assert result.is_success
 
-        # Switch expected and actual.
+        # Some keys are DotWiz.
         result = self.json_comparator.compare_json(
-            [{"a": 1}, {"a": 2}],
+            [{"a": DotWiz({"b": 1}), "c": 1}, {"a": 2}],
+            [{"a": {"b": 1}, "c": 1}, DotWiz({"a": 2})],
+        )
+        assert result.is_success
+
+        # Unique key is usable.
+        result = self.json_comparator.compare_json(
+            [DotWiz({"a": 1}), DotWiz({"a": 2}), DotWiz({"a": 3})],
+            [{"a": 3}, {"a": 2}, {"a": 1}],
+        )
+        assert result.is_success
+
+        # Not equal.
+        result = self.json_comparator.compare_json(
             [DotWiz({"a": 1}), DotWiz({"a": 2})],
+            [DotWiz({"a": 1}), DotWiz({"a": 3})],
         )
         print(result.fail_messages)
         assert not result.is_success
