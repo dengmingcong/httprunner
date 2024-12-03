@@ -92,3 +92,10 @@ class TestAllJSONObjects:
             ],
         )
         assert result.is_success
+
+        # Unique key is usable.
+        result = self.json_comparator.compare_json(
+            [DotWiz({"a": 1}), DotWiz({"a": 2}), DotWiz({"a": 3})],
+            [{"a": 3}, {"a": 2}, {"a": 1}],
+        )
+        assert result.is_success
