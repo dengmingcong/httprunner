@@ -81,7 +81,7 @@ class TestAllJSONObjects:
     def test_dotwiz(self):
         result = self.json_comparator.compare_json(
             [DotWiz({"a": 1}), {"a": 2}],
-            [{"a": 1}, DotWiz({"a": 2})],
+            [DotWiz({"a": 1}), DotWiz({"a": 2})],
         )
         assert result.is_success
 

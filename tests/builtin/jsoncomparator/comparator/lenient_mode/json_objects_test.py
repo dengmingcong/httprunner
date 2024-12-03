@@ -211,3 +211,9 @@ class TestCompareJSONObjects:
             {"a": 1, "b": DotWiz({"c": 2})}, {"a": 1, "b": {"c": 2}}
         )
         assert result.is_success
+
+        # Both are DotWiz.
+        result = self.json_comparator.compare_json(
+            DotWiz({"a": 1, "b": 2}), DotWiz({"a": 1, "b": 2, "c": 3})
+        )
+        assert result.is_success
