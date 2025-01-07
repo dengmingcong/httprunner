@@ -68,7 +68,7 @@ def get_pyproject_toml_key_value(key: str, default: Any) -> Any:
         config_value = get_from_nested_dict(load_pyproject_toml(), *key_parts)
     except KeyError:
         # Return value specified by `default` if key was not found in pyproject.toml.
-        logger.warning(
+        logger.trace(
             f"key {key} not found in pyproject.toml, the default value {repr(default)} will be used."
         )
         return default
